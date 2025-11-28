@@ -1,0 +1,25 @@
+{
+  "models_used": [
+    "cyp3a4",
+    "herg",
+    "pgp",
+    "sol",
+    "lip",
+    "ames"
+  ],
+  "weights_normalized": {
+    "cyp3a4": 0.2278481012658228,
+    "herg": 0.21518987341772156,
+    "pgp": 0.16455696202531647,
+    "sol": 0.1518987341772152,
+    "lip": 0.1139240506329114,
+    "ames": 0.12658227848101267
+  },
+  "final_score": "0.7*ADMET_aggregate_score + 0.3*mechanistic_score",
+  "confidence_rules": {
+    "H": "support>=3 and ADMET>=0.7",
+    "M": "(support>=2 and ADMET>=0.5) or (multi-entity and ADMET>=0.5)",
+    "L": "otherwise"
+  },
+  "fallback_weights_used": true
+}

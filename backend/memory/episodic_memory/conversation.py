@@ -1,0 +1,201 @@
+from typing import List, Dict, Set, Any, Optional
+from datetime import datetime
+from app.config import logger
+from app.ui.formatters import reconstruct_assistant_response
+from backend.memory.episodic_memory.thread_manager import add_thread_id, generate_new_thread_id
+
+
+async def get_conversation_history_from_database(thread_id: str, app) -> List[Dict]:
+    """Retrieve conversation history from database checkpointer."""
+    try:
+        if app is None:
+            logger.warning("App is None when retrieving conversation history")
+            return []
+            
+        config = {"configurable": {"thread_id": thread_id}}
+        state = await app.aget_state(config)
+        
+        if state and state.values and "messages" in state.values:
+            messages = state.values["messages"]
+            
+            display_messages = []
+            for msg in messages:
+                if hasattr(msg, 'content') and msg.content:
+                    if hasattr(msg, 'type'):
+                        if msg.type == "human":
+                            role = "user"
+                        elif msg.type == "ai":
+                            role = "assistant"
+                        else:
+                            continue
+                    else:
+                        continue
+                    
+                    content = msg.content
+                    if isinstance(content, list):
+                        text_content = ""
+                        for part in content:
+                            if isinstance(part, dict) and part.get("type") == "text":
+                                text_content += part.get("text", "")
+                        content = text_content
+                    
+                    if content:
+                        display_messages.append({
+                            "role": role,
+                            "content": content
+                        })
+            
+            return display_messages
+        
+        return []
+    except Exception as e:
+        logger.error(f"Error retrieving conversation history: {e}")
+        return []
+
+
+def reconstruct_formatted_message_from_database(messages) -> List[Dict]:
+    """Reconstruct formatted assistant messages from raw database messages."""
+    try:
+        formatted_messages = []
+        current_sequence = []
+        
+        for msg in messages:
+            if hasattr(msg, 'type'):
+                if msg.type == "human":
+                    # If we have accumulated AI messages, process them
+                    if current_sequence:
+                        formatted_content = reconstruct_assistant_response(current_sequence)
+                        if formatted_content:
+                            formatted_messages.append({
+                                "role": "assistant", 
+                                "content": formatted_content
+                            })
+                        current_sequence = []
+                    
+                    # Add user message
+                    if hasattr(msg, 'content') and msg.content:
+                        formatted_messages.append({
+                            "role": "user",
+                            "content": msg.content
+                        })
+                
+                elif msg.type in {"ai", "tool"}:
+                    # Accumulate AI messages for processing
+                    current_sequence.append(msg)
+        
+        # Process any remaining AI messages
+        if current_sequence:
+            formatted_content = reconstruct_assistant_response(current_sequence)
+            if formatted_content:
+                formatted_messages.append({
+                    "role": "assistant",
+                    "content": formatted_content
+                })
+        
+        return formatted_messages
+        
+    except Exception as e:
+        logger.error(f"Error reconstructing formatted messages: {e}")
+        return []
+
+
+async def get_processed_message_ids_from_database(thread_id: str, app) -> Set[str]:
+    """Retrieve all message IDs from database to mark as processed."""
+    try:
+        if app is None:
+            logger.warning("App is None when retrieving processed message IDs")
+            return set()
+            
+        config = {"configurable": {"thread_id": thread_id}}
+        state = await app.aget_state(config)
+        
+        processed_ids = set()
+        if state and state.values and "messages" in state.values:
+            messages = state.values["messages"]
+            for msg in messages:
+                msg_id = getattr(msg, "id", None)
+                if msg_id:
+                    processed_ids.add(msg_id)
+        
+        return processed_ids
+    except Exception as e:
+        logger.error(f"Error retrieving processed message IDs: {e}")
+        return set()
+
+
+async def create_new_conversation(user_id: str) -> Dict[str, Any]:
+    """Create a new conversation with a unique thread ID."""
+    if not user_id:
+        raise ValueError("user_id is required to create a conversation")
+    thread_id = generate_new_thread_id(user_id)
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    await add_thread_id(user_id, thread_id, f"Conversation {timestamp}")
+
+    conversation_data = {
+        "thread_id": thread_id,
+        "title": f"Conversation {timestamp}",
+        "created_at": timestamp,
+        "messages": [],
+        "processed_message_ids": set(),
+        "processed_tools_ids": set(),
+    }
+
+    return conversation_data
+
+
+async def load_conversation(thread_id: str, app) -> Dict[str, Any]:
+    """Load a conversation from persistent storage with formatting preserved."""
+    try:
+        if app is None:
+            logger.warning("App is None when loading conversation")
+            return {
+                "thread_id": thread_id,
+                "messages": [],
+                "raw_messages": [],
+                "processed_message_ids": set(),
+                "has_progress_content": False,
+            }
+            
+        config = {"configurable": {"thread_id": thread_id}}
+        state = await app.aget_state(config)
+        
+        messages = []
+        raw_messages = []
+        if state and state.values and "messages" in state.values:
+            raw_messages = state.values["messages"]
+            messages = reconstruct_formatted_message_from_database(raw_messages)
+        
+        if not messages:
+            messages = []
+        
+        processed_message_ids = await get_processed_message_ids_from_database(thread_id, app)
+        
+        has_progress_content = any(
+            msg.get("role") == "assistant" and any(
+                agent.upper() in msg.get("content", "")
+                for agent in ["SUPERVISOR", "RESEARCH_AGENT", "DATA_AGENT", "PREDICTION_AGENT"]
+            )
+            for msg in messages
+        )
+        
+        return {
+            "thread_id": thread_id,
+            "messages": messages,
+            "raw_messages": raw_messages,
+            "processed_message_ids": processed_message_ids,
+            "has_progress_content": has_progress_content,
+        }
+        
+    except Exception as e:
+        logger.error(f"Error loading conversation: {e}")
+        messages = await get_conversation_history_from_database(thread_id, app) if app else []
+        if not messages:
+            messages = []
+        return {
+            "thread_id": thread_id,
+            "messages": messages,
+            "raw_messages": [],
+            "processed_message_ids": set(),
+            "has_progress_content": False,
+        }
