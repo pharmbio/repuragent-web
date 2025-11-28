@@ -8,6 +8,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     JAVA_HOME=/usr/lib/jvm/default-java \
     GRADIO_SERVER_NAME="0.0.0.0" \
     GRADIO_SERVER_PORT=7860
+ENV USER=repuragent
+ENV HOME=/home/$USER
+RUN useradd -m -u 1000 $USER
 
 # Install system dependencies including Java 11
 RUN apt-get update && apt-get install -y \
@@ -34,7 +37,7 @@ RUN java -version
 WORKDIR /app
 
 # Create necessary directories
-RUN mkdir -p /app/data /app/results /app/models
+RUN mkdir -p /app/data /app/results /app/models /app/temp
 
 # Copy requirements first for better caching
 COPY requirements.txt ./
@@ -55,6 +58,7 @@ COPY . .
 # Set proper permissions
 RUN chmod +x models/CPSign/cpsign-2.0.0-fatjar.jar 2>/dev/null || true
 RUN chmod -R 755 /app
+RUN chown -R $USER:$USER /app
 
 # Create volumes for persistent data and memory stores
 VOLUME ["/app/data", "/app/results", "/app/backend/memory"]
@@ -63,4 +67,6 @@ VOLUME ["/app/data", "/app/results", "/app/backend/memory"]
 EXPOSE 7860
 
 # Default command
+USER $USER
+ENV GRADIO_TEMP_DIR="/app/temp"
 CMD ["python", "main.py"]
