@@ -5,7 +5,9 @@ FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
-    JAVA_HOME=/usr/lib/jvm/default-java
+    JAVA_HOME=/usr/lib/jvm/default-java \
+    GRADIO_SERVER_NAME="0.0.0.0" \
+    GRADIO_SERVER_PORT=7860
 
 # Install system dependencies including Java 11
 RUN apt-get update && apt-get install -y \
@@ -59,7 +61,6 @@ VOLUME ["/app/data", "/app/results", "/app/backend/memory"]
 
 # Expose Gradio port
 EXPOSE 7860
-ENV GRADIO_SERVER_NAME="0.0.0.0"
 
 # Default command
 CMD ["python", "main.py"]
