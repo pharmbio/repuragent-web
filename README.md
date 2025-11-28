@@ -1,7 +1,8 @@
 # Repuragent - An AI Scientist for Drug Repurposing
 
-## IMPORTANT
-This branch is a web-app version of the main branch, used to deploy the web app to multiple users.
+## Version announcement
+This version is a web-app version of the Repuragnet, used to deploy the web app to multiple users.
+For a local app setup that runs entirely on your local machine, please refer to [Repuragent Local](https://github.com/pharmbio/repuragent).
 
 ## Overview
 
