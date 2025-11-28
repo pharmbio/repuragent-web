@@ -1618,78 +1618,61 @@ def build_demo():
     #conversation-action-bus {
         display: none !important;
     }
-    """
-    with gr.Blocks(
-        title=APP_TITLE,
-        theme=REPURAGENT_THEME,
-        css=extra_css,
-        head=_CONVERSATION_SCRIPT,
-    ) as demo:
-        state = gr.State()
-
-        with gr.Row(elem_id="app-header"):
-            logo_markup = _logo_html()
-            if logo_markup:
-                with gr.Column(scale=0, min_width=96):
-                    gr.HTML(logo_markup, elem_id="app-logo")
-            with gr.Column(scale=1):
-                gr.HTML(f"<div class='app-title-text'>{APP_TITLE}</div>", elem_id="app-title")
-        gr.HTML(
-            """
-            <style>
-            details.tool-block {
-                border: 1px solid #e5e7eb;
-                border-radius: 8px;
-                padding: 8px 12px;
-                background: #f9fafb;
-                margin: 10px 0;
-            }
-            details.tool-block summary {
-                font-weight: 600;
-                color: #374151;
-                cursor: pointer;
-            }
-            details.tool-block pre {
-                margin: 8px 0 0 0;
-                font-size: 0.95rem;
-                background: #f4f6fb;
-                padding: 12px;
-                border-radius: 8px;
-                overflow-x: auto;
-                white-space: pre-wrap;
-                font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
-            }
-            .tool-code-block {
-                background: #f8fafc;
-                border: 1px solid #e5e7eb;
-                border-radius: 10px;
-                padding: 14px 16px;
-                margin-top: 10px;
-                overflow-x: auto;
-            }
-            .tool-code-label {
-                font-size: 0.75rem;
-                letter-spacing: 0.08em;
-                font-weight: 600;
-                color: #6b7280;
-                margin-bottom: 6px;
-            }
-            .tool-code-block pre {
-                margin: 0;
-                font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
-                font-size: 0.95rem;
-                line-height: 1.5;
-                color: #111827;
-                background: transparent;
-                white-space: pre;
-            }
+    details.tool-block {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 8px 12px;
+        background: #f9fafb;
+        margin: 10px 0;
+    }
+    details.tool-block summary {
+        font-weight: 600;
+        color: #374151;
+        cursor: pointer;
+    }
+    details.tool-block pre {
+        margin: 8px 0 0 0;
+        font-size: 0.95rem;
+        background: #f4f6fb;
+        padding: 12px;
+        border-radius: 8px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+    }
+    .tool-code-block {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-top: 10px;
+        overflow-x: auto;
+    }
+    .tool-code-label {
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+    .tool-code-block pre {
+        margin: 0;
+        font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        color: #111827;
+        background: transparent;
+        white-space: pre;
+    }
     #conversation-list {
         margin-top: 0.5rem;
         font-family: inherit;
         width: 100%;
         display: block;
     }
-    #conversation-list, #conversation-list > div, #conversation-list-root {
+    #conversation-list,
+    #conversation-list > div,
+    #conversation-list-root {
         width: 100%;
         box-sizing: border-box;
     }
@@ -1807,9 +1790,22 @@ def build_demo():
         color: #6b7280;
         margin: 0;
     }
-    </style>
     """
-)
+    with gr.Blocks(
+        title=APP_TITLE,
+        theme=REPURAGENT_THEME,
+        css=extra_css,
+        head=_CONVERSATION_SCRIPT,
+    ) as demo:
+        state = gr.State()
+
+        with gr.Row(elem_id="app-header"):
+            logo_markup = _logo_html()
+            if logo_markup:
+                with gr.Column(scale=0, min_width=96):
+                    gr.HTML(logo_markup, elem_id="app-logo")
+            with gr.Column(scale=1):
+                gr.HTML(f"<div class='app-title-text'>{APP_TITLE}</div>", elem_id="app-title")
 
         with gr.Row(elem_id="layout-row"):
             with gr.Column(scale=1, min_width=280, elem_id="sidebar-column"):
