@@ -1,11 +1,10 @@
 import asyncio
-import os
 import uuid
 from datetime import datetime
 from typing import Dict, List, Optional
 from uuid import UUID
 
-from app.config import logger
+from app.config import DATABASE_URL, logger
 from backend.auth.repository import AuthRepository
 from backend.db.pool import get_async_pool
 
@@ -76,7 +75,7 @@ async def delete_thread_from_postgres(thread_id: str) -> bool:
     max_retries = 3
     retry_delay = 1
 
-    database_url = os.getenv("DATABASE_URL")
+    database_url = DATABASE_URL
     if not database_url:
         logger.warning("DATABASE_URL not set, skipping PostgreSQL deletion")
         return False

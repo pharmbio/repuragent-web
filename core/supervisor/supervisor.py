@@ -6,7 +6,7 @@ from langgraph.graph import START, END
 from langchain_core.messages import HumanMessage
 from langgraph.types import Command
 
-from app.config import logger
+from app.config import OPENAI_API_KEY, logger
 from backend.db import get_async_pool
 from core.agents.prediction_agent import build_prediction_agent
 from core.agents.research_agent import build_research_agent
@@ -18,11 +18,11 @@ from core.prompts.prompts import SUPERVISOR_SYSTEM_PROMPT_ver3
 
 def initialize_agents(llm, user_request: Optional[str] = None, use_episodic_learning: bool = True):
     """Initialize all agents with optional episodic learning for planning agent."""
-    planning_llm = init_chat_model('gpt-4o', model_provider = 'openai')
-    data_llm = init_chat_model('gpt-5', model_provider = 'openai')
-    research_llm = init_chat_model('gpt-5-mini', model_provider = 'openai')
-    prediction_llm = init_chat_model('gpt-4o', model_provider = 'openai')
-    report_llm = init_chat_model('gpt-5', model_provider = 'openai')
+    planning_llm = init_chat_model("gpt-4o", model_provider="openai", api_key=OPENAI_API_KEY)
+    data_llm = init_chat_model("gpt-5", model_provider="openai", api_key=OPENAI_API_KEY)
+    research_llm = init_chat_model("gpt-5-mini", model_provider="openai", api_key=OPENAI_API_KEY)
+    prediction_llm = init_chat_model("gpt-4o", model_provider="openai", api_key=OPENAI_API_KEY)
+    report_llm = init_chat_model("gpt-5", model_provider="openai", api_key=OPENAI_API_KEY)
 
     research_agent = build_research_agent(research_llm)
     data_agent = build_data_agent(data_llm)
@@ -111,7 +111,7 @@ def route_from_start(state) -> Literal["plan", "skip"]:
         return "plan"
 
     # Initialize LLM for routing decision
-    llm = init_chat_model('gpt-4o', model_provider='openai')
+    llm = init_chat_model("gpt-4o", model_provider="openai", api_key=OPENAI_API_KEY)
 
     prompt = (
         "You are a router for an agent workflow.\n"
@@ -213,7 +213,7 @@ def human_chat_node(state):
 
 async def _create_app_with_checkpointer(checkpointer, user_request: Optional[str] = None, use_episodic_learning: bool = True):
     """Create app with the provided checkpointer."""
-    llm = init_chat_model('gpt-5-mini', model_provider = 'openai')
+    llm = init_chat_model("gpt-5-mini", model_provider="openai", api_key=OPENAI_API_KEY)
     
     # Build agents with episodic learning for planning agent
     research_agent, data_agent, prediction_agent, planning_agent, report_agent = initialize_agents(

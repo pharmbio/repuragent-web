@@ -3,7 +3,6 @@ import uuid
 from pathlib import Path
 from typing import List, Dict, Any
 
-from dotenv import load_dotenv
 from unstructured.partition.pdf import partition_pdf
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
@@ -15,18 +14,33 @@ from langchain.retrievers.multi_vector import MultiVectorRetriever
 from langchain.storage import LocalFileStore
 
 import sys
-from pathlib import Path
 
-# Add current directory to path to find config when run from root
-current_dir = Path(__file__).parent
-sys.path.insert(0, str(current_dir))
+# Add current directory (for local SOP config) and project root (for app config) to sys.path
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parents[1]
+for path in (CURRENT_DIR, PROJECT_ROOT):
+    path_str = str(path)
+    if path_str not in sys.path:
+        sys.path.insert(0, path_str)
 
 from config import (
-    SOP_DATA_DIR, CHROMA_PERSIST_PATH, COLLECTION_NAME, ID_KEY, DOCSTORE_PATH,
-    PDF_PROCESSING_CONFIG, LLM_CONFIG, ensure_directories
+    SOP_DATA_DIR,
+    CHROMA_PERSIST_PATH,
+    COLLECTION_NAME,
+    ID_KEY,
+    DOCSTORE_PATH,
+    PDF_PROCESSING_CONFIG,
+    LLM_CONFIG,
+    ensure_directories,
 )
+from app.config import OPENAI_API_KEY
 
-load_dotenv()
+
+def _require_openai_api_key() -> str:
+    """Return the configured OpenAI API key or raise if missing."""
+    if not OPENAI_API_KEY:
+        raise RuntimeError("OPENAI_API_KEY is not configured; cannot index SOP documents.")
+    return OPENAI_API_KEY
 
 def discover_pdf_files(directory: str) -> List[str]:
     """Discover all PDF files in the specified directory."""
@@ -86,7 +100,8 @@ Just give the summary as it is.
 Table or text chunk: {element}
 """
     template = ChatPromptTemplate.from_template(prompt_text_tables)
-    llm = ChatOpenAI(model=LLM_CONFIG['summarization_model'])
+    api_key = _require_openai_api_key()
+    llm = ChatOpenAI(model=LLM_CONFIG["summarization_model"], api_key=api_key)
     return template | llm | StrOutputParser()
 
 def create_image_summarizer() -> RunnableLambda:
@@ -108,18 +123,20 @@ architecture. Be specific about graphs, such as bar plots."""
         )
     ]
     prompt = ChatPromptTemplate.from_messages(messages)
-    return prompt | ChatOpenAI(model=LLM_CONFIG['image_description_model']) | StrOutputParser()
+    api_key = _require_openai_api_key()
+    return prompt | ChatOpenAI(model=LLM_CONFIG["image_description_model"], api_key=api_key) | StrOutputParser()
 
 def create_multi_vector_retriever():
     """Create MultiVectorRetriever with persistent ChromaDB and LocalFileStore."""
     # Ensure directory exists
     ensure_directories()
-    
+    api_key = _require_openai_api_key()
+
     # Create vector store for summaries (search)
     vectorstore = Chroma(
         collection_name=COLLECTION_NAME,
-        embedding_function=OpenAIEmbeddings(),
-        persist_directory=str(CHROMA_PERSIST_PATH)
+        embedding_function=OpenAIEmbeddings(api_key=api_key),
+        persist_directory=str(CHROMA_PERSIST_PATH),
     )
     
     # Create docstore for original content (retrieval)
@@ -180,11 +197,12 @@ def add_content_to_retriever(retriever: MultiVectorRetriever, content: List[Any]
 
 def clear_existing_collection():
     """Clear existing collection and docstore to rebuild from scratch."""
+    api_key = _require_openai_api_key()
     try:
         vectorstore = Chroma(
             collection_name=COLLECTION_NAME,
-            embedding_function=OpenAIEmbeddings(),
-            persist_directory=str(CHROMA_PERSIST_PATH)
+            embedding_function=OpenAIEmbeddings(api_key=api_key),
+            persist_directory=str(CHROMA_PERSIST_PATH),
         )
         vectorstore.delete_collection()
         print("Cleared existing collection")

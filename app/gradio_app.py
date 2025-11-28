@@ -32,6 +32,8 @@ from app.config import (
     UI_CONCURRENCY_LIMIT,
     FILE_DOWNLOAD_SECRET,
     FILE_DOWNLOAD_TOKEN_TTL_SECONDS,
+    GRADIO_SERVER_NAME,
+    GRADIO_SERVER_PORT,
     logger,
 )
 from app.langgraph_runner import build_stream_input, stream_langgraph_events, app_session
@@ -1973,6 +1975,4 @@ def launch():
     fastapi_app.add_event_handler("shutdown", retention_worker.stop)
 
     application = gr.mount_gradio_app(fastapi_app, demo, path="/")
-    server_name = os.environ.get("GRADIO_SERVER_NAME", "0.0.0.0")
-    server_port = int(os.environ.get("GRADIO_SERVER_PORT", "7860"))
-    uvicorn.run(application, host=server_name, port=server_port, log_level="info")
+    uvicorn.run(application, host=GRADIO_SERVER_NAME, port=GRADIO_SERVER_PORT, log_level="info")

@@ -15,7 +15,7 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from langmem import create_memory_manager
 from pydantic import BaseModel, Field
 
-from app.config import MEMORY_DIR, logger
+from app.config import MEMORY_DIR, OPENAI_API_KEY, logger
 from backend.db import get_async_pool
 from backend.memory.episodic_memory.thread_manager import load_thread_ids
 from core.prompts.prompts import SUPERVISOR_SYSTEM_PROMPT_ver3
@@ -70,11 +70,15 @@ class EpisodicLearningSystem:
     def _setup_llm(self):
         """Initialize LLM and LangMem for episode extraction."""
         try:
-            self.llm = init_chat_model(self.config['extraction_model'])
+            self.llm = init_chat_model(
+                self.config["extraction_model"],
+                model_provider="openai",
+                api_key=OPENAI_API_KEY,
+            )
             
             # Initialize LangMem memory manager with TaskDecompositionEpisode schema
             self.memory_manager = create_memory_manager(
-                self.config['extraction_model'],
+                self.llm,
                 schemas=[TaskDecompositionEpisode],
                 instructions="""Extract examples of successful task planning interactions. Include 
                 the context and how the supervisor decomposed the task. The task 

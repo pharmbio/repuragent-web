@@ -2,7 +2,6 @@ import os
 from base64 import b64decode
 from typing import List, Dict, Any
 
-from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -15,20 +14,36 @@ from langchain.storage import LocalFileStore
 import sys
 from pathlib import Path
 
-# Add current directory to path to find config when run from root
-current_dir = Path(__file__).parent
-sys.path.insert(0, str(current_dir))
+# Ensure we can import both the SOP config (local) and global app config
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parents[1]
+for path in (CURRENT_DIR, PROJECT_ROOT):
+    path_str = str(path)
+    if path_str not in sys.path:
+        sys.path.insert(0, path_str)
 
 from config import (
-    CHROMA_PERSIST_PATH, COLLECTION_NAME, LLM_CONFIG, RETRIEVAL_CONFIG, ID_KEY, DOCSTORE_PATH
+    CHROMA_PERSIST_PATH,
+    COLLECTION_NAME,
+    LLM_CONFIG,
+    RETRIEVAL_CONFIG,
+    ID_KEY,
+    DOCSTORE_PATH,
 )
+from app.config import OPENAI_API_KEY
 
-load_dotenv()
+
+def _require_openai_api_key() -> str:
+    """Return the configured OpenAI API key or raise if missing."""
+    if not OPENAI_API_KEY:
+        raise RuntimeError("OPENAI_API_KEY is not configured; cannot run SOP retrieval.")
+    return OPENAI_API_KEY
 
 class SOPRetriever:
     def __init__(self):
         self.retriever = None
         self.rag_chain = None
+        self._api_key = _require_openai_api_key()
         self._initialize()
     
     def _initialize(self):
@@ -49,8 +64,8 @@ class SOPRetriever:
         # Create vector store
         vectorstore = Chroma(
             collection_name=COLLECTION_NAME,
-            embedding_function=OpenAIEmbeddings(),
-            persist_directory=str(CHROMA_PERSIST_PATH)
+            embedding_function=OpenAIEmbeddings(api_key=self._api_key),
+            persist_directory=str(CHROMA_PERSIST_PATH),
         )
         
         # Check if collection has documents
@@ -86,7 +101,7 @@ class SOPRetriever:
         } | RunnablePassthrough().assign(
             response=(
                 RunnableLambda(self._build_prompt)
-                | ChatOpenAI(model=LLM_CONFIG['rag_response_model'])
+                | ChatOpenAI(model=LLM_CONFIG["rag_response_model"], api_key=self._api_key)
                 | StrOutputParser()
             )
         )

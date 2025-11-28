@@ -6,9 +6,10 @@ from langchain_core.tools import tool
 from langchain.chat_models import init_chat_model
 from langgraph.prebuilt import create_react_agent
 
-from app.config import logger
+from app.config import OPENAI_API_KEY, logger
 from core.prompts.prompts import FILE_SEARCH_SYSTEM
-llm = init_chat_model('gpt-4o')
+
+llm = init_chat_model("gpt-4o", api_key=OPENAI_API_KEY)
 
 @tool
 def fuzzy_file_search(fuzzy_str: str, file_types: str = "csv"):
