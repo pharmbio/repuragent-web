@@ -59,43 +59,7 @@ VOLUME ["/app/data", "/app/results", "/app/backend/memory"]
 
 # Expose Gradio port
 EXPOSE 7860
+ENV GRADIO_SERVER_NAME="0.0.0.0"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:7860/ || exit 1
-
-# Create entrypoint script
-COPY <<EOF /app/entrypoint.sh
-#!/bin/bash
-set -e
-
-# Check Java installation
-echo "Java version:"
-java -version
-
-# Check CPSign jar file
-if [ -f "/app/models/CPSign/cpsign-2.0.0-fatjar.jar" ]; then
-    echo "CPSign jar file found"
-else
-    echo "Warning: CPSign jar file not found at /app/models/CPSign/cpsign-2.0.0-fatjar.jar"
-fi
-
-# Check if models directory has the required model files
-if [ -d "/app/models" ] && [ "$(ls -A /app/models)" ]; then
-    echo "Model files found: \$(ls /app/models | wc -l) files"
-else
-    echo "Warning: No model files found in /app/models"
-fi
-
-# Start the application
-echo "Starting Repuragent application..."
-cd /app
-export GRADIO_SERVER_NAME="0.0.0.0"
-export GRADIO_SERVER_PORT="${PORT:-7860}"
-python main.py
-EOF
-
-RUN chmod +x /app/entrypoint.sh
-
-# Set the entrypoint
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Default command
+CMD ["python", "main.py"]
