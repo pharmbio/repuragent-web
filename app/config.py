@@ -30,7 +30,7 @@ AUTH_SESSION_COOKIE = os.environ.get("AUTH_SESSION_COOKIE", "repuragent_session"
 AUTH_SESSION_COOKIE_SECURE = os.environ.get("AUTH_SESSION_COOKIE_SECURE", "false").lower() == "true"
 AUTH_PEPPER = os.environ.get("AUTH_PEPPER", "")
 EMAIL_SENDER = os.environ.get("EMAIL_SENDER", "repuragent.uu@gmail.com")
-EMAIL_BASE_URL = os.environ.get("EMAIL_BASE_URL", "http://localhost:7860")
+EMAIL_BASE_URL = os.environ.get("EMAIL_BASE_URL", "https://repuragent.serve.scilifelab.se")
 EMAIL_PROVIDER_API_KEY = os.environ.get("EMAIL_PROVIDER_API_KEY")
 EMAIL_PROVIDER_API_URL = os.environ.get("EMAIL_PROVIDER_API_URL", "smtp://smtp.gmail.com:587")
 EMAIL_PROVIDER_USERNAME = os.environ.get("EMAIL_PROVIDER_USERNAME", "repuragent.uu@gmail.com")
