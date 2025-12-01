@@ -12,9 +12,9 @@ def get_data_root() -> Path:
     """
     Return the configured data directory.
 
-    Falls back to the repository-local ``data`` folder if the ``DATA_ROOT``
+    Falls back to the repository-local ``persistence/data`` folder if the ``DATA_ROOT``
     environment variable is not provided.
     """
-    root = Path(os.environ.get("DATA_ROOT", "data"))
+    root = Path(os.environ.get("DATA_ROOT", "persistence/data"))
     root.mkdir(parents=True, exist_ok=True)
     return root

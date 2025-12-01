@@ -44,12 +44,12 @@ from app.ui.chat_timeline import (
     rebuild_from_plain_messages,
     rebuild_from_raw_messages,
 )
-from backend.memory.episodic_memory.conversation import (
+from persistence.memory.episodic_memory.conversation import (
     create_new_conversation,
     load_conversation,
 )
-from backend.memory.episodic_memory.episodic_learning import get_orchestrator
-from backend.memory.episodic_memory.thread_manager import (
+from persistence.memory.episodic_memory.episodic_learning import get_orchestrator
+from persistence.memory.episodic_memory.thread_manager import (
     aload_thread_ids,
     remove_thread_id,
     update_thread_title,

@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 
 from app.config import MEMORY_DIR, OPENAI_API_KEY, logger
 from backend.db import get_async_pool
-from backend.memory.episodic_memory.thread_manager import load_thread_ids
+from .thread_manager import load_thread_ids
 from core.prompts.prompts import SUPERVISOR_SYSTEM_PROMPT_ver3
 
 

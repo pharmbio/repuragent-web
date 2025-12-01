@@ -2,7 +2,7 @@ from typing import List, Dict, Set, Any, Optional
 from datetime import datetime
 from app.config import logger
 from app.ui.formatters import reconstruct_assistant_response
-from backend.memory.episodic_memory.thread_manager import add_thread_id, generate_new_thread_id
+from .thread_manager import add_thread_id, generate_new_thread_id
 
 
 async def get_conversation_history_from_database(thread_id: str, app) -> List[Dict]:

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY",'sk-***')
 
 # Memory directory setup
-MEMORY_DIR = Path(os.environ.get("MEMORY_ROOT", "backend/memory"))
+MEMORY_DIR = Path(os.environ.get("MEMORY_ROOT", "persistence/memory"))
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 DEMO_THREADS_FILE = MEMORY_DIR / "demo_threads.json"
 

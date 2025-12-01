@@ -4,7 +4,7 @@ from langgraph.prebuilt import create_react_agent
 
 from app.config import logger
 from core.prompts.prompts import PLANNING_SYSTEM_PROMPT_ver3
-from backend.memory.episodic_memory.episodic_learning import get_orchestrator
+from persistence.memory.episodic_memory.episodic_learning import get_orchestrator
 from backend.utils.research_tools import literature_search_pubmed, protocol_search_sop
 
 

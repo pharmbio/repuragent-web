@@ -7,7 +7,7 @@ from backend.utils.storage_paths import get_data_root
 BASE_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = get_data_root()
 _memory_root = os.environ.get("MEMORY_ROOT")
-MEMORY_DIR = Path(_memory_root) if _memory_root else BASE_DIR / "backend" / "memory"
+MEMORY_DIR = Path(_memory_root) if _memory_root else BASE_DIR / "persistence" / "memory"
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 
 # SOP specific paths
