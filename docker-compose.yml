@@ -8,10 +8,10 @@ services:
     ports:
       - "7860:7860"
     volumes:
-      - ./data:/app/data
-      - ./results:/app/results
+      - ./data:/home/repuragent/project-vol/data
+      - ./results:/home/repuragent/project-vol/results
       - ./.env:/app/.env
-      - ./backend/memory:/app/backend/memory
+      - ./backend/memory:/home/repuragent/project-vol/backend/memory
     environment:
       - PYTHONPATH=/app
     restart: unless-stopped

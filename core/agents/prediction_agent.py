@@ -14,6 +14,9 @@ from app.config import logger
 from core.prompts.prompts import PREDICTION_SYSTEM_PROMPT_ver3
 from backend.utils.fuzzy_path import prompt_with_file_path
 from backend.utils.output_paths import task_file_path
+from backend.utils.storage_paths import get_data_root
+
+DATA_ROOT = get_data_root()
 
 
 def smiles_csv(smiles_input: Union[str, List[str]]) -> Union[str, os.PathLike]:
@@ -60,10 +63,10 @@ def smiles_csv(smiles_input: Union[str, List[str]]) -> Union[str, os.PathLike]:
     df = pd.DataFrame(smiles_list, columns=["smiles"])
 
     # Export to temporary file
-    output_path = "data/modelling_data.csv"
+    output_path = DATA_ROOT / "modelling_data.csv"
     df.to_csv(output_path, index=False)
 
-    return output_path
+    return str(output_path)
 
 def format_clf_label(label):
     if label == "{0}":

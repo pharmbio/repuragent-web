@@ -65,10 +65,10 @@ from backend.utils.output_paths import (
     set_current_user_id,
     reset_current_user_id,
 )
+from backend.utils.storage_paths import get_data_root
 
 
-DATA_DIR = Path("data")
-DATA_DIR.mkdir(exist_ok=True)
+DATA_DIR = get_data_root()
 
 RESULTS_DIR = get_results_root()
 ALLOWED_DOWNLOAD_ROOTS = (DATA_DIR.resolve(), RESULTS_DIR.resolve())

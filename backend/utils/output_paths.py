@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import contextvars
+import os
 import shutil
 from pathlib import Path
 from typing import List, Optional
 
-RESULTS_ROOT = Path("results")
+RESULTS_ROOT = Path(os.environ.get("RESULTS_ROOT", "results"))
 RESULTS_ROOT.mkdir(parents=True, exist_ok=True)
 
 _task_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(

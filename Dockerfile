@@ -10,6 +10,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     GRADIO_SERVER_PORT=7860
 ENV USER=repuragent
 ENV HOME=/home/$USER
+ENV PERSIST_ROOT=/home/$USER/project-vol
+ENV DATA_ROOT=${PERSIST_ROOT}/data
+ENV RESULTS_ROOT=${PERSIST_ROOT}/results
+ENV MEMORY_ROOT=${PERSIST_ROOT}/backend/memory
+ENV GRADIO_TEMP_DIR=${PERSIST_ROOT}/temp
 RUN useradd -m -u 1000 $USER
 
 # Install system dependencies including Java 11
@@ -55,18 +60,21 @@ PY
 # Copy the entire application
 COPY . .
 
+# Prepare persistent directories
+RUN mkdir -p ${DATA_ROOT} ${RESULTS_ROOT} ${MEMORY_ROOT} ${GRADIO_TEMP_DIR}
+
 # Set proper permissions
 RUN chmod +x models/CPSign/cpsign-2.0.0-fatjar.jar 2>/dev/null || true
 RUN chmod -R 755 /app
 RUN chown -R $USER:$USER /app
 
 # Create volumes for persistent data and memory stores
-VOLUME ["/app/data", "/app/results", "/app/backend/memory"]
+VOLUME ["/home/repuragent/project-vol/data", "/home/repuragent/project-vol/results", "/home/repuragent/project-vol/backend/memory"]
 
 # Expose Gradio port
 EXPOSE 7860
 
 # Default command
 USER $USER
-ENV GRADIO_TEMP_DIR="/app/temp"
+
 CMD ["python", "main.py"]

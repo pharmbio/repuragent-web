@@ -15,6 +15,10 @@ import pandas as pd
 from tqdm.auto import tqdm
 from pandasgwas.get_variants import get_variants_by_efo_id
 
+from backend.utils.storage_paths import get_data_root
+
+DATA_ROOT = get_data_root()
+
 logger = logging.getLogger(__name__)
 
 
@@ -757,7 +761,7 @@ def gene_ontology_annotation(graph,uprotDict):
     return(graph)
     
 def protein_annotation_druggability(graph):
-    df = pd.read_csv('data/api_related_data/DruggableProtein_annotation_OT.csv')
+    df = pd.read_csv(DATA_ROOT / "api_related_data" / "DruggableProtein_annotation_OT.csv")
     protein_list = []
     for node in graph.nodes():
         if isinstance(node,pybel.dsl.Protein):
@@ -879,7 +883,7 @@ def getDrugsforProteins(prot_list):
 
     api_response = pd.DataFrame()
         
-    df = pd.read_csv('data/api_related_data/DruggableProtein_annotation_OT.csv')
+    df = pd.read_csv(DATA_ROOT / "api_related_data" / "DruggableProtein_annotation_OT.csv")
     
     mapping_dict_id_symbol = {}
     for k,v in df[['approvedSymbol','ENSG']].values:

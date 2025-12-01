@@ -1,10 +1,14 @@
 import os
 from pathlib import Path
 
-# Base paths - now works from project root where experiments.ipynb is located
-BASE_DIR = Path(__file__).parent.parent.parent  # Project root (where experiments.ipynb is)
-DATA_DIR = BASE_DIR / "data"
-MEMORY_DIR = BASE_DIR / "backend" / "memory"
+from backend.utils.storage_paths import get_data_root
+
+# Base paths
+BASE_DIR = Path(__file__).parent.parent.parent
+DATA_DIR = get_data_root()
+_memory_root = os.environ.get("MEMORY_ROOT")
+MEMORY_DIR = Path(_memory_root) if _memory_root else BASE_DIR / "backend" / "memory"
+MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 
 # SOP specific paths
 SOP_DATA_DIR = DATA_DIR / "SOP"
