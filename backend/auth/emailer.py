@@ -3,20 +3,17 @@
 from __future__ import annotations
 
 import logging
-import smtplib
-from email.message import EmailMessage
-from typing import Optional
-from urllib.parse import urlparse
 
-import requests
+try:
+    from sendgrid import SendGridAPIClient
+    from sendgrid.helpers.mail import ClickTracking, Mail, TrackingSettings
+except ImportError:  # pragma: no cover - optional dependency
+    SendGridAPIClient = None
+    Mail = None
+    TrackingSettings = None
+    ClickTracking = None
 
-from app.config import (
-    EMAIL_BASE_URL,
-    EMAIL_PROVIDER_API_KEY,
-    EMAIL_PROVIDER_API_URL,
-    EMAIL_PROVIDER_USERNAME,
-    EMAIL_SENDER,
-)
+from app.config import EMAIL_BASE_URL, EMAIL_SENDER, SENDGRID_API_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +22,7 @@ class EmailService:
     def __init__(self) -> None:
         self.base_url = EMAIL_BASE_URL.rstrip("/")
         self.sender = EMAIL_SENDER
-        self.api_url = EMAIL_PROVIDER_API_URL
-        self.api_key = EMAIL_PROVIDER_API_KEY
-        self.username = EMAIL_PROVIDER_USERNAME or self.sender
+        self.api_key = SENDGRID_API_KEY
 
     def send_verification(self, recipient: str, token: str) -> None:
         link = f"{self.base_url}/verify?token={token}"
@@ -54,62 +49,42 @@ class EmailService:
         self._dispatch(recipient, subject, body)
 
     def _dispatch(self, recipient: str, subject: str, body: str) -> None:
-        if not self.api_url:
-            logger.warning("Email provider not configured; logging message instead.")
-            logger.info("Email to %s\nSubject: %s\n%s", recipient, subject, body)
-            return
-
-        parsed = urlparse(self.api_url)
-        scheme = (parsed.scheme or "").lower()
-        if scheme in {"smtp", "smtps"}:
-            self._send_via_smtp(parsed, recipient, subject, body)
-            return
-
         if not self.api_key:
-            logger.warning("Email API key missing; logging message instead.")
+            logger.warning("SendGrid API key missing; logging message instead.")
             logger.info("Email to %s\nSubject: %s\n%s", recipient, subject, body)
             return
 
-        payload = {
-            "from": self.sender,
-            "to": recipient,
-            "subject": subject,
-            "text": body,
-        }
-        headers = {"Authorization": f"Bearer {self.api_key}"}
-        try:
-            response = requests.post(self.api_url, json=payload, headers=headers, timeout=10)
-            response.raise_for_status()
-        except requests.RequestException as exc:
-            logger.error("Failed to send email: %s", exc)
+        self._send_via_sendgrid(recipient, subject, body)
 
-    def _send_via_smtp(self, parsed, recipient: str, subject: str, body: str) -> None:
-        host = parsed.hostname
-        if not host:
-            logger.error("SMTP URL missing hostname: %s", self.api_url)
-            return
-        port = parsed.port or (465 if parsed.scheme.lower() == "smtps" else 587)
-        username = parsed.username or self.username
-        password = parsed.password or self.api_key
-        if not password:
-            logger.error("SMTP password/API key missing; cannot send email")
+    def _send_via_sendgrid(self, recipient: str, subject: str, body: str) -> None:
+        if not SendGridAPIClient or not Mail:
+            logger.error("SendGrid SDK not available; cannot send email.")
             return
 
-        msg = EmailMessage()
-        msg["From"] = self.sender
-        msg["To"] = recipient
-        msg["Subject"] = subject
-        msg.set_content(body)
+        message = Mail(
+            from_email=self.sender,
+            to_emails=recipient,
+            subject=subject,
+            plain_text_content=body,
+        )
+        if TrackingSettings and ClickTracking:
+            message.tracking_settings = TrackingSettings(
+                click_tracking=ClickTracking(enable=False, enable_text=False)
+            )
 
         try:
-            if parsed.scheme.lower() == "smtps" or port == 465:
-                with smtplib.SMTP_SSL(host, port) as smtp:
-                    smtp.login(username, password)
-                    smtp.send_message(msg)
-            else:
-                with smtplib.SMTP(host, port) as smtp:
-                    smtp.starttls()
-                    smtp.login(username, password)
-                    smtp.send_message(msg)
+            client = SendGridAPIClient(self.api_key)
+            response = client.send(message)
         except Exception as exc:  # pragma: no cover - network
-            logger.error("Failed to send email via SMTP: %s", exc)
+            logger.error("Failed to send email via SendGrid: %s", exc)
+            return
+
+        status = getattr(response, "status_code", None)
+        body_bytes = getattr(response, "body", b"")
+        if status and status >= 400:
+            detail = (
+                body_bytes.decode("utf-8", errors="ignore")
+                if isinstance(body_bytes, (bytes, bytearray))
+                else body_bytes
+            )
+            logger.error("SendGrid API responded with %s: %s", status, detail)

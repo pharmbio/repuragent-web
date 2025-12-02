@@ -29,6 +29,7 @@ aiosqlite==0.20.0
 argon2-cffi==23.1.0
 PyJWT==2.10.1
 email-validator==2.2.0
+sendgrid==6.12.5
 uvicorn==0.32.1
 
 # Chemistry and bioinformatics - exact versions
