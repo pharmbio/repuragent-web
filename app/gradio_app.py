@@ -95,6 +95,17 @@ INTRO_MARKDOWN = (
 )
 
 INTRO_SKIP_TEXTS = {INTRO_MARKDOWN.strip()}
+HEADER_LINKS_HTML = """
+<div class="header-links-content">
+    <a class="header-link" href="https://github.com/pharmbio/repuragent" target="_blank" rel="noopener noreferrer">
+        GitHub
+    </a>
+    <span class="header-link-divider" aria-hidden="true">|</span>
+    <a class="header-link" href="https://repuragent.readthedocs.io/" target="_blank" rel="noopener noreferrer">
+        User guide
+    </a>
+</div>
+"""
 PASSWORD_MIN_LENGTH = 8
 
 
@@ -269,6 +280,11 @@ def _guard_and_warn(state: UIState) -> Optional[str]:
 
 def _logout_visibility(state: Optional[UIState]):
     visible = bool(state and state.is_authenticated)
+    return gr.update(visible=visible)
+
+
+def _login_visibility(state: Optional[UIState]):
+    visible = not (state and state.is_authenticated)
     return gr.update(visible=visible)
 
 
@@ -643,9 +659,19 @@ async def on_register(email: str, password: str, confirm: str, state: UIState):
     password = password or ""
     confirm = confirm or ""
     if not email or not password:
-        return state, _auth_message("Email and password are required", success=False), _logout_visibility(state)
+        return (
+            state,
+            _auth_message("Email and password are required", success=False),
+            _logout_visibility(state),
+            _login_visibility(state),
+        )
     if password != confirm:
-        return state, _auth_message("Passwords do not match", success=False), _logout_visibility(state)
+        return (
+            state,
+            _auth_message("Passwords do not match", success=False),
+            _logout_visibility(state),
+            _login_visibility(state),
+        )
     try:
         _validate_password_strength(password)
         await AUTH_SERVICE.register_user(email, password)
@@ -653,9 +679,15 @@ async def on_register(email: str, password: str, confirm: str, state: UIState):
             state,
             _auth_message("Registration successful! Please verify your email to continue."),
             _logout_visibility(state),
+            _login_visibility(state),
         )
     except ValueError as exc:
-        return state, _auth_message(str(exc), success=False), _logout_visibility(state)
+        return (
+            state,
+            _auth_message(str(exc), success=False),
+            _logout_visibility(state),
+            _login_visibility(state),
+        )
 
 
 async def on_login(email: str, password: str, state: UIState):
@@ -670,6 +702,7 @@ async def on_login(email: str, password: str, state: UIState):
             _logout_visibility(state),
             _conversation_panel_update(state),
             list(state.messages),
+            _login_visibility(state),
         )
     try:
         user = await AUTH_SERVICE.login(email, password)
@@ -685,6 +718,7 @@ async def on_login(email: str, password: str, state: UIState):
             _logout_visibility(state),
             _conversation_panel_update(state),
             list(state.messages),
+            _login_visibility(state),
         )
     except ValueError as exc:
         _reset_user_state(state)
@@ -694,6 +728,7 @@ async def on_login(email: str, password: str, state: UIState):
             _logout_visibility(state),
             _conversation_panel_update(state),
             list(state.messages),
+            _login_visibility(state),
         )
 
 
@@ -707,6 +742,7 @@ async def on_logout(state: UIState):
         _logout_visibility(state),
         _conversation_panel_update(state),
         list(state.messages),
+        _login_visibility(state),
     )
 
 
@@ -715,12 +751,18 @@ async def on_request_password_reset(email: str, state: UIState):
         state = _initialize_state()
     target_email = (email or state.user_email or "").strip()
     if not target_email:
-        return state, _auth_message("Enter your account email", success=False), _logout_visibility(state)
+        return (
+            state,
+            _auth_message("Enter your account email", success=False),
+            _logout_visibility(state),
+            _login_visibility(state),
+        )
     await AUTH_SERVICE.send_password_reset(target_email)
     return (
         state,
         _auth_message("If the account exists, a reset email is on the way."),
         _logout_visibility(state),
+        _login_visibility(state),
     )
 
 
@@ -1093,6 +1135,7 @@ async def on_app_load():
     approve_update = gr.update(visible=state.waiting_for_approval)
     auth_status = _auth_status_text(state)
     logout_update = _logout_visibility(state)
+    login_update = _login_visibility(state)
     return (
         state,
         auth_status,
@@ -1102,6 +1145,7 @@ async def on_app_load():
         state.use_episodic_learning,
         gr.update(value=""),
         gr.update(value=""),
+        login_update,
     )
 
 
@@ -1575,6 +1619,38 @@ def build_demo():
         line-height: 1;
         margin: 0;
     }
+    #header-links-column {
+        margin-left: auto;
+        padding: 0 !important;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+    #header-links {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        font-weight: 600;
+        font-size: 1.1rem;
+        text-transform: none;
+    }
+    #header-links .header-link {
+        color: #1f2937;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        white-space: nowrap;
+    }
+    #header-links .header-link-divider {
+        color: #9ca3af;
+        font-weight: 400;
+        padding: 0 1.25rem;
+        user-select: none;
+    }
+    #header-links .header-link:hover,
+    #header-links .header-link:focus {
+        color: #1f5c55;
+        text-decoration: underline;
+    }
     #intro-text {
         margin: 0 0 0.75rem 0 !important;
         padding: 0;
@@ -1806,6 +1882,8 @@ def build_demo():
                     gr.HTML(logo_markup, elem_id="app-logo")
             with gr.Column(scale=1):
                 gr.HTML(f"<div class='app-title-text'>{APP_TITLE}</div>", elem_id="app-title")
+            with gr.Column(scale=0, min_width=200, elem_id="header-links-column"):
+                gr.HTML(HEADER_LINKS_HTML, elem_id="header-links")
 
         with gr.Row(elem_id="layout-row"):
             with gr.Column(scale=1, min_width=280, elem_id="sidebar-column"):
@@ -1872,6 +1950,7 @@ def build_demo():
                 use_learning,
                 user_input,
                 conversation_action_bus,
+                login_btn,
             ],
         )
 
@@ -1897,25 +1976,25 @@ def build_demo():
         login_btn.click(
             on_login,
             inputs=[login_email, login_password, state],
-            outputs=[state, auth_status_md, logout_btn, conversation_list, chatbot],
+            outputs=[state, auth_status_md, logout_btn, conversation_list, chatbot, login_btn],
         )
 
         register_btn.click(
             on_register,
             inputs=[register_email, register_password, register_confirm, state],
-            outputs=[state, auth_status_md, logout_btn],
+            outputs=[state, auth_status_md, logout_btn, login_btn],
         )
 
         reset_request_btn.click(
             on_request_password_reset,
             inputs=[reset_request_email, state],
-            outputs=[state, auth_status_md, logout_btn],
+            outputs=[state, auth_status_md, logout_btn, login_btn],
         )
 
         logout_btn.click(
             on_logout,
             inputs=state,
-            outputs=[state, auth_status_md, logout_btn, conversation_list, chatbot],
+            outputs=[state, auth_status_md, logout_btn, conversation_list, chatbot, login_btn],
         )
 
         new_task_btn.click(
