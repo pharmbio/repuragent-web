@@ -1578,6 +1578,14 @@ def build_demo():
     extra_css = """
     :root {
         --app-font: "Inter", "Helvetica Neue", Arial, sans-serif;
+        --header-link-color: #1f2937;
+        --header-link-divider-color: #9ca3af;
+        --header-link-hover-color: #1f5c55;
+    }
+    body.dark {
+        --header-link-color: #f8fafc;
+        --header-link-divider-color: rgba(248, 250, 252, 0.65);
+        --header-link-hover-color: #9fc3b2;
     }
     body,
     .gradio-container,
@@ -1633,22 +1641,23 @@ def build_demo():
         font-weight: 600;
         font-size: 1.1rem;
         text-transform: none;
+        color: var(--header-link-color);
     }
     #header-links .header-link {
-        color: #1f2937;
+        color: inherit;
         text-decoration: none;
         transition: color 0.2s ease;
         white-space: nowrap;
     }
     #header-links .header-link-divider {
-        color: #9ca3af;
+        color: var(--header-link-divider-color);
         font-weight: 400;
         padding: 0 1.25rem;
         user-select: none;
     }
     #header-links .header-link:hover,
     #header-links .header-link:focus {
-        color: #1f5c55;
+        color: var(--header-link-hover-color);
         text-decoration: underline;
     }
     #intro-text {
