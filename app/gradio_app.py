@@ -41,6 +41,7 @@ from app.state import FileRecord, UIState
 from app.ui.chat_timeline import (
     append_user_message,
     process_chunk,
+    process_stream_token,
     rebuild_from_plain_messages,
     rebuild_from_raw_messages,
 )
@@ -80,6 +81,7 @@ AUTH_SERVICE = AuthService()
 AUTH_ROUTER = APIRouter()
 FILES_ROUTER = APIRouter(prefix="/api/files")
 AUTH_REPOSITORY = AuthRepository()
+_SELECTED_THREAD_ID: Optional[str] = None
 
 INTRO_MARKDOWN = (
     """Hello! I'm **Repuragent** - your AI Agent for Drug Repurposing. My team includes:
@@ -241,6 +243,46 @@ def _get_orchestrator():
     if EPISODIC_ORCHESTRATOR is None:
         EPISODIC_ORCHESTRATOR = get_orchestrator()
     return EPISODIC_ORCHESTRATOR
+
+
+def _set_selected_thread(thread_id: Optional[str]) -> None:
+    global _SELECTED_THREAD_ID
+    _SELECTED_THREAD_ID = thread_id
+
+
+def _get_selected_thread() -> Optional[str]:
+    return _SELECTED_THREAD_ID
+
+
+def _apply_stream_event(event_type: str, payload: Any, state: UIState) -> bool:
+    """Apply a single streamed event to the UI state."""
+    if event_type == "stream_token":
+        additions = False
+        if isinstance(payload, dict):
+            additions = process_stream_token(state, payload.get("agent"), payload.get("chunk"))
+        return additions
+    if event_type == "chunk":
+        return process_chunk(state, payload)
+    if event_type == "complete":
+        state.waiting_for_approval = bool(payload)
+        state.approval_interrupted = bool(payload)
+        return True
+    return False
+
+
+def _drain_pending_stream_events(state: UIState, thread_id: Optional[str]) -> bool:
+    """Replay buffered stream events for a thread that was inactive."""
+    if not thread_id:
+        return False
+    buffer = state.pending_stream_events.get(thread_id)
+    if not buffer:
+        return False
+    updated = False
+    for event_type, payload in list(buffer):
+        updated |= _apply_stream_event(event_type, payload, state)
+    buffer.clear()
+    state.stale_threads.discard(thread_id)
+    return updated
 
 
 def _sanitize_filename(name: str) -> str:
@@ -521,6 +563,7 @@ async def _thread_execution_lock(thread_id: Optional[str]):
 
 
 def _reset_user_state(state: UIState) -> None:
+    _set_selected_thread(None)
     state.user_id = None
     state.user_email = None
     state.is_authenticated = False
@@ -529,6 +572,7 @@ def _reset_user_state(state: UIState) -> None:
     state.pending_reset_token = None
     state.thread_ids = []
     state.current_thread_id = None
+    state.selected_thread_id = None
     state.messages = []
     state.message_lookup.clear()
     state.agent_blocks.clear()
@@ -541,8 +585,11 @@ def _reset_user_state(state: UIState) -> None:
     state.processed_message_ids = set()
     state.processed_tools_ids = set()
     state.processed_content_hashes = set()
+    state.streaming_message_lookup = {}
     state.waiting_for_approval = False
     state.approval_interrupted = False
+    state.stale_threads = set()
+    state.pending_stream_events = {}
 
 
 MAX_VISIBLE_FILES = 50
@@ -981,12 +1028,17 @@ _CONVERSATION_SCRIPT = """
 """
 
 
-async def _refresh_conversation(state: UIState, thread_id: str) -> None:
+async def _refresh_conversation(state: UIState, thread_id: str, *, set_selected: bool = False) -> None:
     app_config = AppRunConfig(user_request=None, use_episodic_learning=False)
     async with app_session(app_config) as app:
         convo = await load_conversation(thread_id, app)
+    if set_selected:
+        _set_selected_thread(thread_id)
+        state.selected_thread_id = thread_id
     state.current_thread_id = thread_id
+    state.stale_threads.discard(thread_id)
     state.processed_message_ids = set()
+    state.processed_tools_ids = set()
     raw_messages = convo.get("raw_messages") or []
     if raw_messages:
         rebuild_from_raw_messages(state, raw_messages)
@@ -1017,6 +1069,9 @@ async def _sync_user_threads(state: UIState, ensure_one: bool = True) -> None:
         valid_ids = {t["thread_id"] for t in state.thread_ids}
         if state.current_thread_id not in valid_ids:
             state.current_thread_id = demo_threads[0]["thread_id"] if demo_threads else None
+        if state.selected_thread_id not in valid_ids:
+            state.selected_thread_id = state.current_thread_id
+        _set_selected_thread(state.selected_thread_id)
         state.uploaded_files = list(state.thread_files.get(state.current_thread_id or "", []))
         return
     user_threads = await aload_thread_ids(state.user_id)
@@ -1032,6 +1087,10 @@ async def _sync_user_threads(state: UIState, ensure_one: bool = True) -> None:
     for thread in state.thread_ids:
         state.ensure_thread_storage(thread["thread_id"])
     valid_ids = {t["thread_id"] for t in state.thread_ids}
+    state.stale_threads = {tid for tid in state.stale_threads if tid in valid_ids}
+    for tid in list(state.pending_stream_events):
+        if tid not in valid_ids:
+            state.pending_stream_events.pop(tid, None)
     if state.current_thread_id not in valid_ids:
         if user_threads:
             state.current_thread_id = user_threads[0]["thread_id"]
@@ -1039,6 +1098,9 @@ async def _sync_user_threads(state: UIState, ensure_one: bool = True) -> None:
             state.current_thread_id = state.thread_ids[0]["thread_id"]
         else:
             state.current_thread_id = None
+    if state.selected_thread_id not in valid_ids:
+        state.selected_thread_id = state.current_thread_id
+    _set_selected_thread(state.selected_thread_id)
     if state.current_thread_id:
         await _refresh_conversation(state, state.current_thread_id)
         state.uploaded_files = list(state.thread_files.get(state.current_thread_id, []))
@@ -1173,7 +1235,11 @@ async def _activate_thread(thread_id: Optional[str], state: UIState):
             list(state.messages),
             gr.update(value=""),
         )
+    state.selected_thread_id = thread_id
+    _set_selected_thread(thread_id)
     await _refresh_conversation(state, thread_id)
+    _drain_pending_stream_events(state, thread_id)
+    await _refresh_thread_files_for(state, thread_id)
     state.waiting_for_approval = False
     state.current_app_config = None
     state.approval_interrupted = False
@@ -1199,6 +1265,10 @@ async def on_new_task(state: UIState):
 
     new_conv = await create_new_conversation(state.user_id)
     state.current_thread_id = new_conv["thread_id"]
+    state.selected_thread_id = state.current_thread_id
+    _set_selected_thread(state.selected_thread_id)
+    state.stale_threads.discard(state.current_thread_id)
+    state.pending_stream_events.pop(state.current_thread_id, None)
     rebuild_from_plain_messages(state, new_conv["messages"])
     state.processed_content_hashes = set()
     state.waiting_for_approval = False
@@ -1250,8 +1320,15 @@ async def _delete_thread(thread_id: Optional[str], state: UIState):
     for thread in state.thread_ids:
         state.ensure_thread_storage(thread["thread_id"])
     state.thread_files.pop(thread_id, None)
-    if state.current_thread_id == thread_id and state.thread_ids:
-        state.current_thread_id = state.thread_ids[-1]["thread_id"]
+    state.pending_stream_events.pop(thread_id, None)
+    state.stale_threads.discard(thread_id)
+    valid_ids = {t["thread_id"] for t in state.thread_ids}
+    if state.current_thread_id == thread_id or state.current_thread_id not in valid_ids:
+        state.current_thread_id = state.thread_ids[-1]["thread_id"] if state.thread_ids else None
+    if state.selected_thread_id == thread_id or state.selected_thread_id not in valid_ids:
+        state.selected_thread_id = state.current_thread_id
+    _set_selected_thread(state.selected_thread_id)
+    if state.current_thread_id:
         await _refresh_conversation(state, state.current_thread_id)
     state.waiting_for_approval = False
     state.approval_interrupted = False
@@ -1453,6 +1530,9 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
         )
 
     state.current_app_config = app_config
+    if state.current_thread_id:
+        state.selected_thread_id = state.current_thread_id
+        _set_selected_thread(state.selected_thread_id)
 
     context_task_token = set_current_task_id(state.current_thread_id)
     context_user_token = set_current_user_id(state.user_id)
@@ -1465,58 +1545,79 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
             check_for_interrupts=True,
         )
         stream_task = asyncio.create_task(stream_iter.__anext__())
-        active_thread_id = state.current_thread_id if state else None
-        watch_thread_id = (
-            active_thread_id
-            if active_thread_id and state.user_id and not _is_demo_thread(state, active_thread_id)
-            else None
-        )
+        watch_thread_id = state.current_thread_id if state else None
         poll_task = (
             asyncio.create_task(asyncio.sleep(FILE_LIST_REFRESH_INTERVAL_SECONDS))
             if watch_thread_id
             else None
         )
+        buffer = state.pending_stream_events.setdefault(watch_thread_id, []) if watch_thread_id else []
+        ui_attached = True
         try:
             while stream_task:
                 wait_tasks = [stream_task]
                 if poll_task:
                     wait_tasks.append(poll_task)
                 done, _ = await asyncio.wait(wait_tasks, return_when=asyncio.FIRST_COMPLETED)
-                if poll_task and poll_task in done:
-                    poll_task = asyncio.create_task(asyncio.sleep(FILE_LIST_REFRESH_INTERVAL_SECONDS))
-                    refreshed = await _refresh_thread_files_for(state, watch_thread_id)
-                    if refreshed:
+
+                selected_thread = _get_selected_thread()
+                if selected_thread and state.selected_thread_id != selected_thread:
+                    state.selected_thread_id = selected_thread
+                is_active_thread = (selected_thread or state.current_thread_id) == watch_thread_id
+                if is_active_thread and not ui_attached:
+                    await _refresh_conversation(state, watch_thread_id or state.current_thread_id)
+                    updated = _drain_pending_stream_events(state, watch_thread_id)
+                    if updated:
                         yield (
                             state,
                             list(state.messages),
                             gr.update(value=""),
                             _conversation_panel_update(state),
                         )
+                    ui_attached = True
+                elif not is_active_thread:
+                    if watch_thread_id:
+                        state.stale_threads.add(watch_thread_id)
+                    ui_attached = False
+
+                if poll_task and poll_task in done:
+                    poll_task = asyncio.create_task(asyncio.sleep(FILE_LIST_REFRESH_INTERVAL_SECONDS))
+                    refreshed = (
+                        await _refresh_thread_files_for(state, watch_thread_id) if ui_attached else False
+                    )
+                    if refreshed and ui_attached:
+                        yield (
+                            state,
+                            list(state.messages),
+                            gr.update(value=""),
+                            _conversation_panel_update(state),
+                        )
+
                 if stream_task in done:
                     try:
                         event_type, payload = stream_task.result()
                     except StopAsyncIteration:
                         stream_task = None
                         break
-                    if event_type == "chunk":
-                        additions = process_chunk(state, payload)
-                        if additions:
-                            yield (
-                                state,
-                                list(state.messages),
-                                gr.update(value=""),
-                                _conversation_panel_update(state),
-                            )
-                    elif event_type == "complete":
-                        state.waiting_for_approval = bool(payload)
-                        state.approval_interrupted = bool(payload)
+
+                    if not ui_attached:
+                        buffer.append((event_type, payload))
+                        stream_task = asyncio.create_task(stream_iter.__anext__())
+                        continue
+
+                    additions = _apply_stream_event(event_type, payload, state)
+                    if additions:
                         yield (
                             state,
                             list(state.messages),
                             gr.update(value=""),
                             _conversation_panel_update(state),
                         )
-                        if await _refresh_thread_files_for(state, watch_thread_id):
+                        if (
+                            event_type == "complete"
+                            and watch_thread_id
+                            and await _refresh_thread_files_for(state, watch_thread_id)
+                        ):
                             yield (
                                 state,
                                 list(state.messages),
@@ -1530,7 +1631,21 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
                 with suppress(asyncio.CancelledError):
                     await poll_task
 
-        if await _refresh_thread_files_for(state, state.current_thread_id):
+        if not ui_attached:
+            yield (
+                state,
+                list(state.messages),
+                gr.update(value=""),
+                _conversation_panel_update(state),
+            )
+        selected_thread = _get_selected_thread()
+        if selected_thread and state.selected_thread_id != selected_thread:
+            state.selected_thread_id = selected_thread
+        is_active_thread = (selected_thread or state.current_thread_id) == watch_thread_id
+        if not is_active_thread:
+            if watch_thread_id:
+                state.stale_threads.add(watch_thread_id)
+        elif ui_attached and await _refresh_thread_files_for(state, watch_thread_id):
             yield (
                 state,
                 list(state.messages),
