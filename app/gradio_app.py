@@ -32,6 +32,10 @@ from app.config import (
     UI_CONCURRENCY_LIMIT,
     FILE_DOWNLOAD_SECRET,
     FILE_DOWNLOAD_TOKEN_TTL_SECONDS,
+    AUTH_JWT_SECRET,
+    AUTH_JWT_EXPIRES_MINUTES,
+    AUTH_REFRESH_EXPIRES_DAYS,
+    AUTH_SESSION_COOKIE_SECURE,
     GRADIO_SERVER_NAME,
     GRADIO_SERVER_PORT,
     logger,
@@ -41,7 +45,9 @@ from app.state import FileRecord, UIState
 from app.ui.chat_timeline import (
     append_user_message,
     process_chunk,
-    process_stream_token,
+    process_ai_message,
+    process_tool_call_start,
+    process_tool_result,
     rebuild_from_plain_messages,
     rebuild_from_raw_messages,
 )
@@ -57,6 +63,7 @@ from persistence.memory.episodic_memory.thread_manager import (
 )
 from backend.auth.repository import AuthRepository
 from backend.auth.service import AuthService
+from backend.auth.sessions import SessionManager
 from backend.utils.output_paths import (
     get_results_root,
     list_task_files,
@@ -81,7 +88,13 @@ AUTH_SERVICE = AuthService()
 AUTH_ROUTER = APIRouter()
 FILES_ROUTER = APIRouter(prefix="/api/files")
 AUTH_REPOSITORY = AuthRepository()
-_SELECTED_THREAD_ID: Optional[str] = None
+SESSION_MANAGER = SessionManager(
+    secret=AUTH_JWT_SECRET,
+    cookie_name="repuragent_session",
+    access_ttl_minutes=AUTH_JWT_EXPIRES_MINUTES,
+    refresh_ttl_days=AUTH_REFRESH_EXPIRES_DAYS,
+    secure_cookie=AUTH_SESSION_COOKIE_SECURE,
+)
 
 INTRO_MARKDOWN = (
     """Hello! I'm **Repuragent** - your AI Agent for Drug Repurposing. My team includes:
@@ -222,6 +235,24 @@ def _validate_password_strength(password: str) -> None:
         raise ValueError("Password must include both letters and numbers")
 
 
+async def _issue_session(user_id: UUID) -> str:
+    """Create a session token and persist it."""
+    token = SessionManager.new_session_token()
+    expires_at = SESSION_MANAGER.refresh_expiration()
+    await AUTH_REPOSITORY.create_session(user_id=user_id, session_token=token, expires_at=expires_at)
+    return token
+
+
+async def _revoke_session(token: Optional[str]) -> None:
+    """Best-effort revoke of a session token."""
+    if not token:
+        return
+    try:
+        await AUTH_REPOSITORY.revoke_session(token)
+    except Exception as exc:  # pragma: no cover - defensive
+        logger.warning("Failed to revoke session %s: %s", token, exc)
+
+
 def _auth_message(text: str, success: bool = True) -> str:
     prefix = "✅" if success else "⚠️"
     return f"{prefix} {text}"
@@ -245,22 +276,30 @@ def _get_orchestrator():
     return EPISODIC_ORCHESTRATOR
 
 
-def _set_selected_thread(thread_id: Optional[str]) -> None:
-    global _SELECTED_THREAD_ID
-    _SELECTED_THREAD_ID = thread_id
-
-
-def _get_selected_thread() -> Optional[str]:
-    return _SELECTED_THREAD_ID
-
-
 def _apply_stream_event(event_type: str, payload: Any, state: UIState) -> bool:
     """Apply a single streamed event to the UI state."""
-    if event_type == "stream_token":
-        additions = False
+    if event_type == "ai_message":
         if isinstance(payload, dict):
-            additions = process_stream_token(state, payload.get("agent"), payload.get("chunk"))
-        return additions
+            return process_ai_message(
+                state,
+                payload.get("agent"),
+                payload.get("message"),
+                payload.get("tool_calls"),
+            )
+        return False
+    if event_type == "tool_call_start":
+        if isinstance(payload, dict):
+            return process_tool_call_start(state, payload.get("agent"), payload.get("call"))
+        return False
+    if event_type == "tool_result":
+        if isinstance(payload, dict):
+            return process_tool_result(
+                state,
+                payload.get("agent"),
+                payload.get("call_id"),
+                payload.get("result"),
+            )
+        return False
     if event_type == "chunk":
         return process_chunk(state, payload)
     if event_type == "complete":
@@ -297,8 +336,11 @@ def _hash_file(path: Path) -> str:
     return hasher.hexdigest()
 
 
-def _auth_guard(state: UIState) -> Optional[str]:
+def _auth_guard(state: UIState, *, thread_id: Optional[str] = None) -> Optional[str]:
+    """Block unauthenticated actions, but allow read-only demo thread interactions."""
     if not state.is_authenticated:
+        if thread_id and _is_demo_thread(state, thread_id):
+            return None
         return "🔒 Please log in to use Repuragent."
     if not state.is_verified:
         return "📧 Check your inbox to verify your email before continuing."
@@ -313,8 +355,8 @@ def _auth_status_text(state: UIState) -> str:
     return f"✅ Signed in as {state.user_email}"
 
 
-def _guard_and_warn(state: UIState) -> Optional[str]:
-    message = _auth_guard(state)
+def _guard_and_warn(state: UIState, *, thread_id: Optional[str] = None) -> Optional[str]:
+    message = _auth_guard(state, thread_id=thread_id)
     if message:
         gr.Warning(message)
     return message
@@ -445,12 +487,39 @@ def _safe_resolve(path_value: str) -> Path:
     return Path(path_value).expanduser().resolve()
 
 
+async def _validate_download_access(payload: Dict[str, Any], resolved_path: Path) -> None:
+    """Ensure non-demo downloads are bound to the requesting user's active session and file metadata."""
+    if payload.get("demo"):
+        return
+
+    user_id = payload.get("user_id")
+    session_token = payload.get("session_token")
+    thread_id = payload.get("thread_id")
+
+    if not user_id or not session_token:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    user_uuid = _as_uuid(user_id)
+    if not user_uuid:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    session_row = await AUTH_REPOSITORY.get_session(session_token)
+    if not session_row or session_row.get("user_id") != user_uuid:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    records = await AUTH_REPOSITORY.list_files(user_uuid, thread_id)
+    resolved_str = str(resolved_path)
+    if not any(row.get("storage_path") == resolved_str for row in records):
+        raise HTTPException(status_code=404, detail="File not found")
+
+
 def _build_download_payload(
     record: FileRecord,
     thread_id: str,
     *,
     user_id: Optional[str],
     is_demo: bool,
+    session_token: Optional[str],
 ) -> Optional[Dict[str, Any]]:
     if not record.path:
         return None
@@ -469,7 +538,10 @@ def _build_download_payload(
     if record.hash:
         payload["hash"] = record.hash
     if user_id and not is_demo:
+        if not session_token:
+            return None
         payload["user_id"] = user_id
+        payload["session_token"] = session_token
     return payload
 
 
@@ -563,13 +635,13 @@ async def _thread_execution_lock(thread_id: Optional[str]):
 
 
 def _reset_user_state(state: UIState) -> None:
-    _set_selected_thread(None)
     state.user_id = None
     state.user_email = None
     state.is_authenticated = False
     state.is_verified = False
     state.auth_error = None
     state.pending_reset_token = None
+    state.session_token = None
     state.thread_ids = []
     state.current_thread_id = None
     state.selected_thread_id = None
@@ -611,6 +683,7 @@ def _render_thread_files(state: UIState, thread_id: str) -> str:
             thread_id,
             user_id=state.user_id,
             is_demo=is_demo_thread,
+            session_token=state.session_token,
         )
         if payload:
             token = _encode_download_token(payload)
@@ -758,6 +831,7 @@ async def on_login(email: str, password: str, state: UIState):
         state.is_authenticated = True
         state.is_verified = True
         state.auth_error = None
+        state.session_token = await _issue_session(user.id)
         await _sync_user_threads(state)
         return (
             state,
@@ -782,7 +856,9 @@ async def on_login(email: str, password: str, state: UIState):
 async def on_logout(state: UIState):
     if state is None:
         state = _initialize_state()
+    await _revoke_session(state.session_token)
     _reset_user_state(state)
+    await _sync_user_threads(state, ensure_one=False)
     return (
         state,
         _auth_message("Logged out."),
@@ -856,6 +932,7 @@ async def download_file(token: str):
     resolved_path = _safe_resolve(path_value)
     if not _is_allowed_download_path(resolved_path):
         raise HTTPException(status_code=403, detail="Access denied")
+    await _validate_download_access(payload, resolved_path)
     if not resolved_path.exists() or not resolved_path.is_file():
         raise HTTPException(status_code=404, detail="File not found")
     filename = payload.get("name") or resolved_path.name
@@ -1028,13 +1105,10 @@ _CONVERSATION_SCRIPT = """
 """
 
 
-async def _refresh_conversation(state: UIState, thread_id: str, *, set_selected: bool = False) -> None:
+async def _refresh_conversation(state: UIState, thread_id: str) -> None:
     app_config = AppRunConfig(user_request=None, use_episodic_learning=False)
     async with app_session(app_config) as app:
         convo = await load_conversation(thread_id, app)
-    if set_selected:
-        _set_selected_thread(thread_id)
-        state.selected_thread_id = thread_id
     state.current_thread_id = thread_id
     state.stale_threads.discard(thread_id)
     state.processed_message_ids = set()
@@ -1071,7 +1145,6 @@ async def _sync_user_threads(state: UIState, ensure_one: bool = True) -> None:
             state.current_thread_id = demo_threads[0]["thread_id"] if demo_threads else None
         if state.selected_thread_id not in valid_ids:
             state.selected_thread_id = state.current_thread_id
-        _set_selected_thread(state.selected_thread_id)
         state.uploaded_files = list(state.thread_files.get(state.current_thread_id or "", []))
         return
     user_threads = await aload_thread_ids(state.user_id)
@@ -1100,7 +1173,6 @@ async def _sync_user_threads(state: UIState, ensure_one: bool = True) -> None:
             state.current_thread_id = None
     if state.selected_thread_id not in valid_ids:
         state.selected_thread_id = state.current_thread_id
-    _set_selected_thread(state.selected_thread_id)
     if state.current_thread_id:
         await _refresh_conversation(state, state.current_thread_id)
         state.uploaded_files = list(state.thread_files.get(state.current_thread_id, []))
@@ -1194,6 +1266,7 @@ async def _record_file_metadata(state: UIState, thread_id: str, path: Path, chec
 
 async def on_app_load():
     state = _initialize_state()
+    await _sync_user_threads(state, ensure_one=False)
     approve_update = gr.update(visible=state.waiting_for_approval)
     auth_status = _auth_status_text(state)
     logout_update = _logout_visibility(state)
@@ -1221,7 +1294,7 @@ def on_toggle_learning(use_learning: bool, state: UIState):
 
 
 async def _activate_thread(thread_id: Optional[str], state: UIState):
-    if _guard_and_warn(state):
+    if _guard_and_warn(state, thread_id=thread_id):
         return (
             state,
             _conversation_panel_update(state),
@@ -1236,7 +1309,6 @@ async def _activate_thread(thread_id: Optional[str], state: UIState):
             gr.update(value=""),
         )
     state.selected_thread_id = thread_id
-    _set_selected_thread(thread_id)
     await _refresh_conversation(state, thread_id)
     _drain_pending_stream_events(state, thread_id)
     await _refresh_thread_files_for(state, thread_id)
@@ -1266,7 +1338,6 @@ async def on_new_task(state: UIState):
     new_conv = await create_new_conversation(state.user_id)
     state.current_thread_id = new_conv["thread_id"]
     state.selected_thread_id = state.current_thread_id
-    _set_selected_thread(state.selected_thread_id)
     state.stale_threads.discard(state.current_thread_id)
     state.pending_stream_events.pop(state.current_thread_id, None)
     rebuild_from_plain_messages(state, new_conv["messages"])
@@ -1287,7 +1358,7 @@ async def on_new_task(state: UIState):
 
 
 async def _delete_thread(thread_id: Optional[str], state: UIState):
-    if _guard_and_warn(state):
+    if _guard_and_warn(state, thread_id=thread_id):
         return (
             state,
             _conversation_panel_update(state),
@@ -1327,7 +1398,6 @@ async def _delete_thread(thread_id: Optional[str], state: UIState):
         state.current_thread_id = state.thread_ids[-1]["thread_id"] if state.thread_ids else None
     if state.selected_thread_id == thread_id or state.selected_thread_id not in valid_ids:
         state.selected_thread_id = state.current_thread_id
-    _set_selected_thread(state.selected_thread_id)
     if state.current_thread_id:
         await _refresh_conversation(state, state.current_thread_id)
     state.waiting_for_approval = False
@@ -1345,15 +1415,6 @@ async def on_conversation_action(action_payload: str, state: UIState):
     # Handle case where state is None
     if state is None:
         state = _initialize_state()
-    if _guard_and_warn(state):
-        return (
-            state,
-            _conversation_panel_update(state),
-            list(state.messages),
-            gr.update(value=""),
-            gr.update(value=""),
-        )
-        
     payload = (action_payload or "").strip()
     if not payload:
         return (
@@ -1375,6 +1436,14 @@ async def on_conversation_action(action_payload: str, state: UIState):
         )
     action_type = action.get("type")
     thread_id = action.get("thread_id")
+    if _guard_and_warn(state, thread_id=thread_id):
+        return (
+            state,
+            _conversation_panel_update(state),
+            list(state.messages),
+            gr.update(value=""),
+            gr.update(value=""),
+        )
     if action_type == "delete":
         result = await _delete_thread(thread_id, state)
     elif action_type == "activate":
@@ -1392,7 +1461,7 @@ async def on_conversation_action(action_payload: str, state: UIState):
 async def on_files_uploaded(files, state: UIState):
     if state is None:
         state = _initialize_state()
-    if _guard_and_warn(state):
+    if _guard_and_warn(state, thread_id=state.current_thread_id):
         return state, _conversation_panel_update(state)
     if not files or not state.user_id:
         return state, _conversation_panel_update(state)
@@ -1514,7 +1583,7 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
             user_threads = await aload_thread_ids(state.user_id)
             state.thread_ids = _combine_user_and_demo_threads(user_threads)
         app_config = AppRunConfig(
-            user_request=prompt if state.use_episodic_learning else None,
+            user_request=final_prompt if state.use_episodic_learning else None,
             use_episodic_learning=state.use_episodic_learning,
         )
         state.current_app_config = app_config
@@ -1532,7 +1601,6 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
     state.current_app_config = app_config
     if state.current_thread_id:
         state.selected_thread_id = state.current_thread_id
-        _set_selected_thread(state.selected_thread_id)
 
     context_task_token = set_current_task_id(state.current_thread_id)
     context_user_token = set_current_user_id(state.user_id)
@@ -1560,9 +1628,7 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
                     wait_tasks.append(poll_task)
                 done, _ = await asyncio.wait(wait_tasks, return_when=asyncio.FIRST_COMPLETED)
 
-                selected_thread = _get_selected_thread()
-                if selected_thread and state.selected_thread_id != selected_thread:
-                    state.selected_thread_id = selected_thread
+                selected_thread = state.selected_thread_id
                 is_active_thread = (selected_thread or state.current_thread_id) == watch_thread_id
                 if is_active_thread and not ui_attached:
                     await _refresh_conversation(state, watch_thread_id or state.current_thread_id)
@@ -1638,9 +1704,7 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
                 gr.update(value=""),
                 _conversation_panel_update(state),
             )
-        selected_thread = _get_selected_thread()
-        if selected_thread and state.selected_thread_id != selected_thread:
-            state.selected_thread_id = selected_thread
+        selected_thread = state.selected_thread_id
         is_active_thread = (selected_thread or state.current_thread_id) == watch_thread_id
         if not is_active_thread:
             if watch_thread_id:

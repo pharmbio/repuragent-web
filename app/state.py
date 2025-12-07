@@ -46,6 +46,7 @@ class UIState:
     is_verified: bool = False
     auth_error: Optional[str] = None
     pending_reset_token: Optional[str] = None
+    session_token: Optional[str] = None
 
     def ensure_thread_storage(self, thread_id: str) -> None:
         if thread_id not in self.thread_files:
