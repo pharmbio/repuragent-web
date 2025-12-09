@@ -70,14 +70,23 @@ async def add_thread_id(user_id: str, thread_id: str, title: Optional[str] = Non
     await _repo.upsert_thread(user_id=user_uuid, thread_id=thread_id, title=resolved_title)
 
 
-async def delete_thread_from_postgres(thread_id: str) -> bool:
-    """Delete all PostgreSQL records for a given thread ID from checkpoints, checkpoint_writes, and checkpoint_blobs tables."""
+async def delete_thread_from_postgres(thread_id: str, *, user_id: Optional[str]) -> bool:
+    """
+    Delete checkpoint rows for a thread, scoped to the owning user namespace.
+
+    We only allow deletion when the thread_id is namespaced with the user's ID
+    to avoid accidental cross-user cleanup if an attacker guesses another thread_id.
+    """
     max_retries = 3
     retry_delay = 1
 
     database_url = DATABASE_URL
     if not database_url:
         logger.warning("DATABASE_URL not set, skipping PostgreSQL deletion")
+        return False
+
+    if user_id and not thread_id.startswith(f"{user_id}:"):
+        logger.warning("Refusing to delete thread %s for mismatched user %s", thread_id, user_id)
         return False
 
     for attempt in range(max_retries):
@@ -128,7 +137,7 @@ async def remove_thread_id(user_id: str, thread_id: str) -> None:
     if not user_uuid:
         return
     await _repo.delete_thread(user_uuid, thread_id)
-    await delete_thread_from_postgres(thread_id)
+    await delete_thread_from_postgres(thread_id, user_id=user_id)
 
 
 async def update_thread_title(user_id: str, thread_id: str, new_title: str) -> None:

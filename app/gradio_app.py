@@ -337,10 +337,8 @@ def _hash_file(path: Path) -> str:
 
 
 def _auth_guard(state: UIState, *, thread_id: Optional[str] = None) -> Optional[str]:
-    """Block unauthenticated actions, but allow read-only demo thread interactions."""
+    """Block unauthenticated actions (demo threads require login as well)."""
     if not state.is_authenticated:
-        if thread_id and _is_demo_thread(state, thread_id):
-            return None
         return "🔒 Please log in to use Repuragent."
     if not state.is_verified:
         return "📧 Check your inbox to verify your email before continuing."
@@ -729,7 +727,12 @@ def _conversation_panel_markup(state: UIState) -> str:
         "<div class='conversation-list__header'>Conversation</div>",
     ]
     if not state.thread_ids:
-        cards.append("<p class='conversation-card__empty'>No conversations yet.</p></div>")
+        empty_text = (
+            "No conversations yet."
+            if state.is_authenticated
+            else "Log in to view demo conversations and your tasks."
+        )
+        cards.append(f"<p class='conversation-card__empty'>{empty_text}</p></div>")
         return "\n".join(cards)
     for thread in state.thread_ids:
         thread_id = thread["thread_id"]
@@ -1134,18 +1137,11 @@ def _initialize_state() -> UIState:
 
 async def _sync_user_threads(state: UIState, ensure_one: bool = True) -> None:
     if not state.user_id:
-        demo_threads = _load_demo_threads()
-        state.thread_ids = list(demo_threads)
+        state.thread_ids = []
         state.thread_files = {}
-        _hydrate_demo_thread_files(state, demo_threads)
-        for thread in state.thread_ids:
-            state.ensure_thread_storage(thread["thread_id"])
-        valid_ids = {t["thread_id"] for t in state.thread_ids}
-        if state.current_thread_id not in valid_ids:
-            state.current_thread_id = demo_threads[0]["thread_id"] if demo_threads else None
-        if state.selected_thread_id not in valid_ids:
-            state.selected_thread_id = state.current_thread_id
-        state.uploaded_files = list(state.thread_files.get(state.current_thread_id or "", []))
+        state.current_thread_id = None
+        state.selected_thread_id = None
+        state.uploaded_files = []
         return
     user_threads = await aload_thread_ids(state.user_id)
     demo_threads = _load_demo_threads()
