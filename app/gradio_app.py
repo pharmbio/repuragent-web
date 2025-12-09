@@ -74,6 +74,7 @@ from backend.utils.output_paths import (
     reset_current_user_id,
 )
 from backend.utils.storage_paths import get_data_root
+from app.partners import get_partner_organizations
 
 
 DATA_DIR = get_data_root()
@@ -122,10 +123,6 @@ HEADER_LINKS_HTML = """
 </div>
 """
 PASSWORD_MIN_LENGTH = 8
-
-
-from app.partners import get_partner_organizations
-
 
 PRIMARY_FERN = colors.Color(
     c50="#dbeee5",
@@ -736,7 +733,7 @@ def _reset_user_state(state: UIState) -> None:
     state.pending_stream_events = {}
 
 
-MAX_VISIBLE_FILES = 50
+MAX_VISIBLE_FILES = 100
 FILE_LIST_REFRESH_INTERVAL_SECONDS = 1.0
 
 
