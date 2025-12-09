@@ -124,6 +124,9 @@ HEADER_LINKS_HTML = """
 PASSWORD_MIN_LENGTH = 8
 
 
+from app.partners import get_partner_organizations
+
+
 PRIMARY_FERN = colors.Color(
     c50="#dbeee5",
     c100="#cfe3d9",
@@ -258,15 +261,61 @@ def _auth_message(text: str, success: bool = True) -> str:
     return f"{prefix} {text}"
 
 
+def _inline_image_src(path: Path, *, log_missing: bool = True) -> Optional[str]:
+    if not path.exists():
+        if log_missing:
+            logger.warning("Partner logo not found at %s", path)
+        return None
+    data = base64.b64encode(path.read_bytes()).decode("ascii")
+    mime, _ = mimetypes.guess_type(str(path))
+    return f"data:{mime or 'image/png'};base64,{data}"
+
+
 def _logo_html() -> str:
     """Embed the logo as inline HTML to avoid Gradio's image toolbar."""
-    logo_path = Path(LOGO_PATH)
-    if not logo_path.exists():
+    logo_src = _inline_image_src(Path(LOGO_PATH), log_missing=False)
+    if not logo_src:
         return ""
-    data = base64.b64encode(logo_path.read_bytes()).decode("ascii")
-    mime, _ = mimetypes.guess_type(str(logo_path))
-    mime = mime or "image/png"
-    return f'<img src="data:{mime};base64,{data}" alt="{APP_TITLE} logo" class="app-logo-img" />'
+    return f'<img src="{logo_src}" alt="{APP_TITLE} logo" class="app-logo-img" />'
+
+
+def _partner_logos_html() -> str:
+    cards: List[str] = []
+    for org in get_partner_organizations():
+        logo_src = _inline_image_src(Path(org["logo"]))
+        url = org.get("url")
+        name = org.get("name") or "Partner"
+        if not logo_src or not url:
+            continue
+        size = (org.get("size") or "").lower()
+        extra_class = ""
+        if size == "xl":
+            extra_class = " partner-logo-card--xl"
+        cards.append(
+            (
+                "<a class='partner-logo-card{extra}' href='{href}' target='_blank' "
+                "rel='noopener noreferrer' title='{title}' data-partner-card='1'>"
+                "<img src='{src}' alt='{alt}' />"
+                "</a>"
+            ).format(
+                extra=extra_class,
+                href=escape(url, quote=True),
+                title=escape(name, quote=True),
+                src=escape(logo_src, quote=True),
+                alt=escape(f"{name} logo", quote=True),
+            )
+        )
+    if not cards:
+        return ""
+    cards_markup = "".join(cards)
+    return (
+        "<div class='partner-slider' data-partner-slider='1'>"
+        "<div class='partner-slider__viewport'>"
+        "<div class='partner-slider__track'>{cards}</div>"
+        "</div>"
+        "<div class='partner-slider__dots' role='tablist' aria-label='Partner carousel controls'></div>"
+        "</div>"
+    ).format(cards=cards_markup)
 
 
 def _get_orchestrator():
@@ -1086,20 +1135,109 @@ _CONVERSATION_SCRIPT = """
         });
     }
 
+    function initPartnerSlider(slider) {
+        if (!slider || slider.dataset.sliderInitialized === "1") {
+            return;
+        }
+        const viewport = slider.querySelector(".partner-slider__viewport");
+        const track = slider.querySelector(".partner-slider__track");
+        const cards = Array.from(slider.querySelectorAll(".partner-logo-card"));
+        const dots = slider.querySelector(".partner-slider__dots");
+        if (!viewport || !track || !cards.length || !dots) {
+            return;
+        }
+        const state = { index: 0, perSlide: 1, total: 1 };
+        const requestRecalc = () => window.requestAnimationFrame(recalc);
+
+        function applyTransform() {
+            const viewportWidth = viewport.getBoundingClientRect().width || 1;
+            track.style.transform = `translateX(-${state.index * viewportWidth}px)`;
+        }
+
+        function goTo(index) {
+            state.index = Math.max(0, Math.min(index, state.total - 1));
+            applyTransform();
+            renderDots();
+        }
+
+        function renderDots() {
+            dots.innerHTML = "";
+            if (state.total <= 1) {
+                dots.style.display = "none";
+                return;
+            }
+            dots.style.display = "flex";
+            for (let i = 0; i < state.total; i += 1) {
+                const dot = document.createElement("button");
+                dot.type = "button";
+                dot.className = "partner-slider__dot" + (i === state.index ? " is-active" : "");
+                dot.setAttribute("aria-label", `Show partner group ${i + 1}`);
+                dot.addEventListener("click", () => goTo(i));
+                dots.appendChild(dot);
+            }
+        }
+
+        function recalc() {
+            const viewportWidth = viewport.getBoundingClientRect().width || 1;
+            const sampleWidth = cards[0].getBoundingClientRect().width || 1;
+            const styles = window.getComputedStyle(track);
+            const gap = parseFloat(styles.columnGap || styles.gap || "16") || 16;
+            const perSlide = Math.max(1, Math.floor((viewportWidth + gap) / (sampleWidth + gap)));
+            state.perSlide = perSlide;
+            state.total = Math.max(1, Math.ceil(cards.length / perSlide));
+            state.index = Math.min(state.index, state.total - 1);
+            renderDots();
+            applyTransform();
+        }
+
+        const ro = window.ResizeObserver ? new ResizeObserver(requestRecalc) : null;
+        if (ro) {
+            ro.observe(viewport);
+        } else {
+            window.addEventListener("resize", requestRecalc);
+        }
+        requestRecalc();
+        cards.forEach((card) => {
+            const img = card.querySelector("img");
+            if (!img) {
+                return;
+            }
+            if (img.complete) {
+                requestRecalc();
+            } else {
+                img.addEventListener("load", requestRecalc, { once: true });
+            }
+        });
+        slider.dataset.sliderInitialized = "1";
+    }
+
+    function initPartnerSliders() {
+        document.querySelectorAll("[data-partner-slider]").forEach((slider) => initPartnerSlider(slider));
+    }
+
     function ensureReady() {
         if (!document.getElementById("conversation-list-root") || !findBus()) {
             window.requestAnimationFrame(ensureReady);
             return;
         }
         bindHandlers();
+        initPartnerSliders();
     }
 
     ensureReady();
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initPartnerSliders, { once: true });
+    } else {
+        initPartnerSliders();
+    }
     if (window.__repConversationObserver) {
         window.__repConversationObserver.disconnect();
     }
     const observer = new MutationObserver(() => {
-        window.requestAnimationFrame(bindHandlers);
+        window.requestAnimationFrame(() => {
+            bindHandlers();
+            initPartnerSliders();
+        });
     });
     observer.observe(document.body, { childList: true, subtree: true });
     window.__repConversationObserver = observer;
@@ -1756,6 +1894,8 @@ def build_demo():
         --header-link-color: #1f2937;
         --header-link-divider-color: #9ca3af;
         --header-link-hover-color: #1f5c55;
+        --partner-card-width: 220px;
+        --partner-card-gap: 1.15rem;
     }
     body.dark {
         --header-link-color: #f8fafc;
@@ -1834,6 +1974,84 @@ def build_demo():
     #header-links .header-link:focus {
         color: var(--header-link-hover-color);
         text-decoration: underline;
+    }
+    #partner-logos-panel {
+        width: 100%;
+        margin: 0 auto 1.25rem;
+        padding: 0;
+    }
+    #partner-logos-panel .partner-slider {
+        width: min(100%, 1080px);
+        margin: 0 auto;
+    }
+    .partner-slider__viewport {
+        overflow: hidden;
+        width: 100%;
+    }
+    .partner-slider__track {
+        display: flex;
+        gap: var(--partner-card-gap);
+        padding: 0.25rem;
+        will-change: transform;
+        transition: transform 0.4s ease;
+    }
+    .partner-logo-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 1.05rem 1.85rem;
+        min-height: 115px;
+        min-width: var(--partner-card-width);
+        width: var(--partner-card-width);
+        max-width: var(--partner-card-width);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+        flex: 0 0 var(--partner-card-width);
+    }
+    .partner-logo-card:hover,
+    .partner-logo-card:focus-visible {
+        transform: translateY(-2px);
+        border-color: #cbd5f5;
+        box-shadow: 0 12px 20px rgba(15, 23, 42, 0.12);
+    }
+    .partner-logo-card img {
+        max-height: 70px;
+        max-width: calc(var(--partner-card-width) - 20px);
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        filter: saturate(1.05);
+    }
+    .partner-logo-card--xl {
+        min-width: calc(var(--partner-card-width) + 60px);
+        width: calc(var(--partner-card-width) + 60px);
+        max-width: calc(var(--partner-card-width) + 60px);
+    }
+    .partner-logo-card--xl img {
+        max-height: 90px;
+        max-width: calc(var(--partner-card-width) + 20px);
+    }
+    .partner-slider__dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.45rem;
+        margin-top: 0.5rem;
+    }
+    .partner-slider__dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #d1d5db;
+        border: 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .partner-slider__dot.is-active {
+        background: transparent;
+        border: 2px solid #111827;
     }
     #intro-text {
         margin: 0 0 0.75rem 0 !important;
@@ -2068,6 +2286,9 @@ def build_demo():
                 gr.HTML(f"<div class='app-title-text'>{APP_TITLE}</div>", elem_id="app-title")
             with gr.Column(scale=0, min_width=200, elem_id="header-links-column"):
                 gr.HTML(HEADER_LINKS_HTML, elem_id="header-links")
+        partner_panel = _partner_logos_html()
+        if partner_panel:
+            gr.HTML(partner_panel, elem_id="partner-logos-panel")
 
         with gr.Row(elem_id="layout-row"):
             with gr.Column(scale=1, min_width=280, elem_id="sidebar-column"):
