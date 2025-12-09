@@ -722,8 +722,8 @@ def _reset_user_state(state: UIState) -> None:
     state.thread_files.clear()
     state.uploaded_files = []
     state.current_app_config = None
-    state.stop_requested = False
-    state.active_run_thread_id = None
+    state.stop_signals = {}
+    state.running_threads = set()
     state.message_seq = 0
     state.processed_message_ids = set()
     state.processed_tools_ids = set()
@@ -1739,8 +1739,6 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
         )
         return
 
-    state.stop_requested = False
-
     if approve_signal:
         state.waiting_for_approval = False
         state.approval_interrupted = False
@@ -1784,9 +1782,12 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
     if state.current_thread_id:
         state.selected_thread_id = state.current_thread_id
 
-    context_task_token = set_current_task_id(state.current_thread_id)
+    thread_id = state.current_thread_id
+    context_task_token = set_current_task_id(thread_id)
     context_user_token = set_current_user_id(state.user_id)
-    state.active_run_thread_id = state.current_thread_id
+    if thread_id:
+        state.running_threads.add(thread_id)
+        state.stop_signals.setdefault(thread_id, False)
     try:
         stream_iter = stream_langgraph_events(
             app_config,
@@ -1877,7 +1878,7 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
                             )
                     stream_task = asyncio.create_task(stream_iter.__anext__())
 
-                if state.stop_requested:
+                if state.stop_signals.get(watch_thread_id):
                     stopped = True
                     state.waiting_for_approval = False
                     state.approval_interrupted = False
@@ -1929,7 +1930,9 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
                 _conversation_panel_update(state),
             )
         if stopped:
-            state.stop_requested = False
+            if watch_thread_id:
+                state.stop_signals.pop(watch_thread_id, None)
+                state.running_threads.discard(watch_thread_id)
             yield (
                 state,
                 list(state.messages),
@@ -1940,8 +1943,9 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
     finally:
         reset_current_task_id(context_task_token)
         reset_current_user_id(context_user_token)
-        state.stop_requested = False
-        state.active_run_thread_id = None
+        if thread_id:
+            state.running_threads.discard(thread_id)
+            state.stop_signals.pop(thread_id, None)
 
 
 async def _run_user_message(prompt: str, state: UIState, *, approve_signal: Optional[str] = None):
@@ -1963,15 +1967,15 @@ async def on_send_message(prompt: str, state: UIState):
 async def on_stop_run(state: UIState):
     if state is None:
         state = _initialize_state()
-    if not state.current_thread_id:
+    target_thread = state.current_thread_id
+    if not target_thread:
         return (
             state,
             list(state.messages),
             gr.update(),
             _conversation_panel_update(state),
         )
-    if not state.active_run_thread_id:
-        state.stop_requested = False
+    if target_thread not in state.running_threads:
         gr.Info("No active run to stop.")
         return (
             state,
@@ -1979,7 +1983,7 @@ async def on_stop_run(state: UIState):
             gr.update(),
             _conversation_panel_update(state),
         )
-    state.stop_requested = True
+    state.stop_signals[target_thread] = True
     state.waiting_for_approval = False
     gr.Info("Stopping current run...")
     return (

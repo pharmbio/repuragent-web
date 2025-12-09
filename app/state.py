@@ -41,8 +41,8 @@ class UIState:
     thread_files: Dict[str, List[FileRecord]] = field(default_factory=dict)
     uploaded_files: List[FileRecord] = field(default_factory=list)
     current_app_config: Optional[AppRunConfig] = None
-    stop_requested: bool = False
-    active_run_thread_id: Optional[str] = None
+    stop_signals: Dict[str, bool] = field(default_factory=dict)
+    running_threads: Set[str] = field(default_factory=set)
     user_id: Optional[str] = None
     user_email: Optional[str] = None
     is_authenticated: bool = False
