@@ -722,6 +722,8 @@ def _reset_user_state(state: UIState) -> None:
     state.thread_files.clear()
     state.uploaded_files = []
     state.current_app_config = None
+    state.stop_requested = False
+    state.active_run_thread_id = None
     state.message_seq = 0
     state.processed_message_ids = set()
     state.processed_tools_ids = set()
@@ -1737,6 +1739,8 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
         )
         return
 
+    state.stop_requested = False
+
     if approve_signal:
         state.waiting_for_approval = False
         state.approval_interrupted = False
@@ -1782,6 +1786,7 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
 
     context_task_token = set_current_task_id(state.current_thread_id)
     context_user_token = set_current_user_id(state.user_id)
+    state.active_run_thread_id = state.current_thread_id
     try:
         stream_iter = stream_langgraph_events(
             app_config,
@@ -1790,6 +1795,7 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
             user_id=state.user_id,
             check_for_interrupts=True,
         )
+        stream_iter_closed = False
         stream_task = asyncio.create_task(stream_iter.__anext__())
         watch_thread_id = state.current_thread_id if state else None
         poll_task = (
@@ -1799,6 +1805,7 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
         )
         buffer = state.pending_stream_events.setdefault(watch_thread_id, []) if watch_thread_id else []
         ui_attached = True
+        stopped = False
         try:
             while stream_task:
                 wait_tasks = [stream_task]
@@ -1869,11 +1876,38 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
                                 _conversation_panel_update(state),
                             )
                     stream_task = asyncio.create_task(stream_iter.__anext__())
+
+                if state.stop_requested:
+                    stopped = True
+                    state.waiting_for_approval = False
+                    state.approval_interrupted = False
+                    state.current_app_config = None
+                    if poll_task:
+                        poll_task.cancel()
+                        with suppress(asyncio.CancelledError):
+                            await poll_task
+                        poll_task = None
+                    if stream_task:
+                        stream_task.cancel()
+                        with suppress(asyncio.CancelledError):
+                            await stream_task
+                        stream_task = None
+                    with suppress(Exception):
+                        await stream_iter.aclose()
+                    stream_iter_closed = True
+                    break
         finally:
             if poll_task:
                 poll_task.cancel()
                 with suppress(asyncio.CancelledError):
                     await poll_task
+            if stream_task:
+                stream_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await stream_task
+            if not stream_iter_closed:
+                with suppress(Exception):
+                    await stream_iter.aclose()
 
         if not ui_attached:
             yield (
@@ -1894,9 +1928,20 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
                 gr.update(value=""),
                 _conversation_panel_update(state),
             )
+        if stopped:
+            state.stop_requested = False
+            yield (
+                state,
+                list(state.messages),
+                gr.update(value=""),
+                _conversation_panel_update(state),
+            )
+            return
     finally:
         reset_current_task_id(context_task_token)
         reset_current_user_id(context_user_token)
+        state.stop_requested = False
+        state.active_run_thread_id = None
 
 
 async def _run_user_message(prompt: str, state: UIState, *, approve_signal: Optional[str] = None):
@@ -1913,6 +1958,36 @@ async def on_send_message(prompt: str, state: UIState):
         
     async for update in _run_user_message(prompt, state):
         yield update
+
+
+async def on_stop_run(state: UIState):
+    if state is None:
+        state = _initialize_state()
+    if not state.current_thread_id:
+        return (
+            state,
+            list(state.messages),
+            gr.update(),
+            _conversation_panel_update(state),
+        )
+    if not state.active_run_thread_id:
+        state.stop_requested = False
+        gr.Info("No active run to stop.")
+        return (
+            state,
+            list(state.messages),
+            gr.update(),
+            _conversation_panel_update(state),
+        )
+    state.stop_requested = True
+    state.waiting_for_approval = False
+    gr.Info("Stopping current run...")
+    return (
+        state,
+        list(state.messages),
+        gr.update(),
+        _conversation_panel_update(state),
+    )
 
 
 def on_extract_learning(state: UIState):
@@ -2139,6 +2214,17 @@ def build_demo():
     }
     #conversation-action-bus {
         display: none !important;
+    }
+    #input-actions-row {
+        margin-top: 0.5rem;
+        gap: 0.65rem;
+    }
+    #send-button {
+        width: 100%;
+    }
+    #stop-button {
+        width: 100%;
+        min-width: 120px;
     }
     details.tool-block {
         border: 1px solid #e5e7eb;
@@ -2385,7 +2471,11 @@ def build_demo():
                     elem_id="chatbot-panel",
                 )
                 user_input = gr.Textbox(label="Your message", lines=3)
-                send_btn = gr.Button("Send", variant="primary")
+                with gr.Row(elem_id="input-actions-row"):
+                    with gr.Column(scale=9):
+                        send_btn = gr.Button("Send", variant="primary", elem_id="send-button")
+                    with gr.Column(scale=1, min_width=120):
+                        stop_btn = gr.Button("Stop", variant="secondary", elem_id="stop-button")
 
         demo.load(
             on_app_load,
@@ -2472,6 +2562,12 @@ def build_demo():
         user_input.submit(
             on_send_message,
             inputs=[user_input, state],
+            outputs=[state, chatbot, user_input, conversation_list],
+        )
+
+        stop_btn.click(
+            on_stop_run,
+            inputs=state,
             outputs=[state, chatbot, user_input, conversation_list],
         )
 
