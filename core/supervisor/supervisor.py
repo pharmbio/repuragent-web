@@ -43,7 +43,7 @@ _approval_judge_llm = None
 def _get_approval_judge_llm():
     global _approval_judge_llm
     if _approval_judge_llm is None:
-        _approval_judge_llm = init_chat_model("gpt-4o-mini", model_provider="openai", api_key=OPENAI_API_KEY)
+        _approval_judge_llm = init_chat_model("gpt-5-nano", model_provider="openai", api_key=OPENAI_API_KEY)
     return _approval_judge_llm
 
 
