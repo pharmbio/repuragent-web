@@ -13,6 +13,7 @@ class FileRecord:
     path: str
     hash: Optional[str]
     name: str
+    record_id: Optional[str] = None
 
 
 @dataclass

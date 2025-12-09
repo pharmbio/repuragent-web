@@ -629,6 +629,31 @@ def _save_uploaded_file(
     return destination, _hash_file(destination)
 
 
+async def _delete_thread_uploads(state: UIState, thread_id: str, records: List[FileRecord]) -> None:
+    """Remove user-uploaded files for a thread from disk and metadata storage."""
+    user_uuid = _as_uuid(state.user_id)
+    if not user_uuid:
+        return
+    seen_dirs: Set[Path] = set()
+    for record in records:
+        if not record.path:
+            continue
+        resolved = _safe_resolve(record.path)
+        try:
+            resolved.relative_to(DATA_DIR)
+        except ValueError:
+            continue
+        resolved.unlink(missing_ok=True)
+        seen_dirs.add(resolved.parent)
+        file_uuid = _as_uuid(record.record_id)
+        if file_uuid:
+            await AUTH_REPOSITORY.mark_file_deleted(user_uuid, file_uuid)
+    for directory in seen_dirs:
+        _prune_user_dir(directory)
+    thread_root = _thread_data_root(state.user_id, thread_id)
+    _prune_user_dir(thread_root)
+
+
 def _prune_user_dir(path: Path) -> None:
     """Remove user-specific data directory if empty."""
     if path.exists() and path != DATA_DIR:
@@ -1336,11 +1361,13 @@ async def _hydrate_thread_files(state: UIState, thread_ids: List[str]) -> Set[st
         for row in rows:
             storage_path = row.get("storage_path")
             name = row.get("original_name") or (Path(storage_path).name if storage_path else "file")
+            record_id = row.get("id")
             records.append(
                 FileRecord(
                     path=storage_path,
                     hash=row.get("checksum"),
                     name=name,
+                    record_id=str(record_id) if record_id else None,
                 )
             )
         if records != previous_records:
@@ -1365,6 +1392,7 @@ def _hydrate_demo_thread_files(state: UIState, demo_threads: List[Dict]) -> None
                     path=str(path),
                     hash=None,
                     name=path.name,
+                    record_id=None,
                 )
             )
         state.thread_files[thread_id] = records
@@ -1624,20 +1652,39 @@ async def on_files_uploaded(files, state: UIState):
     return state, _conversation_panel_update(state)
 
 
-def on_clear_files(state: UIState):
+async def on_clear_files(state: UIState):
     # Handle case where state is None
     if state is None:
         state = _initialize_state()
     if _guard_and_warn(state):
         return state, _conversation_panel_update(state)
-        
+
     current_thread = state.current_thread_id
     if not current_thread:
         return state, _conversation_panel_update(state)
     if _is_demo_thread(state, current_thread):
         gr.Warning('The demo conversation does not support file management.')
         return state, _conversation_panel_update(state)
-    state.thread_files[current_thread] = []
+
+    thread_records = list(state.thread_files.get(current_thread, []))
+    deletable_records = []
+    for record in thread_records:
+        path_value = record.path
+        if not path_value:
+            continue
+        resolved = _safe_resolve(path_value)
+        try:
+            resolved.relative_to(DATA_DIR)
+        except ValueError:
+            continue
+        deletable_records.append(record)
+
+    if not deletable_records:
+        gr.Info("No user uploads to clear for this conversation.")
+        return state, _conversation_panel_update(state)
+
+    await _delete_thread_uploads(state, current_thread, deletable_records)
+    await _refresh_thread_files_for(state, current_thread)
     state.uploaded_files = []
     return state, _conversation_panel_update(state)
 
