@@ -959,7 +959,7 @@ async def on_request_password_reset(email: str, state: UIState):
     await AUTH_SERVICE.send_password_reset(target_email)
     return (
         state,
-        _auth_message("If the account exists, a reset email is on the way."),
+        _auth_message("A reset email is on the way."),
         _logout_visibility(state),
         _login_visibility(state),
     )
