@@ -4,6 +4,8 @@
 This version is a web-app version of the Repuragnet, used to deploy the web app to multiple users.
 For a local app setup that runs entirely on your local machine, please refer to [Repuragent Local](https://github.com/pharmbio/repuragent).
 
+Please read [Repuragent documentation](https://repuragent.readthedocs.io/) for more details.
+
 ## Overview
 
 Drug repurposing offers an efficient strategy to accelerate therapeutic discovery by identifying new indications for existing drugs. However, the process remains hindered by the heterogeneity of biological and chemical data and the difficulty of forming early, evidence-based hypotheses about candidate drugs, targets, and clinical endpoints. We introduce Repuragent (Drug Repurposing Agentic System), a proof-of-concept multi-agent framework designed to autonomously plan, execute, and refine data-driven repurposing workflows under human-in-the-loop supervision. The system integrates autonomous research, data extraction, knowledge graph (KG) construction, and analytical reasoning with an adaptive long-term memory mechanism that improves the system over time.
@@ -11,10 +13,6 @@ Drug repurposing offers an efficient strategy to accelerate therapeutic discover
 <div align="center">
   <img src="images/agent_architecture.png" width="500">
 </div>
-
-
-### Demo Page with example output:
-[RepurAgent Demo Page](https://repuragent.streamlit.app) with example output for a COVID-19 repurposing.
 
 
 ### Core Agent Architecture
