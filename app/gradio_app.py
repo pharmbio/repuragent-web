@@ -2440,7 +2440,7 @@ def build_demo():
                     with gr.Tab("Forgot password"):
                         reset_request_email = gr.Textbox(label="Email", placeholder="you@example.com")
                         reset_request_btn = gr.Button("Send reset link")
-                logout_btn = gr.Button("Logout", visible=False)
+                logout_btn = gr.Button("Log out", visible=False)
 
                 conversation_list = gr.HTML(
                     value="",
