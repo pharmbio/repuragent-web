@@ -280,7 +280,6 @@ def extract_drugs_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                         "data_truncated": len(drugs) > 10,
                         "complete_data_location": csv_str
                     },
-                    "sample_drugs": [d['chembl_id'] for d in drugs[:10]] if drugs else [],
                     "analysis_recommendation": f"For complete analysis, use the full dataset at {csv_str} which contains all {len(drugs)} drugs"
                 },
                 "output_file": csv_str,
@@ -303,7 +302,6 @@ def extract_drugs_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                         "data_truncated": False,
                         "complete_data_location": None
                     },
-                    "sample_drugs": [],
                     "analysis_recommendation": "No drugs found in the knowledge graph - consider different extraction parameters or verify the knowledge graph contains drug information"
                 },
                 "output_file": None,
@@ -478,7 +476,6 @@ def extract_proteins_from_kg(
                     "complete_data_location": output_str,
                     "druggable_filter_applied": druggable_only
                 },
-                "sample_proteins": protein_info['gene_symbol'][:10] if 'gene_symbol' in protein_info else [],
                 "analysis_recommendation": f"For complete analysis, use the full dataset at {output_str} which contains all {len(df)} proteins"
             },
             "output_file": output_str,
@@ -586,7 +583,6 @@ def extract_pathways_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                         "data_truncated": len(pathways) > 10,
                         "complete_data_location": csv_str
                     },
-                    "sample_pathways": [p['name'] for p in pathways[:10]] if pathways else [],
                     "analysis_recommendation": f"For complete analysis, use the full dataset at {csv_str} which contains all {len(pathways)} pathways"
                 },
                 "output_file": csv_str,
@@ -608,8 +604,6 @@ def extract_pathways_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                         "data_truncated": False,
                         "complete_data_location": None
                     },
-                    "sample_pathways": [],
-                    "pathway_types": [],
                     "analysis_recommendation": "No pathways found in the knowledge graph - consider different extraction parameters or verify the knowledge graph contains pathway information"
                 },
                 "output_file": None,
@@ -708,7 +702,6 @@ def extract_side_effects_from_kg(
                         "complete_data_location": csv_str,
                         "drug_filter_applied": drug_id is not None
                     },
-                    "sample_side_effects": side_effects[:10],
                     "analysis_recommendation": f"For complete analysis, use the full dataset at {csv_str} which contains all {len(side_effects)} side effects"
                 },
                 "output_file": csv_str,
@@ -732,7 +725,6 @@ def extract_side_effects_from_kg(
                         "complete_data_location": None,
                         "drug_filter_applied": drug_id is not None
                     },
-                    "sample_side_effects": [],
                     "drugs_with_side_effects": [],
                     "analysis_recommendation": f"No side effects found in the knowledge graph{' for the specified drug' if drug_id else ''} - consider different extraction parameters or verify the knowledge graph contains side effect information"
                 },
@@ -1228,7 +1220,6 @@ def getDrugsforProteins(
                 "unique_drugs": len(api_response['chembl_id'].unique()),
                 "unique_proteins": len(api_response['gene_symbol'].unique())
             },
-            "sample_drug_protein_pairs": api_response[['gene_symbol','chembl_id']].head(10).to_dict('records'),
             "analysis_recommendation": f"For complete analysis, use the full dataset at {output_str} which contains all {len(api_response)} drug-protein pairs"
         },
         "output_file": output_str,
