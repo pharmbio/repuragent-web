@@ -19,10 +19,10 @@ from core.prompts.prompts import SUPERVISOR_SYSTEM_PROMPT_ver3
 def initialize_agents(llm, user_request: Optional[str] = None, use_episodic_learning: bool = True):
     """Initialize all agents with optional episodic learning for planning agent."""
     planning_llm = init_chat_model("gpt-4o", model_provider="openai", api_key=OPENAI_API_KEY)
-    data_llm = init_chat_model("gpt-5", model_provider="openai", api_key=OPENAI_API_KEY)
+    data_llm = init_chat_model("gpt-5.2", model_provider="openai", api_key=OPENAI_API_KEY)
     research_llm = init_chat_model("gpt-5-mini", model_provider="openai", api_key=OPENAI_API_KEY)
-    prediction_llm = init_chat_model("gpt-4o", model_provider="openai", api_key=OPENAI_API_KEY)
-    report_llm = init_chat_model("gpt-5", model_provider="openai", api_key=OPENAI_API_KEY)
+    prediction_llm = init_chat_model("gpt-5-mini", model_provider="openai", api_key=OPENAI_API_KEY)
+    report_llm = init_chat_model("gpt-5.2", model_provider="openai", api_key=OPENAI_API_KEY)
 
     research_agent = build_research_agent(research_llm)
     data_agent = build_data_agent(data_llm)
