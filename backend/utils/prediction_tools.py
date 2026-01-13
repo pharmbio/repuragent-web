@@ -8,6 +8,12 @@ from langchain_core.tools import tool
 
 from backend.utils.output_paths import task_file_path
 from backend.utils.storage_paths import get_data_root
+import json
+import re
+import requests
+from urllib.parse import quote
+from tqdm import tqdm
+from backend.utils.chemical_annotator.chembl_utils import chembl_get_id
 
 DATA_ROOT = get_data_root()
 
@@ -492,14 +498,6 @@ def CYP2C9_classifier(smiles_input: Union[str, List[str]]):
 
 
 ### ML SMILES 
-import json
-import re
-import requests
-import pandas as pd
-from urllib.parse import quote
-from tqdm import tqdm
-from backend.utils.chemical_annotator.chembl_utils import chembl_get_id
-
 BASE_URL = "https://repurposedrugs.aittokallio.group"
 _JSON_RE = re.compile(r"\{.*\}\s*$", re.DOTALL)
 
