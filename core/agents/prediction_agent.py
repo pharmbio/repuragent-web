@@ -15,6 +15,7 @@ from backend.utils.prediction_tools import (
     Solubility_regressor,
     Lipophilicity_regressor,
     hERG_classifier,
+    predict_repurposedrugs
 )
 
 def build_prediction_agent(llm):
@@ -32,7 +33,8 @@ def build_prediction_agent(llm):
                 Lipophilicity_regressor,
                 PAMPA_classifier, 
                 BBB_classifier,
-                prompt_with_file_path], 
+                prompt_with_file_path,
+                predict_repurposedrugs], 
         name='prediction_agent',
         prompt=PREDICTION_SYSTEM_PROMPT_ver3,
         version='v2'
