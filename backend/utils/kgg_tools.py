@@ -200,13 +200,12 @@ def create_knowledge_graph(
 # ========== Tool 3: Extract Drugs from KG ==========
 
 @tool
-def extract_drugs_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
+def extract_drugs_from_kg(kg_path: str) -> Dict[str, Any]:
     """
     Extract drug information from a previously created knowledge graph.
     
     Args:
         kg_path: Path to the saved knowledge graph
-        limit: Maximum number of drugs to return
     
     Returns:
         Standardized dictionary with:
@@ -250,9 +249,6 @@ def extract_drugs_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                 
                 drugs.append(drug_info)
                 
-                if len(drugs) >= limit:
-                    break
-        
         # Convert drugs list to pandas DataFrame and export as CSV
         if drugs:
             # Create DataFrame from drugs list
@@ -286,7 +282,6 @@ def extract_drugs_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                 "message": f"Successfully extracted {len(drugs)} known drugs. Showing 10 sample records in response data, complete dataset saved to {csv_str}",
                 "metadata": {
                     "kg_path": kg_path,
-                    "limit_requested": limit,
                     "drugs_found": len(drugs),
                     "csv_exported": csv_str,
                     "data_completeness": "sample_only_use_csv_for_full_analysis"
@@ -308,7 +303,6 @@ def extract_drugs_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                 "message": "No drugs found in the knowledge graph",
                 "metadata": {
                     "kg_path": kg_path,
-                    "limit_requested": limit,
                     "drugs_found": 0,
                 }
             }
@@ -516,13 +510,12 @@ def extract_proteins_from_kg(
 # ========== Tool 6: Extract Pathways from KG ==========
 
 @tool
-def extract_pathways_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
+def extract_pathways_from_kg(kg_path: str) -> Dict[str, Any]:
     """
     Extract pathway information from a knowledge graph.
     
     Args:
         kg_path: Path to the saved knowledge graph
-        limit: Maximum number of pathways to return
     
     Returns:
         Dictionary containing pathway information
@@ -556,9 +549,6 @@ def extract_pathways_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                 
                 pathways.append(pathway_info)
                 
-                if len(pathways) >= limit:
-                    break
-        
         # Convert pathways list to pandas DataFrame and export as CSV
         if pathways:
             # Create DataFrame from pathways list
@@ -589,7 +579,6 @@ def extract_pathways_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                 "message": f"Successfully extracted {len(pathways)} pathways. Showing {min(len(pathways), 10)} sample records in response data, complete dataset saved to {csv_str}",
                 "metadata": {
                     "kg_path": kg_path,
-                    "limit_requested": limit,
                     "pathways_found": len(pathways),
                     "csv_exported": csv_str,
                 }
@@ -610,7 +599,6 @@ def extract_pathways_from_kg(kg_path: str, limit: int = 20) -> Dict[str, Any]:
                 "message": "No pathways found in knowledge graph",
                 "metadata": {
                     "kg_path": kg_path,
-                    "limit_requested": limit,
                     "pathways_found": 0,
                     "extraction_time": datetime.now().isoformat()
                 }
