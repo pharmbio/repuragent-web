@@ -196,6 +196,9 @@ def _load_demo_threads() -> List[Dict]:
                 "title": title,
                 "created_at": entry.get("created_at"),
                 "is_demo": True,
+                "user_id": entry.get("user_id"),
+                "results_user_id": entry.get("results_user_id"),
+                "results_thread_id": entry.get("results_thread_id"),
             }
         )
     return demo_threads
@@ -205,12 +208,25 @@ def _combine_user_and_demo_threads(user_threads: List[Dict], demo_threads: Optio
     """Append demo threads to the user's thread list without duplicating IDs."""
     resolved_demo = demo_threads if demo_threads is not None else _load_demo_threads()
     combined = list(user_threads)
-    seen_ids = {thread.get("thread_id") for thread in user_threads}
+    thread_index = {thread.get("thread_id"): idx for idx, thread in enumerate(combined)}
     for demo in resolved_demo:
         tid = demo.get("thread_id")
-        if not tid or tid in seen_ids:
+        if not tid:
             continue
-        combined.append(demo)
+        existing_idx = thread_index.get(tid)
+        if existing_idx is None:
+            combined.append(demo)
+            thread_index[tid] = len(combined) - 1
+            continue
+        existing = combined[existing_idx]
+        existing["is_demo"] = True
+        if demo.get("title"):
+            existing["title"] = demo["title"]
+        if demo.get("created_at"):
+            existing["created_at"] = demo["created_at"]
+        for key in ("user_id", "results_user_id", "results_thread_id"):
+            if demo.get(key):
+                existing[key] = demo[key]
     return combined
 
 
@@ -1383,7 +1399,9 @@ def _hydrate_demo_thread_files(state: UIState, demo_threads: List[Dict]) -> None
         thread_id = thread.get("thread_id")
         if not thread_id:
             continue
-        disk_files = list_task_files(thread_id, user_id=None)
+        results_user_id = thread.get("results_user_id") or thread.get("user_id")
+        results_thread_id = thread.get("results_thread_id") or thread_id
+        disk_files = list_task_files(results_thread_id, user_id=results_user_id)
         records: List[FileRecord] = []
         for path in disk_files:
             records.append(
