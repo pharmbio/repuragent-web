@@ -39,6 +39,7 @@ pandasgwas==1.2.2
 networkx==3.4.2
 rdkit==2025.9.1
 pubchempy==1.0.4
+nbformat==5.10.4
 
 # Document processing - exact versions
 unstructured==0.18.14
