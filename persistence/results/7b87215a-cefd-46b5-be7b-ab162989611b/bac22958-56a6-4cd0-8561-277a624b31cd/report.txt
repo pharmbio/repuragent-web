@@ -1,0 +1,99 @@
+## Executive Summary
+
+* **Objective**: Identify **20 existing (repurposable) drug candidates** for **acute myeloid leukemia (AML)** with an emphasis on **inhibiting proliferation in AML cell lines (notably MOLM13)**, using a **knowledge-graph (KG)-driven** discovery workflow and generating **experimentally testable IC50 assay concentration series** for the final shortlist.
+
+* **Approach**:  
+  A multi-agent pipeline executed a REMEDi4ALL-style in silico repurposing workflow:
+
+  1. build an AML knowledge graph at **low protein threshold (0.45)**,
+  2. extract **proteins, pathways, MoAs, and known drugs**, then query drugs for all entities,
+  3. merge into a **master candidate set** and **carefully filter known AML drugs** (including salt/form overlap),
+  4. run **ML-based ADMET predictions** on the filtered set,
+  5. compute a **mechanistic-prioritized ranking** (mechanistic evidence weighted above ADMET), generate visualizations, and select a **diversity-aware Top 20** with **IC50 concentration series** suitable for MOLM13 viability assays.
+
+* **Key Results** (high-level)
+
+  1. **KG built for AML (EFO_0000222)** at **protein threshold 0.45** produced **6,688 nodes / 16,012 edges**, extracting **135 proteins**, **851 pathways**, **67 MoAs**, and **80 KG-known drugs**.
+  2. Entity-to-drug expansion yielded **~299 unique drugs** (via protein/pathway/MoA association queries), merged into **601 unique drugs** in a master table.
+  3. Careful filtering removed **90 entries** as AML-known or hidden overlaps (salt/form name normalization), leaving **511 candidate drugs** for prioritization.
+  4. ML ADMET models executed successfully but **predictions were limited to 418/511** due to missing SMILES for **93 compounds** (mostly pathway-only sourced).
+  5. A **mechanistic-dominant scoring model (70% mechanistic / 30% ADMET)** produced `master_ranked.csv` (511 rows) and a **diversity-aware Top 20** with per-compound **10-point, 3-fold dilution** IC50 series saved in `top20_selected.csv`.
+
+* **Recommendations**
+
+  * **Immediate**: Use `top20_selected.csv` as the experiment-ready deliverable for MOLM13 IC50 assays (includes per-compound dilution series).
+  * **Quality improvement**: Run a **structure enrichment step** (ChEMBL ID → canonical SMILES/InChIKey; salt stripping) for the **93 missing-SMILES compounds**, then **re-run ADMET + re-rank** to remove uncertainty penalties.
+  * **Biology specificity**: Add MOLM13-specific evidence layers (e.g., FLT3-ITD/KMT2A context, gene expression dependencies) to refine mechanistic scoring beyond KG connectivity alone.
+
+---
+
+## Workflow Overview
+
+* **Task Breakdown**
+
+  1. **Knowledge Graph Creation & Querying**
+  2. **Data Merging and Filtering**
+  3. **ADMET Prediction with ML Models**
+  4. **Integrated Scoring, Ranking & Visualization + Top 20 selection + IC50 concentration series**
+  5. **Report Generation**
+
+* **Agent Coordination**
+
+  * **Research Agent**: Disease identification, KG construction, extraction of proteins/pathways/MoAs/known drugs, and drug retrieval for all extracted entities. Also provided ADMET endpoint prioritization rationale (with MOLM13/P-gp context and example MOLM13 IC50 literature).
+  * **Data Agent**: Merged datasets, filtered known AML drugs with salt/form overlap handling, created master files, integrated ADMET outputs, computed mechanistic-first ranking, generated visualizations, selected Top 20 with mechanistic diversity, and generated IC50 dilution series.
+  * **Prediction Agent**: Executed ML ADMET models (solubility, lipophilicity, PAMPA permeability, P-gp, hERG, CYP inhibition classifiers) over the filtered candidate set.
+  * **Report Agent**: Consolidated the full workflow narrative into a structured scientific report.
+
+* **Process Flow**
+
+  1. AML disease entity resolved → **EFO_0000222** selected.
+  2. KG created (threshold 0.45, phase ≥3) → entity extraction (proteins/pathways/MoAs/drugs).
+  3. Query drugs for **all extracted proteins/pathways/MoAs** → candidate association tables.
+  4. Merge to master → deduplicate + filter known AML drugs (including hidden overlaps).
+  5. Predict ADMET via ML models → integrate predictions with mechanistic provenance.
+  6. Rank candidates (mechanism-dominant) → visualize and select diverse Top 20 → compute IC50 dilution series.
+  7. Package final outputs into experiment-ready artifacts and this report.
+
+---
+
+## Detailed Findings: raw results from sub-agents
+
+### Research Context
+
+* **Literature Insights**
+
+  * MOLM13 examples highlight the range of observed potencies and the need for exposure-aware assay planning:
+    * TP-0903 reported **~16–21 nM IC50** in FLT3-mutated AML cell lines including **MOLM13** (PMID: **33268594**).
+    * EPZ011989 showed **~4.4 µM IC50** in MOLM-13 metabolic activity readouts (PMID: **38339323**).
+  * **P-gp (ABCB1/MDR1)** relevance: MOLM13 can exhibit **low basal P-gp** in some contexts but **P-gp induction/selection** is reported in resistant variants and is a recognized AML resistance mechanism.
+
+* **Knowledge Graph Analysis**
+
+  * Disease: **EFO_0000222 (acute myeloid leukemia)**
+  * KG build parameters: **protein_threshold=0.45**, **clinical_trial_phase=3**
+  * KG stats: **6,688 nodes**, **16,012 edges**
+  * Extracted entities:
+    * **Proteins:** 135
+    * **Pathways:** 851
+    * **Mechanisms of action:** 67
+    * **Known drugs:** 80
+
+---
+
+## Conclusions and Impact
+
+* A KG-driven workflow can systematically produce a **traceable, mechanism-rich candidate list** for AML repurposing and triage into an **experiment-ready Top 20**.
+* Mechanistic evidence dominated prioritization, while ADMET served as a feasibility and safety modifier.
+
+---
+
+## Deliverable Index
+
+| Artifact                    | Purpose                                                                                |
+|----------------------------|----------------------------------------------------------------------------------------|
+| `master_ranked.csv`         | Full ranked list with mechanistic + ADMET features                                     |
+| `top20_selected.csv`        | Final Top 20 with IC50 dilution series                                                  |
+| `audit_mapping.csv`         | Traceability of removed compounds                                                       |
+| `score_histogram.png`       | Score distribution sanity check                                                         |
+| `mech_vs_admet_scatter.png` | Mechanistic vs ADMET tradeoff                                                           |
+| `top20_moa_diversity.png`   | Mechanistic diversity proxy                                                             |
