@@ -114,8 +114,8 @@ def create_knowledge_graph(
     
     Args:
         disease_id: EFO/MONDO disease ID (e.g., "EFO_0000685", "MONDO_0004975")
-        clinical_trial_phase: Minimum clinical trial phase (1-4, ALWAYS USE 3)
-        protein_threshold: Minimum protein association score (0.0-1.0, ALWAYS USE 0.35)
+        clinical_trial_phase: Minimum clinical trial phase (1-4)
+        protein_threshold: Minimum protein association score (0.0-1.0)
     
     Returns:
         Standardized dictionary with:
