@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import time
 from contextlib import asynccontextmanager
 from typing import Any, Optional
 
@@ -79,7 +80,7 @@ async def stream_langgraph_events(
     - tool_call_start: tool invocation began
     - tool_result: tool invocation completed
     - chunk: checkpoint/state updates
-    - complete: finished (payload indicates interruption)
+    - complete: finished (payload includes interruption flag + timestamp)
     """
     if not thread_id:
         raise ValueError("No active conversation thread is selected.")
@@ -152,11 +153,11 @@ async def stream_langgraph_events(
                 except Exception as state_error:  # pragma: no cover - defensive
                     logger.warning("Could not check execution state: %s", state_error)
 
-            yield ("complete", interrupted)
+            yield ("complete", {"interrupted": interrupted, "completed_at": time.time()})
 
     except Exception as exc:
         if check_for_interrupts and _is_interrupt_exception(exc):
-            yield ("complete", True)
+            yield ("complete", {"interrupted": True, "completed_at": time.time()})
             return
         raise
     finally:

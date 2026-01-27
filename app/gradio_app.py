@@ -364,10 +364,32 @@ def _apply_stream_event(event_type: str, payload: Any, state: UIState) -> bool:
     if event_type == "chunk":
         return process_chunk(state, payload)
     if event_type == "complete":
-        state.waiting_for_approval = bool(payload)
-        state.approval_interrupted = bool(payload)
+        interrupted, _ = _parse_complete_payload(payload)
+        state.waiting_for_approval = interrupted
+        state.approval_interrupted = interrupted
         return True
     return False
+
+
+def _parse_complete_payload(payload: Any) -> Tuple[bool, Optional[datetime]]:
+    """Return (interrupted, completed_at) from a completion payload."""
+    if isinstance(payload, dict):
+        interrupted = bool(payload.get("interrupted"))
+        completed_at = payload.get("completed_at")
+    else:
+        interrupted = bool(payload)
+        completed_at = None
+
+    completed_dt = None
+    if isinstance(completed_at, (int, float)):
+        completed_dt = datetime.fromtimestamp(completed_at, tz=timezone.utc)
+    elif isinstance(completed_at, str):
+        try:
+            completed_dt = datetime.fromisoformat(completed_at)
+        except ValueError:
+            completed_dt = None
+
+    return interrupted, completed_dt
 
 
 def _drain_pending_stream_events(state: UIState, thread_id: Optional[str]) -> bool:
@@ -748,6 +770,7 @@ def _reset_user_state(state: UIState) -> None:
     state.approval_interrupted = False
     state.stale_threads = set()
     state.pending_stream_events = {}
+    state.last_run_at = {}
 
 
 MAX_VISIBLE_FILES = 100
@@ -1381,6 +1404,7 @@ async def _hydrate_thread_files(state: UIState, thread_ids: List[str]) -> Set[st
                     path=storage_path,
                     hash=row.get("checksum"),
                     name=name,
+                    uploaded_at=row.get("created_at"),
                     record_id=str(record_id) if record_id else None,
                 )
             )
@@ -1408,6 +1432,7 @@ def _hydrate_demo_thread_files(state: UIState, demo_threads: List[Dict]) -> None
                     path=str(path),
                     hash=None,
                     name=path.name,
+                    uploaded_at=datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc),
                     record_id=None,
                 )
             )
@@ -1722,6 +1747,16 @@ def _append_file_paths(prompt: str, state: UIState) -> str:
     files = state.uploaded_files
     if not files:
         return prompt
+    thread_id = state.current_thread_id
+    last_run_at = state.last_run_at.get(thread_id) if thread_id else None
+    if last_run_at:
+        files = [
+            file
+            for file in files
+            if file.uploaded_at and file.uploaded_at > last_run_at
+        ]
+        if not files:
+            return prompt
     if len(files) == 1:
         return f"{prompt}\n\nUploaded file: {files[0].path}"
     addition = "\n\nUploaded files:\n" + "\n".join(f"- {file.path}" for file in files)
@@ -1771,7 +1806,8 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
             _conversation_panel_update(state),
         )
     else:
-        final_prompt = _append_file_paths(prompt, state)
+        resume = state.waiting_for_approval
+        final_prompt = prompt if resume else _append_file_paths(prompt, state)
         append_user_message(state, prompt)
         user_messages = [m for m in state.messages if m.role == "user"]
         if len(user_messages) == 1 and state.current_thread_id and state.user_id:
@@ -1784,7 +1820,6 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
             use_episodic_learning=state.use_episodic_learning,
         )
         state.current_app_config = app_config
-        resume = state.waiting_for_approval
         state.waiting_for_approval = False
         state.approval_interrupted = False
         stream_input = build_stream_input(prompt if resume else final_prompt, resume=resume)
@@ -1868,6 +1903,13 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
                     except StopAsyncIteration:
                         stream_task = None
                         break
+
+                    if event_type == "complete" and watch_thread_id:
+                        interrupted, completed_at = _parse_complete_payload(payload)
+                        if not interrupted:
+                            state.last_run_at[watch_thread_id] = completed_at or datetime.now(
+                                timezone.utc
+                            )
 
                     if not ui_attached:
                         buffer.append((event_type, payload))
