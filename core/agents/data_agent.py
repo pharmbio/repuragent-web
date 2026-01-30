@@ -45,7 +45,9 @@ DEFAULT_AUTHORIZED_IMPORTS = [
     'Bio',
     'posixpath',
     'ntpath',
-    'pybel'
+    'pybel',
+    'requests',
+    'openpyxl',
 ]
 authorized_imports = sorted(set(BASE_BUILTIN_MODULES) | set(DEFAULT_AUTHORIZED_IMPORTS))
 
