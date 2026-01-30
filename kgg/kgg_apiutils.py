@@ -1,10 +1,13 @@
 # This script contains some functions utils_v2.py, kg_gen_v5.py modified explicitly for the KGG RestAPI.
 import logging
+import random
+import time
 from collections import defaultdict
 import networkx as nx
 import pandas as pd
 import requests
 from chembl_webresource_client.new_client import new_client
+from chembl_webresource_client.http_errors import BaseHttpException, HttpApplicationError
 from pybel import BELGraph
 from pybel.dsl import Protein, Abundance, Pathology, BiologicalProcess, Gene
 from tqdm.auto import tqdm
@@ -20,6 +23,19 @@ from backend.utils.storage_paths import get_data_root
 DATA_ROOT = get_data_root()
 
 logger = logging.getLogger(__name__)
+
+
+def _retry_chembl_request(func, *, max_attempts=3, base_delay=1.0, jitter=0.25, context=""):
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return func()
+        except (HttpApplicationError, BaseHttpException, requests.exceptions.RequestException) as exc:
+            if attempt == max_attempts:
+                raise
+            delay = base_delay * (2 ** (attempt - 1)) + random.uniform(0, jitter)
+            suffix = f" [{context}]" if context else ""
+            logger.warning("ChEMBL request failed%s (attempt %s/%s): %s", suffix, attempt, max_attempts, exc)
+            time.sleep(delay)
 
 
 def getDrugCount(disease_id):
@@ -251,11 +267,12 @@ def RetMech(chemblIds) -> dict:
     getMech = new_client.mechanism
     mechList = []
     for chemblid in tqdm(chemblIds, desc='Retrieving mechanisms from ChEMBL'):
-        mechs = getMech.filter(
-            molecule_chembl_id=chemblid
-        ).only(['mechanism_of_action', 'target_chembl_id','action_type'])
-        
-        mechList.append(list(mechs))
+        def _fetch_mechs():
+            return list(getMech.filter(
+                molecule_chembl_id=chemblid
+            ).only(['mechanism_of_action', 'target_chembl_id', 'action_type']))
+
+        mechList.append(_retry_chembl_request(_fetch_mechs, context=f"mechanism {chemblid}"))
 
     named_mechList = dict(zip(chemblIds, mechList))
     named_mechList = {
@@ -277,12 +294,15 @@ def RetAct(chemblIds) -> dict:
     filtered_list=['assay_chembl_id','assay_type','pchembl_value','target_chembl_id',
                    'target_organism','bao_label','target_type']
     for chembl in tqdm(chemblIds, desc='Retrieving bioassays from ChEMBL'):
-        acts = GetAct.filter(
-            molecule_chembl_id=chembl,
-            pchembl_value__isnull=False,
-            assay_type_iregex='(B|F)',
-            target_organism='Homo sapiens'
-        ).only(filtered_list)
+        def _fetch_acts():
+            return list(GetAct.filter(
+                molecule_chembl_id=chembl,
+                pchembl_value__isnull=False,
+                assay_type_iregex='(B|F)',
+                target_organism='Homo sapiens'
+            ).only(filtered_list))
+
+        acts = _retry_chembl_request(_fetch_acts, context=f"activity {chembl}")
         data = []
         for d in acts:
             if float(d.get('pchembl_value')) < 6:
@@ -290,7 +310,7 @@ def RetAct(chemblIds) -> dict:
             if (d.get('bao_label') != 'single protein format'):
                 continue
             tar = d.get('target_chembl_id')   
-            tar_dict = getTar.get(tar)
+            tar_dict = _retry_chembl_request(lambda: getTar.get(tar), context=f"target {tar}")
             try:
                 if tar_dict['target_type'] in ('CELL-LINE', 'UNCHECKED'):
                     continue
