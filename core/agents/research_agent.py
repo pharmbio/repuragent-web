@@ -2,7 +2,7 @@ from langgraph.prebuilt import create_react_agent
 
 from app.config import logger
 from core.prompts.prompts import RESEARCH_SYSTEM_PROMPT_ver3
-from backend.utils.research_tools import literature_search_pubmed, protocol_search_sop
+from backend.utils.research_tools import literature_search_pubmed, protocol_search_sop, getProteinsforDrugs, getMechanismofActionforDrugs, getPathwaysforDrugs
 from backend.utils.chemical_annotator.tools import annotate_chemicals
 from backend.utils.kgg_tools import (
         search_disease_id,
@@ -13,7 +13,7 @@ from backend.utils.kgg_tools import (
         extract_mechanism_of_actions_from_kg,
         getDrugsforProteins, 
         getDrugsforMechanisms,
-        getDrugsforPathways
+        getDrugsforPathways,
     )
 logger.info("Using KGG-based modular tools")
 KGG_AVAILABLE = True
@@ -32,6 +32,9 @@ def build_research_agent(llm):
         getDrugsforProteins,
         getDrugsforPathways,
         getDrugsforMechanisms,
+        getProteinsforDrugs,
+        getMechanismofActionforDrugs,
+        getPathwaysforDrugs,
         annotate_chemicals,
     ]
 
