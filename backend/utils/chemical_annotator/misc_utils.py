@@ -14,7 +14,13 @@ Year: 2025
 
 import pandas as pd
 import re
+import time
+from functools import lru_cache
+from urllib.parse import quote
+import requests
+import pubchempy as pcp
 from tqdm import tqdm
+from chembl_webresource_client.new_client import new_client
 from .chembl_utils import chembl_get_id
 from .chembl_utils import chembl_drug_annotations
 from .chembl_utils import chembl_drug_indications
@@ -22,6 +28,9 @@ from .chembl_utils import chembl_assay_information
 from .chembl_utils import chembl_mechanism_of_action
 from .chembl_utils import surechembl_get_id
 from .pubchem_utils import pubchem_get_cid
+
+CACTUS_BASE = "https://cactus.nci.nih.gov/chemical/structure"
+molecule = new_client.molecule
 
 # %%
 def _normalize_header(value) -> str:
@@ -44,6 +53,16 @@ def _infer_identifier_type(value: str) -> str | None:
     return None
 
 
+def find_smiles_column(compounds_list: pd.DataFrame) -> str | None:
+    """
+    Return the first column name that contains 'smiles' (case-insensitive).
+    """
+    for col in compounds_list.columns:
+        if "smiles" in str(col).strip().lower():
+            return col
+    return None
+
+
 def resolve_identifier_column(compounds_list: pd.DataFrame, identifier: str) -> tuple[str, str]:
     """
     Resolve which DataFrame column contains the requested compound identifiers.
@@ -57,6 +76,19 @@ def resolve_identifier_column(compounds_list: pd.DataFrame, identifier: str) -> 
         raise ValueError("identifier must be a non-empty string")
 
     requested = identifier.strip()
+    columns = list(compounds_list.columns)
+
+    # If identifier matches a column name exactly (case-insensitive), use it directly.
+    exact_column_matches = [col for col in columns if str(col).strip().lower() == requested.lower()]
+    if exact_column_matches:
+        column_name = exact_column_matches[0]
+        inferred = _infer_identifier_type(column_name)
+        if inferred is None:
+            raise ValueError(
+                f"Column '{column_name}' does not look like a SMILES/InChI/InChIKey identifier."
+            )
+        return column_name, inferred
+
     requested_type = requested.lower()
     if requested_type not in {"smiles", "inchi", "inchikey"}:
         inferred = _infer_identifier_type(requested)
@@ -66,8 +98,6 @@ def resolve_identifier_column(compounds_list: pd.DataFrame, identifier: str) -> 
                 f"(or a column name containing one of those)."
             )
         requested_type = inferred
-
-    columns = list(compounds_list.columns)
 
     # Prefer exact case-insensitive match first.
     exact_matches = [col for col in columns if str(col).strip().lower() == requested_type]
@@ -123,6 +153,123 @@ def resolve_identifier_column(compounds_list: pd.DataFrame, identifier: str) -> 
         )
 
     return best, requested_type
+
+
+def auto_detect_identifier_column(compounds_list: pd.DataFrame) -> tuple[str, str]:
+    """
+    Try to detect a single identifier column, preferring SMILES, then InChIKey, then InChI.
+    Returns (column_name, identifier_type).
+    """
+    for candidate in ("smiles", "inchikey", "inchi"):
+        try:
+            return resolve_identifier_column(compounds_list, candidate)
+        except ValueError:
+            continue
+    # Fallback: detect other identifier-like columns by name (e.g., chembl, pubchem, cas, cid)
+    def looks_like_alt_identifier(col) -> bool:
+        normalized = _normalize_header(col)
+        if not normalized:
+            return False
+        if "chembl" in normalized:
+            return True
+        if "pubchem" in normalized:
+            return True
+        if normalized in {"cid", "cas"}:
+            return True
+        if "casrn" in normalized or "casnumber" in normalized or "casid" in normalized:
+            return True
+        if "pubchemcid" in normalized or "pubchemcid" in normalized:
+            return True
+        if "chemblid" in normalized:
+            return True
+        return False
+
+    alt_candidates = [col for col in compounds_list.columns if looks_like_alt_identifier(col)]
+    if len(alt_candidates) == 1:
+        return alt_candidates[0], "any"
+    if len(alt_candidates) > 1:
+        alt_list = ", ".join([str(c) for c in alt_candidates])
+        raise ValueError(
+            "Multiple possible identifier columns found: "
+            f"{alt_list}. Please keep only one identifier column in the input."
+        )
+    available = ", ".join([str(c) for c in compounds_list.columns])
+    raise ValueError(
+        "Could not auto-detect an identifier column. "
+        "Expected a column containing SMILES, InChIKey, or InChI. "
+        f"Available columns: {available}"
+    )
+
+
+def _clean_identifier(value):
+    if value is None or pd.isna(value):
+        return None
+    text = str(value).strip()
+    return text if text else None
+
+
+def _is_chembl_id(value: str) -> bool:
+    return bool(re.fullmatch(r"CHEMBL\\d+", value.upper()))
+
+
+def _looks_like_inchikey(value: str) -> bool:
+    return bool(re.fullmatch(r"[A-Z]{14}-[A-Z]{10}-[A-Z]", value))
+
+
+@lru_cache(maxsize=50_000)
+def resolve_smiles_any(identifier: str, *, pause_s: float = 0.0, timeout_s: float = 15.0) -> str | None:
+    """
+    Resolve many identifier types to canonical SMILES.
+    Order:
+      1) ChEMBL IDs via ChEMBL API
+      2) CACTUS resolver
+      3) PubChem (CID / InChIKey / name)
+    """
+    ident = _clean_identifier(identifier)
+    if not ident:
+        return None
+
+    ident_u = ident.upper()
+
+    if _is_chembl_id(ident_u):
+        try:
+            mol = molecule.get(ident_u)
+            smiles = mol.get("molecule_structures", {}).get("canonical_smiles")
+            if smiles:
+                if pause_s:
+                    time.sleep(pause_s)
+                return smiles
+        except Exception:
+            pass
+
+    try:
+        url = f"{CACTUS_BASE}/{quote(ident)}/smiles"
+        response = requests.get(url, timeout=timeout_s, headers={"User-Agent": "smiles-resolver/1.0"})
+        if response.ok:
+            text = response.text.strip()
+            if text and "not found" not in text.lower() and "<html" not in text.lower():
+                if pause_s:
+                    time.sleep(pause_s)
+                return text
+    except requests.RequestException:
+        pass
+
+    try:
+        if ident.isdigit():
+            compound = pcp.Compound.from_cid(int(ident))
+            return getattr(compound, "canonical_smiles", None)
+
+        if _looks_like_inchikey(ident_u):
+            compounds = pcp.get_compounds(ident_u, namespace="inchikey")
+        else:
+            compounds = pcp.get_compounds(ident, namespace="name")
+
+        if compounds:
+            return getattr(compounds[0], "canonical_smiles", None)
+    except Exception:
+        pass
+
+    return None
 
 
 def process_compounds(compounds_list, identifier, confidence_threshold=8, assay_type_in=['B', 'F'], pchembl_value_gte=6):
