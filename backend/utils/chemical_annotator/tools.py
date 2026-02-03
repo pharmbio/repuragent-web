@@ -145,6 +145,8 @@ def annotate_chemicals(
         Targets_data = process_targets(Drugs_assay)
         Targets_data = Targets_data.reset_index(drop=True)
         Targets_data.index = Targets_data.index + 1
+        if "target_chembl_id" not in Targets_data.columns:
+            Targets_data["target_chembl_id"] = pd.Series(dtype=object)
         
         # Process EC numbers and get pathway information
         print("Processing EC numbers and retrieving pathway information...")
@@ -183,7 +185,12 @@ def annotate_chemicals(
                     'Pathway': ';'.join(pathways)
                 })
 
-        pathway_data = pd.DataFrame(pathway_data)
+        if pathway_data:
+            pathway_data = pd.DataFrame(pathway_data)
+        else:
+            pathway_data = pd.DataFrame(
+                columns=["target_chembl_id", "EC Numbers", "KEGG_ID", "Pathway"]
+            )
 
         # Write pathway data to Excel
         pathway_data_output = output_dir / f"{safe_prefix}_pathway_info.xlsx"
@@ -192,7 +199,9 @@ def annotate_chemicals(
     
         # Merge pathway_data with Targets_data
         Targets_data = Targets_data.drop(columns=['EC Numbers'], errors='ignore')
-        Targets_data_with_pathways = pd.merge(Targets_data, pathway_data, on='target_chembl_id', how='left')
+        Targets_data_with_pathways = pd.merge(
+            Targets_data, pathway_data, on="target_chembl_id", how="left"
+        )
         
         # Process protein hierarchy data
         print("Retrieving protein hierarchy information...")
