@@ -186,7 +186,11 @@ def auto_detect_identifier_column(compounds_list: pd.DataFrame) -> tuple[str, st
 
     alt_candidates = [col for col in compounds_list.columns if looks_like_alt_identifier(col)]
     if len(alt_candidates) == 1:
-        return alt_candidates[0], "any"
+        col = alt_candidates[0]
+        normalized = _normalize_header(col)
+        if "chembl" in normalized:
+            return col, "chembl"
+        return col, "any"
     if len(alt_candidates) > 1:
         alt_list = ", ".join([str(c) for c in alt_candidates])
         raise ValueError(
@@ -209,7 +213,7 @@ def _clean_identifier(value):
 
 
 def _is_chembl_id(value: str) -> bool:
-    return bool(re.fullmatch(r"CHEMBL\\d+", value.upper()))
+    return bool(re.fullmatch(r"CHEMBL\d+", value.upper()))
 
 
 def _looks_like_inchikey(value: str) -> bool:
@@ -217,7 +221,13 @@ def _looks_like_inchikey(value: str) -> bool:
 
 
 @lru_cache(maxsize=50_000)
-def resolve_smiles_any(identifier: str, *, pause_s: float = 0.0, timeout_s: float = 15.0) -> str | None:
+def resolve_smiles_any(
+    identifier: str,
+    *,
+    identifier_type: str | None = None,
+    pause_s: float = 0.0,
+    timeout_s: float = 15.0,
+) -> str | None:
     """
     Resolve many identifier types to canonical SMILES.
     Order:
@@ -231,7 +241,7 @@ def resolve_smiles_any(identifier: str, *, pause_s: float = 0.0, timeout_s: floa
 
     ident_u = ident.upper()
 
-    if _is_chembl_id(ident_u):
+    if identifier_type == "chembl" or _is_chembl_id(ident_u):
         try:
             mol = molecule.get(ident_u)
             smiles = mol.get("molecule_structures", {}).get("canonical_smiles")

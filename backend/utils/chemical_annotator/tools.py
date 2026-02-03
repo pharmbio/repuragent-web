@@ -106,7 +106,9 @@ def annotate_chemicals(
             if id_type == "smiles":
                 compounds_list["SMILES"] = compounds_list[id_column]
             else:
-                compounds_list["SMILES"] = compounds_list[id_column].map(resolve_smiles_any)
+                compounds_list["SMILES"] = compounds_list[id_column].map(
+                    lambda value: resolve_smiles_any(value, identifier_type=id_type)
+                )
 
         # Fetch data from ChEMBL
         print("Processing compounds...")
