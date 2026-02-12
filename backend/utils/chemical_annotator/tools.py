@@ -25,9 +25,9 @@ from backend.utils.output_paths import resolve_output_folder
 @tool
 def annotate_chemicals(
     input_file,
-    confidence_threshold=5,
+    confidence_threshold=6,
     assay_type_in='B,F',
-    pchembl_value_gte=6.0,
+    pchembl_value_gte=5.0,
     log_file='chemical_annotator.log'
 ):
     """
@@ -38,11 +38,11 @@ def annotate_chemicals(
     input_file : str
         Path to input CSV file containing compounds
     confidence_threshold : int, optional
-        Minimum confidence score value (default: 5)
+        Minimum confidence score value (default: 6)
     assay_type_in : str, optional
         Comma-separated list of assay types (default: 'B,F')
     pchembl_value_gte : float, optional
-        Minimum pChEMBL value (default: 6.0)
+        Minimum pChEMBL value (default: 5.0)
     log_file : str, optional
         Path to log file (default: 'chemical_annotator.log')
     
