@@ -1,0 +1,9 @@
+metric,value
+n_prior,5159
+n_ab_raw,5275
+n_ab_unique_ids,5159
+n_merged,5159
+n_missing_ab,1
+ab_infection_min,6.5
+ab_infection_max,128.5
+weights,"{'prior': 0.5, 'ab': 0.5}"

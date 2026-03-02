@@ -1,0 +1,15 @@
+Inputs: /home/repuragent/app/persistence/data/7b87215a-cefd-46b5-be7b-ab162989611b/6b26ad2a-f971-4a94-8f02-18ec32404de4/combo_two_results_annotated_EA_20260223_021225.xlsx
+Rows: total 3790 (combos 2898, singles 892)
+
+Novelty evaluation approach (multi-pronged):
+1) Internal novelty/redundancy: drug frequency across all combos; redundancy_penalty scaled from freq_max.
+2) Mechanistic complementarity: 1 - Jaccard(target_1_set, target_2_set). (MoA overlap also computed.)
+3) External evidence (COVID-specific):
+   - ClinicalTrials.gov API v2 searched with query term '<drugA> <drugB> COVID-19'. Presence/absence approximated by requesting pageSize=1.
+   - PubMed E-utilities esearch queried with term '("drugA" AND "drugB") AND (COVID-19 OR SARS-CoV-2) AND (combination OR synerg*)'.
+
+Composite priority_score = 0.55*score_z + 0.20*mech_comp + 0.15*external_novelty - 0.10*redundancy_penalty.
+Assumptions/limitations:
+- Dataset lacks chembl_id/SMILES, so no ChEMBL/DrugBank normalization performed; drug names used as-is.
+- External novelty is COVID-specific; combinations may exist in other indications but still score 'novel' here.
+- PubMed/CT.gov queries are sensitive to naming/synonyms; no synonym expansion implemented.

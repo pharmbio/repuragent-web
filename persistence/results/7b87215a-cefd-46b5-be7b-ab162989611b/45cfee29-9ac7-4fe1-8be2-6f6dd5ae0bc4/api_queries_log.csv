@@ -1,0 +1,401 @@
+source,term,count,studies_returned,has_nextPageToken
+pubmed,"(""SR-33805 oxalate""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(SR-33805 oxalate) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ozanimod""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Ozanimod) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""CYCLOSPORINE""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(CYCLOSPORINE) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PERHEXILINE MALEATE""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(PERHEXILINE MALEATE) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ceritinib""[Title/Abstract] AND ""Ebastine""[Title/Abstract])",0.0,,
+clinicaltrials,(Ceritinib) AND (Ebastine) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""HomochlorcyclizineÂ·2HCl""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(HomochlorcyclizineÂ·2HCl) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Tenovin-6""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Tenovin-6) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Y-29794 oxalate""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Y-29794 oxalate) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NNC-05-2090""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(NNC-05-2090) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NVP-BSK805 2HCl""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(NVP-BSK805 2HCl) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NNC-05-2090""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(NNC-05-2090) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""10-DEBC""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(10-DEBC) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Imatinib Mesylate (STI571)""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Imatinib Mesylate (STI571)) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""CY208-243""[Title/Abstract] AND ""GK921""[Title/Abstract])",0.0,,
+clinicaltrials,(CY208-243) AND (GK921) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""pyrintegrin""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(pyrintegrin) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PERHEXILINE MALEATE""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(PERHEXILINE MALEATE) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""calpeptin""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(calpeptin) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""CYM-5442""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(CYM-5442) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ebastine""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Ebastine) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Lasofoxifene (Tartrate)""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Lasofoxifene (Tartrate)) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Y-29794 oxalate""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(Y-29794 oxalate) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AMG-548""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(AMG-548) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""QUINACRINE HYDROCHLORIDE""[Title/Abstract] AND ""PENFLURIDOL""[Title/Abstract])",0.0,,
+clinicaltrials,(QUINACRINE HYDROCHLORIDE) AND (PENFLURIDOL) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""CGP-71683""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(CGP-71683) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""VE-822""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(VE-822) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SIMVASTATIN""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(SIMVASTATIN) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""3-CPMT""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(3-CPMT) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""norfluoxetine""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(norfluoxetine) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PERHEXILINE MALEATE""[Title/Abstract] AND ""Auranofin""[Title/Abstract])",0.0,,
+clinicaltrials,(PERHEXILINE MALEATE) AND (Auranofin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""CLOMIPHENE CITRATE""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(CLOMIPHENE CITRATE) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""TOREMIFENE CITRATE""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(TOREMIFENE CITRATE) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""10-DEBC""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(10-DEBC) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""droloxifene""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(droloxifene) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Cathepsin Inhibitor 1""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Cathepsin Inhibitor 1) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PD173074""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(PD173074) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-772077B""[Title/Abstract] AND ""GK921""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-772077B) AND (GK921) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""GW-803430""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(GW-803430) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MCOPPB""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(MCOPPB) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""UNC0638""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(UNC0638) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""GK921""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(GK921) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""StemRegenin 1""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(StemRegenin 1) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""GSK2606414""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(GSK2606414) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SR-33805 oxalate""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(SR-33805 oxalate) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Bazedoxifene HCl""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Bazedoxifene HCl) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ceritinib""[Title/Abstract] AND ""Curcumin""[Title/Abstract])",0.0,,
+clinicaltrials,(Ceritinib) AND (Curcumin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""JHW-007""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(JHW-007) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""norfluoxetine""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(norfluoxetine) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AY-9944""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(AY-9944) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ceritinib""[Title/Abstract] AND ""Auranofin""[Title/Abstract])",0.0,,
+clinicaltrials,(Ceritinib) AND (Auranofin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Auranofin""[Title/Abstract] AND ""NPS-2143 (SB262470)""[Title/Abstract])",0.0,,
+clinicaltrials,(Auranofin) AND (NPS-2143 (SB262470)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Auranofin""[Title/Abstract] AND ""thaliblastine""[Title/Abstract])",0.0,,
+clinicaltrials,(Auranofin) AND (thaliblastine) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",1.0,,
+clinicaltrials,(PENFLURIDOL) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Flupentixol""[Title/Abstract] AND ""Auranofin""[Title/Abstract])",0.0,,
+clinicaltrials,(Flupentixol) AND (Auranofin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""droloxifene""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(droloxifene) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""GR-127935""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(GR-127935) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ceritinib""[Title/Abstract] AND ""NPS-2143 (SB262470)""[Title/Abstract])",0.0,,
+clinicaltrials,(Ceritinib) AND (NPS-2143 (SB262470)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""Auranofin""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (Auranofin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""FLUPHENAZINE HYDROCHLORIDE""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(FLUPHENAZINE HYDROCHLORIDE) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PHA-665752""[Title/Abstract] AND ""Auranofin""[Title/Abstract])",0.0,,
+clinicaltrials,(PHA-665752) AND (Auranofin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Crizotinib (PF-02341066)""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Crizotinib (PF-02341066)) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ceritinib""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(Ceritinib) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""Crizotinib (PF-02341066)""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (Crizotinib (PF-02341066)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Y-29794 oxalate""[Title/Abstract] AND ""Dronedarone HCl (Multaq)""[Title/Abstract])",0.0,,
+clinicaltrials,(Y-29794 oxalate) AND (Dronedarone HCl (Multaq)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-772077B""[Title/Abstract] AND ""Tenovin-6""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-772077B) AND (Tenovin-6) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""RU-SKI-43""[Title/Abstract] AND ""Crizotinib (PF-02341066)""[Title/Abstract])",0.0,,
+clinicaltrials,(RU-SKI-43) AND (Crizotinib (PF-02341066)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""L-733060""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(L-733060) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Y-29794 oxalate""[Title/Abstract] AND ""Auranofin""[Title/Abstract])",0.0,,
+clinicaltrials,(Y-29794 oxalate) AND (Auranofin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""JHW-007""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(JHW-007) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-216641""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-216641) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Crizotinib (PF-02341066)""[Title/Abstract] AND ""LY2608204""[Title/Abstract])",0.0,,
+clinicaltrials,(Crizotinib (PF-02341066)) AND (LY2608204) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-216641""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-216641) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""UNC0638""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(UNC0638) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ozanimod""[Title/Abstract] AND ""Ceritinib""[Title/Abstract])",0.0,,
+clinicaltrials,(Ozanimod) AND (Ceritinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""pyrintegrin""[Title/Abstract] AND ""IKK-16""[Title/Abstract])",0.0,,
+clinicaltrials,(pyrintegrin) AND (IKK-16) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""BAY-11-7082""[Title/Abstract] AND ""Golvatinib (E7050)""[Title/Abstract])",0.0,,
+clinicaltrials,(BAY-11-7082) AND (Golvatinib (E7050)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SIMVASTATIN""[Title/Abstract] AND ""Lomitapide""[Title/Abstract])",5.0,,
+clinicaltrials,(SIMVASTATIN) AND (Lomitapide) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-772077B""[Title/Abstract] AND ""ML-298""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-772077B) AND (ML-298) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""Lomitapide""[Title/Abstract])",2.0,,
+clinicaltrials,(PENFLURIDOL) AND (Lomitapide) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-772077B""[Title/Abstract] AND ""KU-60019""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-772077B) AND (KU-60019) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Thiazovivin""[Title/Abstract] AND ""DCC-2036 (Rebastinib)""[Title/Abstract])",0.0,,
+clinicaltrials,(Thiazovivin) AND (DCC-2036 (Rebastinib)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""THIORIDAZINE HYDROCHLORIDE""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(THIORIDAZINE HYDROCHLORIDE) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""madrasin""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(madrasin) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ceritinib""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(Ceritinib) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""IT1t""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(IT1t) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-772077B""[Title/Abstract] AND ""LY2608204""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-772077B) AND (LY2608204) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""U-18666A""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(U-18666A) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Thiazovivin""[Title/Abstract] AND ""Ebastine""[Title/Abstract])",0.0,,
+clinicaltrials,(Thiazovivin) AND (Ebastine) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Lasofoxifene (Tartrate)""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(Lasofoxifene (Tartrate)) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Revaprazan Hydrochloride""[Title/Abstract] AND ""NVP-ADW742""[Title/Abstract])",0.0,,
+clinicaltrials,(Revaprazan Hydrochloride) AND (NVP-ADW742) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SGI-1776 free base""[Title/Abstract] AND ""NPS-2143 (SB262470)""[Title/Abstract])",0.0,,
+clinicaltrials,(SGI-1776 free base) AND (NPS-2143 (SB262470)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""IT1t""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(IT1t) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MCOPPB""[Title/Abstract] AND ""GK921""[Title/Abstract])",0.0,,
+clinicaltrials,(MCOPPB) AND (GK921) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""pyrintegrin""[Title/Abstract] AND ""Dronedarone HCl (Multaq)""[Title/Abstract])",0.0,,
+clinicaltrials,(pyrintegrin) AND (Dronedarone HCl (Multaq)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AY-9944""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(AY-9944) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""NPS-2143 (SB262470)""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (NPS-2143 (SB262470)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SNAP-5089""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(SNAP-5089) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PROCHLORPERAZINE EDISYLATE""[Title/Abstract] AND ""AS-1892802""[Title/Abstract])",0.0,,
+clinicaltrials,(PROCHLORPERAZINE EDISYLATE) AND (AS-1892802) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""GSK2606414""[Title/Abstract] AND ""GK921""[Title/Abstract])",0.0,,
+clinicaltrials,(GSK2606414) AND (GK921) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""3-CPMT""[Title/Abstract] AND ""NVP-ADW742""[Title/Abstract])",0.0,,
+clinicaltrials,(3-CPMT) AND (NVP-ADW742) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AMODIAQUINE DIHYDROCHLORIDE""[Title/Abstract] AND ""Dronedarone HCl (Multaq)""[Title/Abstract])",0.0,,
+clinicaltrials,(AMODIAQUINE DIHYDROCHLORIDE) AND (Dronedarone HCl (Multaq)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""UNC0638""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(UNC0638) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""fendiline""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(fendiline) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""pifithrin-mu""[Title/Abstract] AND ""WAY-600""[Title/Abstract])",0.0,,
+clinicaltrials,(pifithrin-mu) AND (WAY-600) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""UNC0638""[Title/Abstract] AND ""WAY-600""[Title/Abstract])",0.0,,
+clinicaltrials,(UNC0638) AND (WAY-600) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AS-1892802""[Title/Abstract] AND ""EHop-016""[Title/Abstract])",0.0,,
+clinicaltrials,(AS-1892802) AND (EHop-016) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-216641""[Title/Abstract] AND ""PERHEXILINE MALEATE""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-216641) AND (PERHEXILINE MALEATE) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-216641""[Title/Abstract] AND ""Y-29794 oxalate""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-216641) AND (Y-29794 oxalate) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Dronedarone HCl (Multaq)""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(Dronedarone HCl (Multaq)) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-216641""[Title/Abstract] AND ""GW-803430""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-216641) AND (GW-803430) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NVP-ADW742""[Title/Abstract] AND ""AG-1478 (Tyrphostin AG-1478)""[Title/Abstract])",0.0,,
+clinicaltrials,(NVP-ADW742) AND (AG-1478 (Tyrphostin AG-1478)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MCOPPB""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(MCOPPB) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-772077B""[Title/Abstract] AND ""SB-268262""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-772077B) AND (SB-268262) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""THIORIDAZINE HYDROCHLORIDE""[Title/Abstract] AND ""PENFLURIDOL""[Title/Abstract])",0.0,,
+clinicaltrials,(THIORIDAZINE HYDROCHLORIDE) AND (PENFLURIDOL) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AS-1892802""[Title/Abstract] AND ""Lasofoxifene (Tartrate)""[Title/Abstract])",0.0,,
+clinicaltrials,(AS-1892802) AND (Lasofoxifene (Tartrate)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MK-2206 dihydrochloride""[Title/Abstract] AND ""PD173074""[Title/Abstract])",0.0,,
+clinicaltrials,(MK-2206 dihydrochloride) AND (PD173074) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AS-1892802""[Title/Abstract] AND ""7-methoxytacrine""[Title/Abstract])",0.0,,
+clinicaltrials,(AS-1892802) AND (7-methoxytacrine) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""JHW-007""[Title/Abstract] AND ""NVP-ADW742""[Title/Abstract])",0.0,,
+clinicaltrials,(JHW-007) AND (NVP-ADW742) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""JHW-007""[Title/Abstract] AND ""WAY-600""[Title/Abstract])",0.0,,
+clinicaltrials,(JHW-007) AND (WAY-600) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MK-2206 dihydrochloride""[Title/Abstract] AND ""Bazedoxifene HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(MK-2206 dihydrochloride) AND (Bazedoxifene HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Miransertib""[Title/Abstract] AND ""EHop-016""[Title/Abstract])",0.0,,
+clinicaltrials,(Miransertib) AND (EHop-016) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""Siramesine (hydrochloride)""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (Siramesine (hydrochloride)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PD173074""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(PD173074) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AMODIAQUINE DIHYDROCHLORIDE""[Title/Abstract] AND ""PENFLURIDOL""[Title/Abstract])",0.0,,
+clinicaltrials,(AMODIAQUINE DIHYDROCHLORIDE) AND (PENFLURIDOL) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""BAY-11-7082""[Title/Abstract] AND ""BCX 1470 (methanesulfonate)""[Title/Abstract])",0.0,,
+clinicaltrials,(BAY-11-7082) AND (BCX 1470 (methanesulfonate)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PERHEXILINE MALEATE""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(PERHEXILINE MALEATE) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""Miransertib""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (Miransertib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SIMVASTATIN""[Title/Abstract] AND ""Y-29794 oxalate""[Title/Abstract])",0.0,,
+clinicaltrials,(SIMVASTATIN) AND (Y-29794 oxalate) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Bazedoxifene HCl""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(Bazedoxifene HCl) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""NVP-BSK805 2HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (NVP-BSK805 2HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SR-33805 oxalate""[Title/Abstract] AND ""SGI-1776 free base""[Title/Abstract])",0.0,,
+clinicaltrials,(SR-33805 oxalate) AND (SGI-1776 free base) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PERHEXILINE MALEATE""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(PERHEXILINE MALEATE) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""GR-127935""[Title/Abstract] AND ""Ebastine""[Title/Abstract])",0.0,,
+clinicaltrials,(GR-127935) AND (Ebastine) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MK-2206 dihydrochloride""[Title/Abstract] AND ""Tenovin-6""[Title/Abstract])",0.0,,
+clinicaltrials,(MK-2206 dihydrochloride) AND (Tenovin-6) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""WAY-600""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (WAY-600) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Bazedoxifene HCl""[Title/Abstract] AND ""SGI-1776 free base""[Title/Abstract])",0.0,,
+clinicaltrials,(Bazedoxifene HCl) AND (SGI-1776 free base) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MCOPPB""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(MCOPPB) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""FLUPHENAZINE HYDROCHLORIDE""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(FLUPHENAZINE HYDROCHLORIDE) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Flumatinib (mesylate)""[Title/Abstract] AND ""NVP-BSK805 2HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(Flumatinib (mesylate)) AND (NVP-BSK805 2HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-268262""[Title/Abstract] AND ""Dronedarone HCl (Multaq)""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-268262) AND (Dronedarone HCl (Multaq)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""BAY-11-7082""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (BAY-11-7082) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NPS-2143 (SB262470)""[Title/Abstract] AND ""EHop-016""[Title/Abstract])",0.0,,
+clinicaltrials,(NPS-2143 (SB262470)) AND (EHop-016) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NPS-2143 (SB262470)""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(NPS-2143 (SB262470)) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Y-29794 oxalate""[Title/Abstract] AND ""BAY-11-7082""[Title/Abstract])",0.0,,
+clinicaltrials,(Y-29794 oxalate) AND (BAY-11-7082) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""BAY-11-7082""[Title/Abstract] AND ""SR-33805 oxalate""[Title/Abstract])",0.0,,
+clinicaltrials,(BAY-11-7082) AND (SR-33805 oxalate) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""METITEPINE MESYLATE""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(METITEPINE MESYLATE) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Dronedarone HCl (Multaq)""[Title/Abstract] AND ""NVP-BSK805 2HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(Dronedarone HCl (Multaq)) AND (NVP-BSK805 2HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""CGP-71683""[Title/Abstract] AND ""SB-772077B""[Title/Abstract])",0.0,,
+clinicaltrials,(CGP-71683) AND (SB-772077B) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""CHLORHEXIDINE DIHYDROCHLORIDE""[Title/Abstract] AND ""Dronedarone HCl (Multaq)""[Title/Abstract])",0.0,,
+clinicaltrials,(CHLORHEXIDINE DIHYDROCHLORIDE) AND (Dronedarone HCl (Multaq)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""thiethylperazine""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(thiethylperazine) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Imatinib Mesylate (STI571)""[Title/Abstract] AND ""Dronedarone HCl (Multaq)""[Title/Abstract])",0.0,,
+clinicaltrials,(Imatinib Mesylate (STI571)) AND (Dronedarone HCl (Multaq)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""GR-127935""[Title/Abstract] AND ""Dronedarone HCl (Multaq)""[Title/Abstract])",0.0,,
+clinicaltrials,(GR-127935) AND (Dronedarone HCl (Multaq)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""tecalcet""[Title/Abstract] AND ""Arglabin""[Title/Abstract])",0.0,,
+clinicaltrials,(tecalcet) AND (Arglabin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Salmeterol (xinafoate)""[Title/Abstract] AND ""NVP-BSK805 2HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(Salmeterol (xinafoate)) AND (NVP-BSK805 2HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NTNCB""[Title/Abstract] AND ""Thiazovivin""[Title/Abstract])",0.0,,
+clinicaltrials,(NTNCB) AND (Thiazovivin) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""VE-822""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(VE-822) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-216641""[Title/Abstract] AND ""EHop-016""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-216641) AND (EHop-016) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NVP-ADW742""[Title/Abstract] AND ""NPS-2143 (SB262470)""[Title/Abstract])",0.0,,
+clinicaltrials,(NVP-ADW742) AND (NPS-2143 (SB262470)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MK-2206 dihydrochloride""[Title/Abstract] AND ""Y-320""[Title/Abstract])",0.0,,
+clinicaltrials,(MK-2206 dihydrochloride) AND (Y-320) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Miransertib""[Title/Abstract] AND ""UNC1999""[Title/Abstract])",0.0,,
+clinicaltrials,(Miransertib) AND (UNC1999) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Dronedarone HCl (Multaq)""[Title/Abstract] AND ""Endoxifen HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(Dronedarone HCl (Multaq)) AND (Endoxifen HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""JHW-007""[Title/Abstract] AND ""Tenovin-6""[Title/Abstract])",0.0,,
+clinicaltrials,(JHW-007) AND (Tenovin-6) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""L-760735""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(L-760735) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AMG-548""[Title/Abstract] AND ""GNF-5837""[Title/Abstract])",0.0,,
+clinicaltrials,(AMG-548) AND (GNF-5837) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""N-benzylnaltrindole""[Title/Abstract] AND ""GK921""[Title/Abstract])",0.0,,
+clinicaltrials,(N-benzylnaltrindole) AND (GK921) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""BNTX""[Title/Abstract] AND ""parthenolide-(alternate-stereo)""[Title/Abstract])",0.0,,
+clinicaltrials,(BNTX) AND (parthenolide-(alternate-stereo)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""JHW-007""[Title/Abstract] AND ""Sunitinib""[Title/Abstract])",0.0,,
+clinicaltrials,(JHW-007) AND (Sunitinib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PROMETHAZINE HYDROCHLORIDE""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(PROMETHAZINE HYDROCHLORIDE) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AMG-548""[Title/Abstract] AND ""Miransertib""[Title/Abstract])",0.0,,
+clinicaltrials,(AMG-548) AND (Miransertib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""TRIFLUPROMAZINE HYDROCHLORIDE""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(TRIFLUPROMAZINE HYDROCHLORIDE) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""fendiline""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (fendiline) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PERHEXILINE MALEATE""[Title/Abstract] AND ""EHop-016""[Title/Abstract])",0.0,,
+clinicaltrials,(PERHEXILINE MALEATE) AND (EHop-016) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NPS-2143 (SB262470)""[Title/Abstract] AND ""NVP-BSK805 2HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(NPS-2143 (SB262470)) AND (NVP-BSK805 2HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-268262""[Title/Abstract] AND ""VE-822""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-268262) AND (VE-822) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PENFLURIDOL""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(PENFLURIDOL) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Siramesine (hydrochloride)""[Title/Abstract] AND ""SGI-1027""[Title/Abstract])",0.0,,
+clinicaltrials,(Siramesine (hydrochloride)) AND (SGI-1027) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""GNF-5837""[Title/Abstract] AND ""Miransertib""[Title/Abstract])",0.0,,
+clinicaltrials,(GNF-5837) AND (Miransertib) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SR-33805 oxalate""[Title/Abstract] AND ""cyclovalone""[Title/Abstract])",0.0,,
+clinicaltrials,(SR-33805 oxalate) AND (cyclovalone) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Ceritinib""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(Ceritinib) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""UNC1999""[Title/Abstract] AND ""Y-320""[Title/Abstract])",0.0,,
+clinicaltrials,(UNC1999) AND (Y-320) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NVP-ADW742""[Title/Abstract] AND ""Ozanimod""[Title/Abstract])",0.0,,
+clinicaltrials,(NVP-ADW742) AND (Ozanimod) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NPS-2143 (SB262470)""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(NPS-2143 (SB262470)) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SB-216641""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(SB-216641) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MK-2206 dihydrochloride""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(MK-2206 dihydrochloride) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AY-9944""[Title/Abstract] AND ""SGI-1776 free base""[Title/Abstract])",0.0,,
+clinicaltrials,(AY-9944) AND (SGI-1776 free base) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""L-733060""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(L-733060) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MK-2206 dihydrochloride""[Title/Abstract] AND ""Benztropine mesylate""[Title/Abstract])",0.0,,
+clinicaltrials,(MK-2206 dihydrochloride) AND (Benztropine mesylate) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""BNTX""[Title/Abstract] AND ""PD173074""[Title/Abstract])",0.0,,
+clinicaltrials,(BNTX) AND (PD173074) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MK-2206 dihydrochloride""[Title/Abstract] AND ""NVP-BSK805 2HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(MK-2206 dihydrochloride) AND (NVP-BSK805 2HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""WAY-600""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(WAY-600) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""SULOCTIDIL""[Title/Abstract] AND ""Revaprazan Hydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(SULOCTIDIL) AND (Revaprazan Hydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""haloprogin""[Title/Abstract] AND ""NVP-BSK805 2HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(haloprogin) AND (NVP-BSK805 2HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""FLUPHENAZINE HYDROCHLORIDE""[Title/Abstract] AND ""BMS-833923 (XL139)""[Title/Abstract])",0.0,,
+clinicaltrials,(FLUPHENAZINE HYDROCHLORIDE) AND (BMS-833923 (XL139)) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""NPS-2143 (SB262470)""[Title/Abstract] AND ""Cathepsin Inhibitor 1""[Title/Abstract])",0.0,,
+clinicaltrials,(NPS-2143 (SB262470)) AND (Cathepsin Inhibitor 1) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""MK-2206 dihydrochloride""[Title/Abstract] AND ""Cathepsin Inhibitor 1""[Title/Abstract])",0.0,,
+clinicaltrials,(MK-2206 dihydrochloride) AND (Cathepsin Inhibitor 1) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""AMG-548""[Title/Abstract] AND ""IT1t""[Title/Abstract])",0.0,,
+clinicaltrials,(AMG-548) AND (IT1t) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PROCHLORPERAZINE EDISYLATE""[Title/Abstract] AND ""MK-2206 dihydrochloride""[Title/Abstract])",0.0,,
+clinicaltrials,(PROCHLORPERAZINE EDISYLATE) AND (MK-2206 dihydrochloride) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""PD173074""[Title/Abstract] AND ""Endoxifen HCl""[Title/Abstract])",0.0,,
+clinicaltrials,(PD173074) AND (Endoxifen HCl) AND (COVID-19 OR SARS-CoV-2),,0.0,False
+pubmed,"(""Lasofoxifene (Tartrate)""[Title/Abstract] AND ""SGI-1776 free base""[Title/Abstract])",0.0,,
+clinicaltrials,(Lasofoxifene (Tartrate)) AND (SGI-1776 free base) AND (COVID-19 OR SARS-CoV-2),,0.0,False

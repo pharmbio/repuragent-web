@@ -1,0 +1,201 @@
+drugA,drugB,pair_key,score,pubmed_pair_count,ctgov_pair_count_approx,novelty_score
+SR-33805 oxalate,SGI-1027,sgi-1027||sr-33805 oxalate,71.101637,0,0,1.0
+Ozanimod,SGI-1027,ozanimod||sgi-1027,63.195974,0,0,1.0
+CYCLOSPORINE,Ceritinib,ceritinib||cyclosporine,62.884222,0,0,1.0
+PERHEXILINE MALEATE,SGI-1027,perhexiline maleate||sgi-1027,61.592244,0,0,1.0
+Ceritinib,Ebastine,ceritinib||ebastine,60.669931,0,0,1.0
+HomochlorcyclizineÂ·2HCl,Ceritinib,ceritinib||homochlorcyclizineâ·2hcl,59.113013,0,0,1.0
+Tenovin-6,SGI-1027,sgi-1027||tenovin-6,57.546862,0,0,1.0
+Y-29794 oxalate,SGI-1027,sgi-1027||y-29794 oxalate,57.433029,0,0,1.0
+NNC-05-2090,SGI-1027,nnc-05-2090||sgi-1027,56.755323,0,0,1.0
+NVP-BSK805 2HCl,SGI-1027,nvp-bsk805 2hcl||sgi-1027,54.963654,0,0,1.0
+NNC-05-2090,Ceritinib,ceritinib||nnc-05-2090,52.174685,0,0,1.0
+10-DEBC,SGI-1027,10-debc||sgi-1027,52.150572,0,0,1.0
+Imatinib Mesylate (STI571),SGI-1027,imatinib mesylate (sti571)||sgi-1027,52.04691,0,0,1.0
+CY208-243,GK921,cy208-243||gk921,48.140841,0,0,1.0
+pyrintegrin,SGI-1027,pyrintegrin||sgi-1027,46.486322,0,0,1.0
+PERHEXILINE MALEATE,Ceritinib,ceritinib||perhexiline maleate,46.423631,0,0,1.0
+calpeptin,SGI-1027,calpeptin||sgi-1027,46.371373,0,0,1.0
+CYM-5442,SGI-1027,cym-5442||sgi-1027,46.106012,0,0,1.0
+Ebastine,SGI-1027,ebastine||sgi-1027,45.920901,0,0,1.0
+Lasofoxifene (Tartrate),SGI-1027,lasofoxifene (tartrate)||sgi-1027,45.604037,0,0,1.0
+Y-29794 oxalate,Ceritinib,ceritinib||y-29794 oxalate,44.819293,0,0,1.0
+AMG-548,SGI-1027,amg-548||sgi-1027,44.473192,0,0,1.0
+QUINACRINE HYDROCHLORIDE,PENFLURIDOL,penfluridol||quinacrine hydrochloride,43.793959,0,0,1.0
+CGP-71683,SGI-1027,cgp-71683||sgi-1027,43.647036,0,0,1.0
+VE-822,SGI-1027,sgi-1027||ve-822,42.964704,0,0,1.0
+SIMVASTATIN,Ceritinib,ceritinib||simvastatin,42.500904,0,0,1.0
+3-CPMT,Ceritinib,3-cpmt||ceritinib,40.676673,0,0,1.0
+norfluoxetine,Ceritinib,ceritinib||norfluoxetine,40.514993,0,0,1.0
+PERHEXILINE MALEATE,Auranofin,auranofin||perhexiline maleate,40.511427,0,0,1.0
+CLOMIPHENE CITRATE,Ceritinib,ceritinib||clomiphene citrate,40.318484,0,0,1.0
+TOREMIFENE CITRATE,SGI-1027,sgi-1027||toremifene citrate,39.714155,0,0,1.0
+10-DEBC,Ceritinib,10-debc||ceritinib,39.552898,0,0,1.0
+droloxifene,SGI-1027,droloxifene||sgi-1027,38.878524,0,0,1.0
+Cathepsin Inhibitor 1,SGI-1027,cathepsin inhibitor 1||sgi-1027,38.648145,0,0,1.0
+PD173074,SGI-1027,pd173074||sgi-1027,38.587977,0,0,1.0
+SB-772077B,GK921,gk921||sb-772077b,38.343176,0,0,1.0
+GW-803430,SGI-1027,gw-803430||sgi-1027,38.262581,0,0,1.0
+MCOPPB,SGI-1027,mcoppb||sgi-1027,38.218499,0,0,1.0
+UNC0638,Ceritinib,ceritinib||unc0638,37.506971,0,0,1.0
+GK921,Thiazovivin,gk921||thiazovivin,37.49424,0,0,1.0
+StemRegenin 1,SGI-1027,sgi-1027||stemregenin 1,37.298921,0,0,1.0
+GSK2606414,Ceritinib,ceritinib||gsk2606414,36.954802,0,0,1.0
+SR-33805 oxalate,Ceritinib,ceritinib||sr-33805 oxalate,35.984796,0,0,1.0
+Bazedoxifene HCl,SGI-1027,bazedoxifene hcl||sgi-1027,35.492903,0,0,1.0
+Ceritinib,Curcumin,ceritinib||curcumin,35.443636,0,0,1.0
+JHW-007,Ceritinib,ceritinib||jhw-007,35.250563,0,0,1.0
+norfluoxetine,SGI-1027,norfluoxetine||sgi-1027,34.900092,0,0,1.0
+AY-9944,SGI-1027,ay-9944||sgi-1027,34.753725,0,0,1.0
+Ceritinib,Auranofin,auranofin||ceritinib,34.750405,0,0,1.0
+Auranofin,NPS-2143 (SB262470),auranofin||nps-2143 (sb262470),34.023853,0,0,1.0
+Auranofin,thaliblastine,auranofin||thaliblastine,33.534495,0,0,1.0
+PENFLURIDOL,Ceritinib,ceritinib||penfluridol,33.401987,1,0,0.5906161091496412
+Flupentixol,Auranofin,auranofin||flupentixol,32.517165,0,0,1.0
+droloxifene,Ceritinib,ceritinib||droloxifene,32.169574,0,0,1.0
+GR-127935,Ceritinib,ceritinib||gr-127935,32.094868,0,0,1.0
+Ceritinib,NPS-2143 (SB262470),ceritinib||nps-2143 (sb262470),31.623807,0,0,1.0
+PENFLURIDOL,Auranofin,auranofin||penfluridol,31.424616,0,0,1.0
+FLUPHENAZINE HYDROCHLORIDE,Ceritinib,ceritinib||fluphenazine hydrochloride,31.284974,0,0,1.0
+PHA-665752,Auranofin,auranofin||pha-665752,31.274606,0,0,1.0
+Crizotinib (PF-02341066),SGI-1027,crizotinib (pf-02341066)||sgi-1027,30.560547,0,0,1.0
+Ceritinib,BMS-833923 (XL139),bms-833923 (xl139)||ceritinib,30.452795,0,0,1.0
+PENFLURIDOL,Crizotinib (PF-02341066),crizotinib (pf-02341066)||penfluridol,27.351023,0,0,1.0
+Y-29794 oxalate,Dronedarone HCl (Multaq),dronedarone hcl (multaq)||y-29794 oxalate,27.265043,0,0,1.0
+SB-772077B,Tenovin-6,sb-772077b||tenovin-6,25.836938,0,0,1.0
+RU-SKI-43,Crizotinib (PF-02341066),crizotinib (pf-02341066)||ru-ski-43,24.226046,0,0,1.0
+L-733060,SGI-1027,l-733060||sgi-1027,23.688097,0,0,1.0
+Y-29794 oxalate,Auranofin,auranofin||y-29794 oxalate,23.03172,0,0,1.0
+JHW-007,SGI-1027,jhw-007||sgi-1027,22.70103,0,0,1.0
+SB-216641,SGI-1027,sb-216641||sgi-1027,22.444924,0,0,1.0
+Crizotinib (PF-02341066),LY2608204,crizotinib (pf-02341066)||ly2608204,22.193731,0,0,1.0
+SB-216641,MK-2206 dihydrochloride,mk-2206 dihydrochloride||sb-216641,20.741763,0,0,1.0
+UNC0638,SGI-1027,sgi-1027||unc0638,20.466445,0,0,1.0
+Ozanimod,Ceritinib,ceritinib||ozanimod,20.268195,0,0,1.0
+pyrintegrin,IKK-16,ikk-16||pyrintegrin,19.977865,0,0,1.0
+BAY-11-7082,Golvatinib (E7050),bay-11-7082||golvatinib (e7050),19.684283,0,0,1.0
+SIMVASTATIN,Lomitapide,lomitapide||simvastatin,19.502686,5,0,0.3581970477838151
+SB-772077B,ML-298,ml-298||sb-772077b,19.315029,0,0,1.0
+PENFLURIDOL,Lomitapide,lomitapide||penfluridol,19.078568,2,0,0.4765053580405044
+SB-772077B,KU-60019,ku-60019||sb-772077b,18.817598,0,0,1.0
+Thiazovivin,DCC-2036 (Rebastinib),dcc-2036 (rebastinib)||thiazovivin,18.551612,0,0,1.0
+THIORIDAZINE HYDROCHLORIDE,Thiazovivin,thiazovivin||thioridazine hydrochloride,18.551471,0,0,1.0
+madrasin,Thiazovivin,madrasin||thiazovivin,18.508989,0,0,1.0
+Ceritinib,Thiazovivin,ceritinib||thiazovivin,18.279782,0,0,1.0
+IT1t,Thiazovivin,it1t||thiazovivin,18.124971,0,0,1.0
+SB-772077B,LY2608204,ly2608204||sb-772077b,18.020331,0,0,1.0
+U-18666A,Thiazovivin,thiazovivin||u-18666a,17.986671,0,0,1.0
+PENFLURIDOL,BMS-833923 (XL139),bms-833923 (xl139)||penfluridol,17.924182,0,0,1.0
+Thiazovivin,Ebastine,ebastine||thiazovivin,17.632049,0,0,1.0
+Lasofoxifene (Tartrate),Thiazovivin,lasofoxifene (tartrate)||thiazovivin,17.136412,0,0,1.0
+Revaprazan Hydrochloride,NVP-ADW742,nvp-adw742||revaprazan hydrochloride,17.115943,0,0,1.0
+SGI-1776 free base,NPS-2143 (SB262470),nps-2143 (sb262470)||sgi-1776 free base,17.102916,0,0,1.0
+IT1t,SGI-1027,it1t||sgi-1027,16.862517,0,0,1.0
+MCOPPB,GK921,gk921||mcoppb,16.836551,0,0,1.0
+pyrintegrin,Dronedarone HCl (Multaq),dronedarone hcl (multaq)||pyrintegrin,16.833529,0,0,1.0
+AY-9944,Thiazovivin,ay-9944||thiazovivin,16.551948,0,0,1.0
+PENFLURIDOL,NPS-2143 (SB262470),nps-2143 (sb262470)||penfluridol,16.439701,0,0,1.0
+SNAP-5089,MK-2206 dihydrochloride,mk-2206 dihydrochloride||snap-5089,16.393496,0,0,1.0
+PROCHLORPERAZINE EDISYLATE,AS-1892802,as-1892802||prochlorperazine edisylate,16.367523,0,0,1.0
+GSK2606414,GK921,gk921||gsk2606414,16.353459,0,0,1.0
+3-CPMT,NVP-ADW742,3-cpmt||nvp-adw742,16.352146,0,0,1.0
+AMODIAQUINE DIHYDROCHLORIDE,Dronedarone HCl (Multaq),amodiaquine dihydrochloride||dronedarone hcl (multaq),16.311607,0,0,1.0
+UNC0638,BMS-833923 (XL139),bms-833923 (xl139)||unc0638,16.269474,0,0,1.0
+fendiline,MK-2206 dihydrochloride,fendiline||mk-2206 dihydrochloride,15.928785,0,0,1.0
+pifithrin-mu,WAY-600,pifithrin-mu||way-600,15.699509,0,0,1.0
+UNC0638,WAY-600,unc0638||way-600,15.612171,0,0,1.0
+AS-1892802,EHop-016,as-1892802||ehop-016,15.57174,0,0,1.0
+SB-216641,PERHEXILINE MALEATE,perhexiline maleate||sb-216641,15.537039,0,0,1.0
+SB-216641,Y-29794 oxalate,sb-216641||y-29794 oxalate,15.489985,0,0,1.0
+Dronedarone HCl (Multaq),BMS-833923 (XL139),bms-833923 (xl139)||dronedarone hcl (multaq),15.464748,0,0,1.0
+SB-216641,GW-803430,gw-803430||sb-216641,15.461889,0,0,1.0
+NVP-ADW742,AG-1478 (Tyrphostin AG-1478),ag-1478 (tyrphostin ag-1478)||nvp-adw742,15.45073,0,0,1.0
+MCOPPB,Thiazovivin,mcoppb||thiazovivin,15.430235,0,0,1.0
+SB-772077B,SB-268262,sb-268262||sb-772077b,15.40442,0,0,1.0
+THIORIDAZINE HYDROCHLORIDE,PENFLURIDOL,penfluridol||thioridazine hydrochloride,15.386677,0,0,1.0
+AS-1892802,Lasofoxifene (Tartrate),as-1892802||lasofoxifene (tartrate),15.252423,0,0,1.0
+MK-2206 dihydrochloride,PD173074,mk-2206 dihydrochloride||pd173074,15.235481,0,0,1.0
+AS-1892802,7-methoxytacrine,7-methoxytacrine||as-1892802,15.20202,0,0,1.0
+JHW-007,NVP-ADW742,jhw-007||nvp-adw742,15.077616,0,0,1.0
+JHW-007,WAY-600,jhw-007||way-600,15.010669,0,0,1.0
+MK-2206 dihydrochloride,Bazedoxifene HCl,bazedoxifene hcl||mk-2206 dihydrochloride,14.961684,0,0,1.0
+Miransertib,EHop-016,ehop-016||miransertib,14.957563,0,0,1.0
+PENFLURIDOL,Siramesine (hydrochloride),penfluridol||siramesine (hydrochloride),14.93943,0,0,1.0
+PD173074,BMS-833923 (XL139),bms-833923 (xl139)||pd173074,14.901727,0,0,1.0
+AMODIAQUINE DIHYDROCHLORIDE,PENFLURIDOL,amodiaquine dihydrochloride||penfluridol,14.89287,0,0,1.0
+BAY-11-7082,BCX 1470 (methanesulfonate),bay-11-7082||bcx 1470 (methanesulfonate),14.846697,0,0,1.0
+PERHEXILINE MALEATE,Thiazovivin,perhexiline maleate||thiazovivin,14.828691,0,0,1.0
+PENFLURIDOL,Miransertib,miransertib||penfluridol,14.799531,0,0,1.0
+PENFLURIDOL,Thiazovivin,penfluridol||thiazovivin,14.767029,0,0,1.0
+SIMVASTATIN,Y-29794 oxalate,simvastatin||y-29794 oxalate,14.760788,0,0,1.0
+Bazedoxifene HCl,BMS-833923 (XL139),bazedoxifene hcl||bms-833923 (xl139),14.753625,0,0,1.0
+PENFLURIDOL,NVP-BSK805 2HCl,nvp-bsk805 2hcl||penfluridol,14.744584,0,0,1.0
+SR-33805 oxalate,SGI-1776 free base,sgi-1776 free base||sr-33805 oxalate,14.566401,0,0,1.0
+PERHEXILINE MALEATE,MK-2206 dihydrochloride,mk-2206 dihydrochloride||perhexiline maleate,14.56245,0,0,1.0
+GR-127935,Ebastine,ebastine||gr-127935,14.512147,0,0,1.0
+MK-2206 dihydrochloride,Tenovin-6,mk-2206 dihydrochloride||tenovin-6,14.440128,0,0,1.0
+PENFLURIDOL,WAY-600,penfluridol||way-600,14.426629,0,0,1.0
+Bazedoxifene HCl,SGI-1776 free base,bazedoxifene hcl||sgi-1776 free base,14.409397,0,0,1.0
+MCOPPB,BMS-833923 (XL139),bms-833923 (xl139)||mcoppb,14.400032,0,0,1.0
+FLUPHENAZINE HYDROCHLORIDE,MK-2206 dihydrochloride,fluphenazine hydrochloride||mk-2206 dihydrochloride,14.35618,0,0,1.0
+Flumatinib (mesylate),NVP-BSK805 2HCl,flumatinib (mesylate)||nvp-bsk805 2hcl,14.312669,0,0,1.0
+SB-268262,Dronedarone HCl (Multaq),dronedarone hcl (multaq)||sb-268262,14.253242,0,0,1.0
+PENFLURIDOL,BAY-11-7082,bay-11-7082||penfluridol,14.197556,0,0,1.0
+NPS-2143 (SB262470),EHop-016,ehop-016||nps-2143 (sb262470),14.177558,0,0,1.0
+NPS-2143 (SB262470),SGI-1027,nps-2143 (sb262470)||sgi-1027,14.137433,0,0,1.0
+Y-29794 oxalate,BAY-11-7082,bay-11-7082||y-29794 oxalate,14.093806,0,0,1.0
+BAY-11-7082,SR-33805 oxalate,bay-11-7082||sr-33805 oxalate,14.064347,0,0,1.0
+METITEPINE MESYLATE,MK-2206 dihydrochloride,metitepine mesylate||mk-2206 dihydrochloride,14.043882,0,0,1.0
+Dronedarone HCl (Multaq),NVP-BSK805 2HCl,dronedarone hcl (multaq)||nvp-bsk805 2hcl,14.023832,0,0,1.0
+CGP-71683,SB-772077B,cgp-71683||sb-772077b,13.999922,0,0,1.0
+CHLORHEXIDINE DIHYDROCHLORIDE,Dronedarone HCl (Multaq),chlorhexidine dihydrochloride||dronedarone hcl (multaq),13.996883,0,0,1.0
+thiethylperazine,MK-2206 dihydrochloride,mk-2206 dihydrochloride||thiethylperazine,13.959329,0,0,1.0
+Imatinib Mesylate (STI571),Dronedarone HCl (Multaq),dronedarone hcl (multaq)||imatinib mesylate (sti571),13.937375,0,0,1.0
+GR-127935,Dronedarone HCl (Multaq),dronedarone hcl (multaq)||gr-127935,13.935132,0,0,1.0
+tecalcet,Arglabin,arglabin||tecalcet,13.853382,0,0,1.0
+Salmeterol (xinafoate),NVP-BSK805 2HCl,nvp-bsk805 2hcl||salmeterol (xinafoate),13.812109,0,0,1.0
+NTNCB,Thiazovivin,ntncb||thiazovivin,13.791277,0,0,1.0
+VE-822,BMS-833923 (XL139),bms-833923 (xl139)||ve-822,13.741714,0,0,1.0
+SB-216641,EHop-016,ehop-016||sb-216641,13.678441,0,0,1.0
+NVP-ADW742,NPS-2143 (SB262470),nps-2143 (sb262470)||nvp-adw742,13.668074,0,0,1.0
+MK-2206 dihydrochloride,Y-320,mk-2206 dihydrochloride||y-320,13.613668,0,0,1.0
+Miransertib,UNC1999,miransertib||unc1999,13.604636,0,0,1.0
+Dronedarone HCl (Multaq),Endoxifen HCl,dronedarone hcl (multaq)||endoxifen hcl,13.564506,0,0,1.0
+JHW-007,Tenovin-6,jhw-007||tenovin-6,13.520665,0,0,1.0
+L-760735,MK-2206 dihydrochloride,l-760735||mk-2206 dihydrochloride,13.515144,0,0,1.0
+AMG-548,GNF-5837,amg-548||gnf-5837,13.507576,0,0,1.0
+N-benzylnaltrindole,GK921,gk921||n-benzylnaltrindole,13.445859,0,0,1.0
+BNTX,parthenolide-(alternate-stereo),bntx||parthenolide-(alternate-stereo),13.426091,0,0,1.0
+JHW-007,Sunitinib,jhw-007||sunitinib,13.425816,0,0,1.0
+PROMETHAZINE HYDROCHLORIDE,MK-2206 dihydrochloride,mk-2206 dihydrochloride||promethazine hydrochloride,13.415585,0,0,1.0
+AMG-548,Miransertib,amg-548||miransertib,13.340704,0,0,1.0
+TRIFLUPROMAZINE HYDROCHLORIDE,MK-2206 dihydrochloride,mk-2206 dihydrochloride||triflupromazine hydrochloride,13.311905,0,0,1.0
+PENFLURIDOL,fendiline,fendiline||penfluridol,13.273798,0,0,1.0
+PERHEXILINE MALEATE,EHop-016,ehop-016||perhexiline maleate,13.267391,0,0,1.0
+NPS-2143 (SB262470),NVP-BSK805 2HCl,nps-2143 (sb262470)||nvp-bsk805 2hcl,13.237072,0,0,1.0
+SB-268262,VE-822,sb-268262||ve-822,13.224608,0,0,1.0
+PENFLURIDOL,MK-2206 dihydrochloride,mk-2206 dihydrochloride||penfluridol,13.218427,0,0,1.0
+Siramesine (hydrochloride),SGI-1027,sgi-1027||siramesine (hydrochloride),13.208306,0,0,1.0
+GNF-5837,Miransertib,gnf-5837||miransertib,13.180931,0,0,1.0
+SR-33805 oxalate,cyclovalone,cyclovalone||sr-33805 oxalate,13.116743,0,0,1.0
+Ceritinib,MK-2206 dihydrochloride,ceritinib||mk-2206 dihydrochloride,13.038277,0,0,1.0
+UNC1999,Y-320,unc1999||y-320,13.037102,0,0,1.0
+NVP-ADW742,Ozanimod,nvp-adw742||ozanimod,13.030768,0,0,1.0
+NPS-2143 (SB262470),BMS-833923 (XL139),bms-833923 (xl139)||nps-2143 (sb262470),13.028616,0,0,1.0
+SB-216641,BMS-833923 (XL139),bms-833923 (xl139)||sb-216641,13.020895,0,0,1.0
+MK-2206 dihydrochloride,BMS-833923 (XL139),bms-833923 (xl139)||mk-2206 dihydrochloride,13.010671,0,0,1.0
+AY-9944,SGI-1776 free base,ay-9944||sgi-1776 free base,12.918651,0,0,1.0
+L-733060,BMS-833923 (XL139),bms-833923 (xl139)||l-733060,12.913619,0,0,1.0
+MK-2206 dihydrochloride,Benztropine mesylate,benztropine mesylate||mk-2206 dihydrochloride,12.894451,0,0,1.0
+BNTX,PD173074,bntx||pd173074,12.887294,0,0,1.0
+MK-2206 dihydrochloride,NVP-BSK805 2HCl,mk-2206 dihydrochloride||nvp-bsk805 2hcl,12.886781,0,0,1.0
+WAY-600,BMS-833923 (XL139),bms-833923 (xl139)||way-600,12.880035,0,0,1.0
+SULOCTIDIL,Revaprazan Hydrochloride,revaprazan hydrochloride||suloctidil,12.851335,0,0,1.0
+haloprogin,NVP-BSK805 2HCl,haloprogin||nvp-bsk805 2hcl,12.815422,0,0,1.0
+FLUPHENAZINE HYDROCHLORIDE,BMS-833923 (XL139),bms-833923 (xl139)||fluphenazine hydrochloride,12.80048,0,0,1.0
+NPS-2143 (SB262470),Cathepsin Inhibitor 1,cathepsin inhibitor 1||nps-2143 (sb262470),12.79113,0,0,1.0
+MK-2206 dihydrochloride,Cathepsin Inhibitor 1,cathepsin inhibitor 1||mk-2206 dihydrochloride,12.767263,0,0,1.0
+AMG-548,IT1t,amg-548||it1t,12.713534,0,0,1.0
+PROCHLORPERAZINE EDISYLATE,MK-2206 dihydrochloride,mk-2206 dihydrochloride||prochlorperazine edisylate,12.692542,0,0,1.0
+PD173074,Endoxifen HCl,endoxifen hcl||pd173074,12.68427,0,0,1.0
+Lasofoxifene (Tartrate),SGI-1776 free base,lasofoxifene (tartrate)||sgi-1776 free base,12.623509,0,0,1.0

@@ -1,0 +1,29 @@
+join_key_used: chembl_id
+prior_score_column: direct_antiviral_score
+cp_score_column: morphology_score
+n_compounds_merged_full_outer: 5276
+imputed_missing_prior_score_count: 9 (imputed_with_min=0.0)
+imputed_missing_cp_score_count: 2 (imputed_with_min=-0.5)
+
+prior_score: min=0 max=2.72892 mean=0.0163786 std=0.0927219
+
+cp_score: min=-0.5 max=0.96 mean=0.0707278 std=0.173934
+
+prior_norm: min=0 max=1 mean=0.00600186 std=0.0339775
+
+cp_norm: min=0 max=1 mean=0.390909 std=0.119133
+
+integrated: min=0 max=0.824658 mean=0.159965 std=0.0528102
+
+Top 10 by integrated_score:
+  chembl_id      compound_name      direct_antiviral_score  morphology_score  integrated_score  integrated_rank
+  CHEMBL35241 diminazene-aceturate          2.729                 0.32             0.825               1       
+ CHEMBL590799    camostat-mesilate          1.806                 0.10             0.562               2       
+     CHEMBL76          chloroquine          1.139                 0.55             0.538               3       
+  CHEMBL92708            calpeptin          0.798                 0.81             0.534               4       
+   CHEMBL1535   hydroxychloroquine          1.307                 0.36             0.523               5       
+ CHEMBL449782        cepharanthine          1.139                 0.46             0.513               6       
+ CHEMBL371064            balicatib          0.889                 0.59             0.494               7       
+CHEMBL1908397              KW-2449          0.387                 0.96             0.485               8       
+  CHEMBL64925               MG-132          0.874                 0.51             0.469               9       
+CHEMBL1232461            I-BET-762          1.514                -0.07             0.451              10       

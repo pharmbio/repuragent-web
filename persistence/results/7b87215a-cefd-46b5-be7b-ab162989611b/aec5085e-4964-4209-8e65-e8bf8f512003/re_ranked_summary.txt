@@ -1,0 +1,24 @@
+Composite re-ranking: 0.5*prior_norm + 0.5*cpe_norm
+""
+Dataset counts / stats:
+- n_total: 5276.0
+- n_in_prior: 5267.0
+- n_in_cpe: 5275.0
+- n_cpe_hits_true: 210.0
+- cpe_inhibition_min: -13.67
+- cpe_inhibition_median: 2.24
+- cpe_inhibition_max: 149.89
+- prior_composite_min: 0.0
+- prior_composite_median: 0.0004574972456584
+- prior_composite_max: 3.4512915960161155
+""
+Composite score quantiles:
+- 0.0: 0.0
+- 0.05: 0.040333436842477956
+- 0.25: 0.046374419173392
+- 0.5: 0.05097955035213478
+- 0.75: 0.05834321666094846
+- 0.95: 0.10719948528330103
+- 1.0: 0.6278124235754463
+""
+Top 10 compounds:
