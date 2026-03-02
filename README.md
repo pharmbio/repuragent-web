@@ -1,7 +1,7 @@
 # Repuragent - An AI Scientist for Drug Repurposing
 
 ## Version announcement
-This version is a web-app version of the Repuragnet, used to deploy the web app to multiple users.
+This version is a web-app version of the Repuragnet, used to deploy the web app to multiple users. Access https://repuragent.serve.scilifelab.se to use the agent.
 For a local app setup that runs entirely on your local machine, please refer to [Repuragent Local](https://github.com/pharmbio/repuragent).
 
 Please read [Repuragent documentation](https://repuragent.readthedocs.io/) for more details.
