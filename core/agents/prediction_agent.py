@@ -18,10 +18,10 @@ from backend.utils.prediction_tools import (
     predict_repurposedrugs
 )
 
-def build_prediction_agent(llm):
+def build_prediction_agent(llm, *, pre_model_hook=None):
     prediction_agent = create_react_agent(
-        model = llm, 
-        tools = [CYP3A4_classifier, 
+        model=llm,
+        tools=[CYP3A4_classifier, 
                 CYP2C19_classifier,
                 CYP2D6_classifier,
                 CYP1A2_classifier,
@@ -37,7 +37,8 @@ def build_prediction_agent(llm):
                 predict_repurposedrugs], 
         name='prediction_agent',
         prompt=PREDICTION_SYSTEM_PROMPT_ver3,
-        version='v2'
+        version='v2',
+        pre_model_hook=pre_model_hook,
     )
 
     return prediction_agent
