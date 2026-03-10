@@ -97,7 +97,9 @@ Respond only with the summary, no additional comment.
 Do not start your message by saying "Here is a summary" or anything like that.
 Just give the summary as it is.
 
-Table or text chunk: {element}
+Table or text chunk: 
+
+"{element}"
 """
     template = ChatPromptTemplate.from_template(prompt_text_tables)
     api_key = _require_openai_api_key()
@@ -135,7 +137,7 @@ def create_multi_vector_retriever():
     # Create vector store for summaries (search)
     vectorstore = Chroma(
         collection_name=COLLECTION_NAME,
-        embedding_function=OpenAIEmbeddings(api_key=api_key),
+        embedding_function=OpenAIEmbeddings(model = "text-embedding-3-small", api_key=api_key),
         persist_directory=str(CHROMA_PERSIST_PATH),
     )
     

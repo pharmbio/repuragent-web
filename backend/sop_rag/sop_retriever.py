@@ -64,7 +64,7 @@ class SOPRetriever:
         # Create vector store
         vectorstore = Chroma(
             collection_name=COLLECTION_NAME,
-            embedding_function=OpenAIEmbeddings(api_key=self._api_key),
+            embedding_function=OpenAIEmbeddings(model = "text-embedding-3-small", api_key=self._api_key),
             persist_directory=str(CHROMA_PERSIST_PATH),
         )
         
