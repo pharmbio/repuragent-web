@@ -25,7 +25,6 @@ from core.supervisor.context import (
 
 
 def initialize_agents(
-    llm,
     user_request: Optional[str] = None,
     use_episodic_learning: bool = True,
     pre_model_hook=None,
@@ -536,7 +535,7 @@ async def _create_app_with_checkpointer(checkpointer, user_request: Optional[str
     
     # Build agents with episodic learning for planning agent
     research_agent, data_agent, prediction_agent, planning_agent, report_agent = initialize_agents(
-        llm, user_request, use_episodic_learning, pre_model_hook
+        user_request, use_episodic_learning, pre_model_hook
     )
     
     # Create supervisor with execution agents (planning agent added separately, report agent included but routed to END)
