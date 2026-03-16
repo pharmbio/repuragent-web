@@ -43,13 +43,13 @@ UI_QUEUE_MAX_SIZE = 128
 UI_CONCURRENCY_LIMIT = 8
 GRADIO_SERVER_NAME = os.environ.get("GRADIO_SERVER_NAME", "0.0.0.0")
 GRADIO_SERVER_PORT = int(os.environ.get("GRADIO_SERVER_PORT", "7860"))
-SUPERVISOR_OUTPUT_MODE = os.environ.get("SUPERVISOR_OUTPUT_MODE", "full_history").strip().lower()
+SUPERVISOR_OUTPUT_MODE = os.environ.get("SUPERVISOR_OUTPUT_MODE", "last_message").strip().lower()
 if SUPERVISOR_OUTPUT_MODE not in {"full_history", "last_message"}:
     logger.warning(
-        "Invalid SUPERVISOR_OUTPUT_MODE=%s; falling back to full_history",
+        "Invalid SUPERVISOR_OUTPUT_MODE=%s; falling back to last_message",
         SUPERVISOR_OUTPUT_MODE,
     )
-    SUPERVISOR_OUTPUT_MODE = "full_history"
+    SUPERVISOR_OUTPUT_MODE = "last_message"
 
 # Application settings
 APP_TITLE = "Repuragent"
