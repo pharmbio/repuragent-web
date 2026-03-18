@@ -44,16 +44,20 @@ from app.langgraph_runner import build_stream_input, stream_langgraph_events, ap
 from app.state import FileRecord, UIState
 from app.ui.chat_timeline import (
     append_user_message,
+    export_timeline_snapshot,
     process_chunk,
     process_ai_message,
     process_tool_call_start,
     process_tool_result,
     rebuild_from_plain_messages,
     rebuild_from_raw_messages,
+    rebuild_from_timeline_snapshot,
 )
 from persistence.memory.episodic_memory.conversation import (
     create_new_conversation,
     load_conversation,
+    load_ui_timeline,
+    save_ui_timeline,
 )
 from persistence.memory.episodic_memory.episodic_learning import get_orchestrator
 from persistence.memory.episodic_memory.thread_manager import (
@@ -1316,15 +1320,40 @@ async def _refresh_conversation(state: UIState, thread_id: str) -> None:
     state.stale_threads.discard(thread_id)
     state.processed_message_ids = set()
     state.processed_tools_ids = set()
+    rebuilt_from_snapshot = False
+    timeline_snapshot = convo.get("timeline_snapshot")
+    if timeline_snapshot:
+        rebuilt_from_snapshot = rebuild_from_timeline_snapshot(state, timeline_snapshot)
     raw_messages = convo.get("raw_messages") or []
-    if raw_messages:
+    if not rebuilt_from_snapshot and raw_messages:
         rebuild_from_raw_messages(state, raw_messages)
-    else:
+    elif not rebuilt_from_snapshot:
         rebuild_from_plain_messages(state, convo.get("messages", []))
+    if not rebuilt_from_snapshot:
+        await _persist_timeline_snapshot(thread_id, state)
     state.processed_message_ids = convo.get("processed_message_ids", set())
     state.processed_content_hashes = set()
     state.ensure_thread_storage(thread_id)
     state.uploaded_files = list(state.thread_files.get(thread_id, []))
+
+
+async def _persist_timeline_snapshot(thread_id: Optional[str], state: UIState) -> None:
+    if not thread_id:
+        return
+    await save_ui_timeline(thread_id, export_timeline_snapshot(state))
+
+
+async def _apply_event_to_persisted_timeline(thread_id: Optional[str], event_type: str, payload: Any) -> None:
+    if not thread_id or event_type == "complete":
+        return
+    snapshot = await load_ui_timeline(thread_id)
+    timeline_state = UIState()
+    if snapshot:
+        rebuild_from_timeline_snapshot(timeline_state, snapshot)
+    updated = _apply_stream_event(event_type, payload, timeline_state)
+    if not updated:
+        return
+    await save_ui_timeline(thread_id, export_timeline_snapshot(timeline_state))
 
 
 def _initialize_state() -> UIState:
@@ -1809,6 +1838,7 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
         resume = state.waiting_for_approval
         final_prompt = prompt if resume else _append_file_paths(prompt, state)
         append_user_message(state, prompt)
+        await _persist_timeline_snapshot(state.current_thread_id, state)
         user_messages = [m for m in state.messages if m.role == "user"]
         if len(user_messages) == 1 and state.current_thread_id and state.user_id:
             title = prompt[:30] + "..." if len(prompt) > 30 else prompt
@@ -1856,7 +1886,6 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
             if watch_thread_id
             else None
         )
-        buffer = state.pending_stream_events.setdefault(watch_thread_id, []) if watch_thread_id else []
         ui_attached = True
         stopped = False
         try:
@@ -1912,12 +1941,13 @@ async def _run_user_message_internal(prompt: str, state: UIState, *, approve_sig
                             )
 
                     if not ui_attached:
-                        buffer.append((event_type, payload))
+                        await _apply_event_to_persisted_timeline(watch_thread_id, event_type, payload)
                         stream_task = asyncio.create_task(stream_iter.__anext__())
                         continue
 
                     additions = _apply_stream_event(event_type, payload, state)
                     if additions:
+                        await _persist_timeline_snapshot(watch_thread_id, state)
                         yield (
                             state,
                             list(state.messages),
