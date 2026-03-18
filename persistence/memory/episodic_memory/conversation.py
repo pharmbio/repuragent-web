@@ -2,7 +2,10 @@ from typing import List, Dict, Set, Any, Optional
 from datetime import datetime
 from app.config import logger
 from app.ui.formatters import reconstruct_assistant_response
+from backend.auth.repository import AuthRepository
 from .thread_manager import add_thread_id, generate_new_thread_id
+
+_repo = AuthRepository()
 
 
 async def get_conversation_history_from_database(thread_id: str, app) -> List[Dict]:
@@ -144,6 +147,27 @@ async def create_new_conversation(user_id: str) -> Dict[str, Any]:
     return conversation_data
 
 
+async def load_ui_timeline(thread_id: str) -> Optional[Dict[str, Any]]:
+    """Load the persisted UI timeline snapshot for a thread."""
+    if not thread_id:
+        return None
+    try:
+        return await _repo.get_thread_timeline(thread_id)
+    except Exception as exc:
+        logger.warning("Unable to load UI timeline for %s: %s", thread_id, exc)
+        return None
+
+
+async def save_ui_timeline(thread_id: str, snapshot: Dict[str, Any]) -> None:
+    """Persist the UI timeline snapshot for a thread."""
+    if not thread_id or not isinstance(snapshot, dict):
+        return
+    try:
+        await _repo.update_thread_timeline(thread_id, snapshot)
+    except Exception as exc:
+        logger.warning("Unable to save UI timeline for %s: %s", thread_id, exc)
+
+
 async def load_conversation(thread_id: str, app) -> Dict[str, Any]:
     """Load a conversation from persistent storage with formatting preserved."""
     try:
@@ -155,6 +179,7 @@ async def load_conversation(thread_id: str, app) -> Dict[str, Any]:
                 "raw_messages": [],
                 "processed_message_ids": set(),
                 "has_progress_content": False,
+                "timeline_snapshot": None,
             }
             
         config = {"configurable": {"thread_id": thread_id}}
@@ -170,6 +195,7 @@ async def load_conversation(thread_id: str, app) -> Dict[str, Any]:
             messages = []
         
         processed_message_ids = await get_processed_message_ids_from_database(thread_id, app)
+        timeline_snapshot = await load_ui_timeline(thread_id)
         
         has_progress_content = any(
             msg.get("role") == "assistant" and any(
@@ -185,6 +211,7 @@ async def load_conversation(thread_id: str, app) -> Dict[str, Any]:
             "raw_messages": raw_messages,
             "processed_message_ids": processed_message_ids,
             "has_progress_content": has_progress_content,
+            "timeline_snapshot": timeline_snapshot,
         }
         
     except Exception as e:
@@ -198,4 +225,5 @@ async def load_conversation(thread_id: str, app) -> Dict[str, Any]:
             "raw_messages": [],
             "processed_message_ids": set(),
             "has_progress_content": False,
+            "timeline_snapshot": await load_ui_timeline(thread_id),
         }
