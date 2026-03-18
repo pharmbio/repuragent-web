@@ -117,18 +117,49 @@ async def stream_langgraph_events(
                         yield ("ai_message", {"agent": agent_name, "message": message, "tool_calls": tool_calls})
 
                 elif event_type == "on_tool_start":
-                    call = data.get("input")
-                    if call:
-                        yield ("tool_call_start", {"agent": agent_name, "call": call})
+                    call_args = data.get("input")
+                    call_id = None
+                    if isinstance(call_args, dict):
+                        call_id = call_args.get("id")
+                    else:
+                        call_id = getattr(call_args, "id", None)
+                    call_name = event.get("name")
+                    if call_id and call_name:
+                        yield (
+                            "tool_call_start",
+                            {
+                                "agent": agent_name,
+                                "call": {
+                                    "id": str(call_id) if call_id else None,
+                                    "name": call_name,
+                                    "args": call_args,
+                                },
+                            },
+                        )
 
                 elif event_type == "on_tool_end":
                     result = data.get("output")
                     call = data.get("input")
-                    call_id = getattr(call, "id", None) if call else None
-                    if result:
-                        payload = {"agent": agent_name, "result": result}
+                    call_id = None
+                    if isinstance(result, dict):
+                        call_id = result.get("tool_call_id")
+                    if call_id is None:
+                        if isinstance(call, dict):
+                            call_id = call.get("id")
+                        else:
+                            call_id = getattr(call, "id", None)
+                    tool_name = event.get("name")
+                    if result is not None:
+                        normalized_result = result
+                        if not isinstance(result, dict):
+                            normalized_result = {"name": tool_name, "content": result}
+                        else:
+                            normalized_result = dict(result)
+                            if tool_name and "name" not in normalized_result:
+                                normalized_result["name"] = tool_name
+                        payload = {"agent": agent_name, "result": normalized_result}
                         if call_id:
-                            payload["call_id"] = call_id
+                            payload["call_id"] = str(call_id)
                         yield ("tool_result", payload)
 
                 elif event_type == "on_chain_stream":
