@@ -51,6 +51,9 @@ CREATE TABLE IF NOT EXISTS user_threads (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE user_threads
+    ADD COLUMN IF NOT EXISTS ui_timeline JSONB NOT NULL DEFAULT '{}'::jsonb;
+
 CREATE INDEX IF NOT EXISTS user_threads_user_idx
     ON user_threads(user_id);
 

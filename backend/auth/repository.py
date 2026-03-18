@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, Optional
@@ -12,6 +14,9 @@ from psycopg.rows import dict_row
 from app.config import logger
 from backend.db import get_async_pool
 from .tokens import TokenPurpose
+
+_thread_timeline_ready = False
+_thread_timeline_lock: asyncio.Lock | None = None
 
 
 def _normalize_email(email: str) -> str:
@@ -29,6 +34,30 @@ class UserRecord:
 
 class AuthRepository:
     """Execute auth-related queries using the shared pool."""
+
+    async def _ensure_thread_timeline_column(self) -> None:
+        global _thread_timeline_ready, _thread_timeline_lock
+
+        if _thread_timeline_ready:
+            return
+
+        if _thread_timeline_lock is None:
+            _thread_timeline_lock = asyncio.Lock()
+
+        async with _thread_timeline_lock:
+            if _thread_timeline_ready:
+                return
+
+            pool = await get_async_pool()
+            async with pool.connection() as conn:
+                async with conn.cursor() as cur:
+                    await cur.execute(
+                        """
+                        ALTER TABLE user_threads
+                        ADD COLUMN IF NOT EXISTS ui_timeline JSONB NOT NULL DEFAULT '{}'::jsonb
+                        """
+                    )
+            _thread_timeline_ready = True
 
     async def create_user(self, email: str, password_hash: str) -> UserRecord:
         pool = await get_async_pool()
@@ -228,6 +257,40 @@ class AuthRepository:
                     (user_id,),
                 )
                 return await cur.fetchall()
+
+    async def get_thread_timeline(self, thread_id: str) -> Optional[Dict[str, Any]]:
+        await self._ensure_thread_timeline_column()
+        pool = await get_async_pool()
+        async with pool.connection() as conn:
+            async with conn.cursor(row_factory=dict_row) as cur:
+                await cur.execute(
+                    """
+                    SELECT ui_timeline
+                    FROM user_threads
+                    WHERE thread_id = %s
+                    LIMIT 1
+                    """,
+                    (thread_id,),
+                )
+                row = await cur.fetchone()
+        timeline = row.get("ui_timeline") if row else None
+        return timeline if isinstance(timeline, dict) else None
+
+    async def update_thread_timeline(self, thread_id: str, timeline: Dict[str, Any]) -> None:
+        await self._ensure_thread_timeline_column()
+        pool = await get_async_pool()
+        payload = json.dumps(timeline or {}, ensure_ascii=True)
+        async with pool.connection() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    """
+                    UPDATE user_threads
+                    SET ui_timeline = %s::jsonb,
+                        updated_at = NOW()
+                    WHERE thread_id = %s
+                    """,
+                    (payload, thread_id),
+                )
 
     async def delete_thread(self, user_id: UUID, thread_id: str) -> None:
         pool = await get_async_pool()
