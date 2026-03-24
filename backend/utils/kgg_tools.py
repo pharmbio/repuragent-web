@@ -113,7 +113,7 @@ def create_knowledge_graph(
     This is the FIRST step - create the graph before extracting information.
     
     Args:
-        disease_id: EFO/MONDO disease ID (e.g., "EFO_0000685", "MONDO_0004975")
+        disease_id: disease ID (provided id or first match id from search)
         clinical_trial_phase: Minimum clinical trial phase (1-4)
         protein_threshold: Minimum protein association score (0.0-1.0)
     
@@ -932,52 +932,22 @@ async def _retrieve_chembl_match(
     return result
 
 
-async def _fetch_openfda_counts(
-    side_effect: str,
-    limit: int,
-    client: httpx.AsyncClient,
-    semaphore: asyncio.Semaphore,
-) -> List[Dict[str, Any]]:
-    params = {
-        "search": f'patient.reaction.reactionmeddrapt:"{side_effect.upper()}"',
-        "count": "patient.drug.medicinalproduct.exact",
-        "limit": max(1, min(limit, 100)),
-    }
-    try:
-        async with semaphore:
-            response = await client.get(OPENFDA_EVENT_ENDPOINT, params=params)
-        if response.status_code == 404:
-            return []
-        response.raise_for_status()
-        data = response.json()
-        return data.get("results", [])
-    except httpx.HTTPError as exc:
-        logger.debug("OpenFDA query failed for side effect '%s': %s", side_effect, exc)
-        await asyncio.sleep(RETRY_BACKOFF_SECONDS)
-        return []
-
-
 REACTOME_SEARCH_URL = "https://reactome.org/ContentService/search/query"
 REACTOME_BROWSER_BASE = "https://reactome.org/PathwayBrowser/#/"
 OPENTARGETS_GRAPHQL_URL = "https://api.platform.opentargets.org/api/v4/graphql"
 
 KNOWN_DRUGS_ROWS_QUERY = """
-    query KnownDrugsQuery(
-      $ensgId: String!
-      $cursor: String
-      $freeTextQuery: String
-      $size: Int!
-    ) {
+    query DrugAndClinicalCandidatesQuery($ensgId: String!) {
       target(ensemblId: $ensgId) {
         id
-        knownDrugs(cursor: $cursor, freeTextQuery: $freeTextQuery, size: $size) {
+        drugAndClinicalCandidates {
           count
-          cursor
           rows {
-            phase
-            status
-            disease { id name }
+            id
+            maxClinicalStage
             drug { id name }
+            diseases { disease { id name } }
+            clinicalReports { id source clinicalStage phaseFromSource }
           }
         }
       }
@@ -1016,6 +986,68 @@ MAP_TARGET_IDS_QUERY = """
 _target_association_score_cache: Dict[Tuple[str, str], Optional[float]] = {}
 
 
+def _opentargets_graphql(query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
+    response = requests.post(
+        OPENTARGETS_GRAPHQL_URL,
+        json={"query": query, "variables": variables},
+        timeout=60,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    errors = payload.get("errors") or []
+    if errors:
+        raise ValueError(errors[0].get("message") or "Open Targets GraphQL query failed")
+    data = payload.get("data")
+    if data is None:
+        raise ValueError("Open Targets GraphQL response did not include data")
+    return data
+
+
+def _clinical_stage_to_phase(value: Any) -> Optional[int]:
+    if value is None:
+        return None
+    stage = str(value).strip().upper()
+    if not stage:
+        return None
+    if "APPROVED" in stage:
+        return 4
+    matches = [int(match) for match in re.findall(r"PHASE[_ ]?(\d)", stage)]
+    if not matches:
+        return None
+    return max(matches)
+
+
+def _normalize_drug_and_clinical_candidate_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    normalized: List[Dict[str, Any]] = []
+    for row in rows or []:
+        drug = row.get("drug") or {}
+        drug_id = drug.get("id")
+        if not drug_id:
+            continue
+        disease_entries = []
+        for disease_entry in row.get("diseases") or []:
+            disease = (disease_entry or {}).get("disease") or {}
+            disease_entries.append(
+                {
+                    "disease.id": disease.get("id"),
+                    "disease.name": disease.get("name"),
+                }
+            )
+        if not disease_entries:
+            disease_entries = [{"disease.id": None, "disease.name": None}]
+        for disease_entry in disease_entries:
+            normalized.append(
+                {
+                    "phase": _clinical_stage_to_phase(row.get("maxClinicalStage")),
+                    "status": row.get("maxClinicalStage"),
+                    "drug.id": drug_id,
+                    "drug.name": drug.get("name"),
+                    **disease_entry,
+                }
+            )
+    return normalized
+
+
 def _fetch_target_association_score_for_disease(
     ensg_id: str,
     disease_id: str,
@@ -1031,7 +1063,10 @@ def _fetch_target_association_score_for_disease(
                 json={"query": ASSOCIATED_DISEASES_QUERY, "variables": variables},
                 timeout=60,
             )
+            response.raise_for_status()
             payload = response.json()
+            if payload.get("errors"):
+                raise ValueError(payload["errors"][0].get("message") or "Open Targets associatedDiseases query failed")
         except Exception as exc:
             logger.debug(
                 "OpenTargets associatedDiseases query failed for %s: %s", ensg_id, exc
@@ -1150,25 +1185,18 @@ def _resolve_reactome_pathway_id(pathway_name: str) -> Optional[str]:
 
 def getDrugsforProteins_count(ensg):
     query_string = """
-        query KnownDrugsQuery(
-          $ensgId: String!
-          $cursor: String
-          $freeTextQuery: String
-          $size: Int = 10
-        ) {
+        query DrugAndClinicalCandidatesQuery($ensgId: String!) {
           target(ensemblId: $ensgId) {
             id
-            knownDrugs(cursor: $cursor, freeTextQuery: $freeTextQuery, size: $size) {
+            drugAndClinicalCandidates {
               count
             }
           }
         }
     """
     variables = {"ensgId": ensg}
-    base_url = "https://api.platform.opentargets.org/api/v4/graphql"
-    r = requests.post(base_url, json={"query": query_string, "variables": variables}, timeout=60)
-    api_response = r.json()
-    return api_response['data']['target']['knownDrugs']['count']
+    data = _opentargets_graphql(query_string, variables)
+    return (((data.get("target") or {}).get("drugAndClinicalCandidates")) or {}).get("count", 0)
 
 @tool
 def getDrugsforProteins(
@@ -1261,20 +1289,10 @@ def getDrugsforProteins(
                 proteins_without_annotated_drugs.append(prot)
                 continue
 
-            variables = {"ensgId": ensg_id, "size": count}
-            r = requests.post(
-                OPENTARGETS_GRAPHQL_URL,
-                json={"query": KNOWN_DRUGS_ROWS_QUERY, "variables": variables},
-                timeout=60,
-            )
-            r.raise_for_status()
-            payload = r.json()
-            rows = (
-                payload.get("data", {})
-                .get("target", {})
-                .get("knownDrugs", {})
-                .get("rows")
-                or []
+            variables = {"ensgId": ensg_id}
+            data = _opentargets_graphql(KNOWN_DRUGS_ROWS_QUERY, variables)
+            rows = _normalize_drug_and_clinical_candidate_rows(
+                (((data.get("target") or {}).get("drugAndClinicalCandidates")) or {}).get("rows") or []
             )
             if not rows:
                 proteins_without_annotated_drugs.append(prot)
@@ -1822,16 +1840,12 @@ def getDrugsforPathways(
         if not count:
             gene_drug_cache[symbol] = pd.DataFrame()
             return pd.DataFrame()
-        variables = {"ensgId": ensg_id, "size": int(count)}
+        variables = {"ensgId": ensg_id}
         try:
-            response = requests.post(
-                OPENTARGETS_GRAPHQL_URL,
-                json={"query": KNOWN_DRUGS_ROWS_QUERY, "variables": variables},
-                timeout=90,
+            data = _opentargets_graphql(KNOWN_DRUGS_ROWS_QUERY, variables)
+            rows = _normalize_drug_and_clinical_candidate_rows(
+                (((data.get("target") or {}).get("drugAndClinicalCandidates")) or {}).get("rows") or []
             )
-            response.raise_for_status()
-            payload = response.json()
-            rows = (((payload.get("data") or {}).get("target") or {}).get("knownDrugs") or {}).get("rows", [])
             df_gene = pd.json_normalize(rows)
             if not df_gene.empty:
                 df_gene["gene_symbol"] = symbol
