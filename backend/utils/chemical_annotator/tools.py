@@ -43,9 +43,9 @@ def _normalize_target_merge_key(series: pd.Series) -> pd.Series:
 @tool
 def annotate_chemicals(
     input_file,
-    confidence_threshold=6,
+    confidence_threshold=8,
     assay_type_in='B,F',
-    pchembl_value_gte=5.0,
+    pchembl_value_gte=6.0,
     log_file='chemical_annotator.log'
 ):
     """
