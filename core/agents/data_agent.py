@@ -48,6 +48,7 @@ DEFAULT_AUTHORIZED_IMPORTS = [
     'pybel',
     'requests',
     'openpyxl',
+    'httpx',
 ]
 authorized_imports = sorted(set(BASE_BUILTIN_MODULES) | set(DEFAULT_AUTHORIZED_IMPORTS))
 
