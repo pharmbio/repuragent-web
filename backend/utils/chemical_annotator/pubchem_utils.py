@@ -12,8 +12,11 @@ Institution: CBCS-SciLifeLab-Karolinska Institutet
 Year: 2025
 """
 
+from functools import lru_cache
+
 import pubchempy as pcp 
 
+@lru_cache(maxsize=50_000)
 def pubchem_get_cid(query, identifier):
     """
     Get the PubChem CID for a query structure.

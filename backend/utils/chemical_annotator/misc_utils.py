@@ -12,19 +12,22 @@ Institution: CBCS-SciLifeLab-Karolinska Institutet
 Year: 2025
 """
 
-import pandas as pd
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from functools import lru_cache
 import re
 import time
-from functools import lru_cache
 from urllib.parse import quote
-import requests
+
+import pandas as pd
 import pubchempy as pcp
-from tqdm import tqdm
+import requests
 from chembl_webresource_client.new_client import new_client
-from .chembl_utils import chembl_get_id
+from tqdm import tqdm
+
+from .chembl_utils import chembl_assay_information
 from .chembl_utils import chembl_drug_annotations
 from .chembl_utils import chembl_drug_indications
-from .chembl_utils import chembl_assay_information
+from .chembl_utils import chembl_get_id
 from .chembl_utils import chembl_mechanism_of_action
 from .chembl_utils import surechembl_get_id
 from .pubchem_utils import pubchem_get_cid
@@ -282,6 +285,79 @@ def resolve_smiles_any(
     return None
 
 
+def _normalize_merge_key(dataframe: pd.DataFrame, column_name: str) -> pd.DataFrame:
+    normalized = dataframe.copy()
+    if column_name in normalized.columns:
+        normalized[column_name] = normalized[column_name].astype(object)
+    return normalized
+
+
+def _merge_compound_row(row: dict, dataframe: pd.DataFrame) -> pd.DataFrame:
+    base_rows = pd.DataFrame([row] * len(dataframe)).reset_index(drop=True)
+    return pd.concat([base_rows, dataframe.reset_index(drop=True)], axis=1)
+
+
+def _compound_result_key(value) -> str | None:
+    cleaned = _clean_identifier(value)
+    return cleaned if cleaned is not None else None
+
+
+def _fetch_compound_bundle(
+    compound,
+    identifier_type,
+    confidence_threshold,
+    assay_type_in,
+    pchembl_value_gte,
+):
+    compound_key = _compound_result_key(compound)
+    if compound_key is None:
+        empty = pd.DataFrame()
+        return {"drug_info": empty, "drug_assay": empty, "drug_moa": empty}
+
+    chembl_id = chembl_get_id(compound_key, identifier_type)
+    drug_cid = pubchem_get_cid(compound_key, identifier_type)
+    drug_schembl = surechembl_get_id(compound_key, identifier_type)
+
+    drug_annot = _normalize_merge_key(chembl_drug_annotations(chembl_id), "molecule_chembl_id")
+    drug_annot_selected = drug_annot[
+        ["molecule_chembl_id", "canonical_smiles", "standard_inchi", "standard_inchi_key"]
+    ]
+    drug_indic = _normalize_merge_key(chembl_drug_indications(chembl_id), "molecule_chembl_id")
+    drug_assay = _normalize_merge_key(
+        chembl_assay_information(
+            chembl_id,
+            confidence_threshold=confidence_threshold,
+            assay_type_in=assay_type_in,
+            pchembl_value_gte=pchembl_value_gte,
+        ),
+        "molecule_chembl_id",
+    )
+    drug_moa = _normalize_merge_key(
+        chembl_mechanism_of_action(chembl_id),
+        "molecule_chembl_id",
+    )
+
+    if pd.isna(chembl_id):
+        for dataframe in (drug_indic, drug_assay, drug_moa):
+            if "molecule_chembl_id" in dataframe.columns:
+                dataframe["molecule_chembl_id"] = dataframe["molecule_chembl_id"].astype(str)
+
+    drug_info = drug_annot.merge(drug_indic, on="molecule_chembl_id", how="left")
+    drug_assay = drug_annot_selected.merge(drug_assay, on="molecule_chembl_id", how="left")
+    drug_moa = drug_annot_selected.merge(drug_moa, on="molecule_chembl_id", how="left")
+
+    drug_info["drug_cid"] = drug_cid
+    drug_info["drug_schembl"] = drug_schembl
+    drug_assay["drug_cid"] = drug_cid
+    drug_assay["drug_schembl"] = drug_schembl
+
+    return {
+        "drug_info": drug_info,
+        "drug_assay": drug_assay,
+        "drug_moa": drug_moa,
+    }
+
+
 def process_compounds(compounds_list, identifier, confidence_threshold=8, assay_type_in=['B', 'F'], pchembl_value_gte=6):
     """
     Process a list of compounds by retrieving drug annotations, indications, assay information,
@@ -309,61 +385,66 @@ def process_compounds(compounds_list, identifier, confidence_threshold=8, assay_
             - all_MoA: Merged mechanisms of action
     """
     identifier_column, identifier_type = resolve_identifier_column(compounds_list, identifier)
-    # Define an empty DataFrame to store all drug information
-    all_drug_info = pd.DataFrame()
-    all_drug_assay = pd.DataFrame()
-    all_MoA = pd.DataFrame()
-    # Get the total number of compounds
-    total_compounds = len(compounds_list[identifier_column])
-    # Initialize progress bar for tracking compound processing
-    pbar = tqdm(total=total_compounds, desc="Processing compounds", position=0, bar_format="{percentage:3.0f}%|{bar}|{desc}")
-    # Iterate through each compound in the list with a progress bar
-    for i, (index, row) in enumerate (compounds_list.iterrows(), start=1):
-        try:
-            compound = row[identifier_column]
-            chembl_id = chembl_get_id(compound, identifier_type)
-            drug_cid = pubchem_get_cid(compound, identifier_type)
-            drug_schembl = surechembl_get_id(compound, identifier_type)
-            #print(drug_cid,drug_schembl)
-            pbar.set_description(f"Processing compound n.: {i}")
-            # Get drug annotations and indications
-            drug_annot = chembl_drug_annotations(chembl_id)
-            drug_annot_selected = drug_annot[['molecule_chembl_id', 'canonical_smiles','standard_inchi', 'standard_inchi_key']] # Select specific columns from drug_annot
-            drug_indic = chembl_drug_indications(chembl_id)
-            drug_assay = chembl_assay_information(chembl_id, confidence_threshold, assay_type_in, pchembl_value_gte)
-            drug_MoA = chembl_mechanism_of_action(chembl_id)
-            # If no ChEMBL ID is found, ensure molecule_chembl_id is treated as a string to avoid type issues in merges
-            # Merge the annotations and indications on 'molecule_chembl_id'
-            if pd.isnull(chembl_id) == True: #if no chembl id is found convert NaN (float) to type string
-                drug_indic['molecule_chembl_id'] = drug_indic['molecule_chembl_id'].astype(str)
-                drug_assay['molecule_chembl_id'] = drug_assay['molecule_chembl_id'].astype(str)
-                drug_MoA['molecule_chembl_id'] = drug_MoA['molecule_chembl_id'].astype(str)
-            # Merge annotations and indications on molecule_chembl_id
-            drug_info = drug_annot.merge(drug_indic, on='molecule_chembl_id', how='left')
-            # Merge assay information with selected annotations
-            drug_assay = drug_annot_selected.merge(drug_assay, on='molecule_chembl_id', how='left')
-            # Merge mechanism of action with selected annotations
-            drug_MoA = drug_annot_selected.merge(drug_MoA, on='molecule_chembl_id', how='left')
-            # Add the drug_cid and drug_schembl to drug_info DataFrame
-            drug_info['drug_cid'] = drug_cid
-            drug_info['drug_schembl'] = drug_schembl
-            drug_assay['drug_cid'] = drug_cid
-            drug_assay['drug_schembl'] = drug_schembl
-            # Merge with the current compound's row data
-            merged_info = pd.concat([row.to_frame().T] * len(drug_info), ignore_index=True)
-            merged_info = pd.concat([merged_info.reset_index(drop=True), drug_info.reset_index(drop=True)], axis=1)
-            merged_assay = pd.concat([row.to_frame().T] * len(drug_assay), ignore_index=True)
-            merged_assay = pd.concat([merged_assay.reset_index(drop=True), drug_assay.reset_index(drop=True)], axis=1)  
-            merged_MoA = pd.concat([row.to_frame().T] * len(drug_MoA), ignore_index=True)
-            merged_MoA = pd.concat([merged_MoA.reset_index(drop=True), drug_MoA.reset_index(drop=True)], axis=1)
-            # Append the processed data to the result DataFrames
-            all_drug_info = pd.concat([all_drug_info, merged_info], ignore_index=True)
-            all_drug_assay = pd.concat([all_drug_assay, merged_assay], ignore_index=True)
-            all_MoA = pd.concat([all_MoA, drug_MoA], ignore_index=True)
-        
-        except Exception as e:
-            print(f"Warning: while processing compound {i}: {e}")
-        # Update the progress bar
-        pbar.update(1)  
-    # Return the three DataFrames containing processed information
-    return all_drug_info, all_drug_assay, all_MoA
+    assay_type_in = tuple(assay_type_in)
+    rows = compounds_list.to_dict("records")
+
+    unique_compounds = {}
+    for row in rows:
+        compound = row.get(identifier_column)
+        compound_key = _compound_result_key(compound)
+        if compound_key not in unique_compounds:
+            unique_compounds[compound_key] = compound
+
+    pbar = tqdm(
+        total=len(unique_compounds),
+        desc="Processing compounds",
+        position=0,
+        bar_format="{percentage:3.0f}%|{bar}|{desc}",
+    )
+
+    compound_results = {}
+    max_workers = min(8, len(unique_compounds)) if unique_compounds else 1
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_key = {
+            executor.submit(
+                _fetch_compound_bundle,
+                compound,
+                identifier_type,
+                confidence_threshold,
+                assay_type_in,
+                pchembl_value_gte,
+            ): compound_key
+            for compound_key, compound in unique_compounds.items()
+        }
+
+        for index, future in enumerate(as_completed(future_to_key), start=1):
+            compound_key = future_to_key[future]
+            pbar.set_description(f"Processing compound n.: {index}")
+            try:
+                compound_results[compound_key] = future.result()
+            except Exception as exc:
+                print(f"Warning: while processing compound {index}: {exc}")
+                compound_results[compound_key] = {
+                    "drug_info": pd.DataFrame(),
+                    "drug_assay": pd.DataFrame(),
+                    "drug_moa": pd.DataFrame(),
+                }
+            pbar.update(1)
+
+    all_drug_info = []
+    all_drug_assay = []
+    all_moa = []
+    for row in rows:
+        result = compound_results[_compound_result_key(row.get(identifier_column))]
+        if not result["drug_info"].empty:
+            all_drug_info.append(_merge_compound_row(row, result["drug_info"]))
+        if not result["drug_assay"].empty:
+            all_drug_assay.append(_merge_compound_row(row, result["drug_assay"]))
+        if not result["drug_moa"].empty:
+            all_moa.append(result["drug_moa"].copy())
+
+    return (
+        pd.concat(all_drug_info, ignore_index=True) if all_drug_info else pd.DataFrame(),
+        pd.concat(all_drug_assay, ignore_index=True) if all_drug_assay else pd.DataFrame(),
+        pd.concat(all_moa, ignore_index=True) if all_moa else pd.DataFrame(),
+    )

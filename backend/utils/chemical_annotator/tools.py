@@ -9,6 +9,7 @@ CONTACT = "flavio.ballante@ki.se, flavioballante@gmail.com"
 
 import logging
 from pathlib import Path
+import shutil
 import pandas as pd
 from backend.utils.chemical_annotator.misc_utils import (
     auto_detect_identifier_column,
@@ -20,6 +21,23 @@ from backend.utils.chemical_annotator.chembl_utils import process_targets, get_p
 from backend.utils.chemical_annotator.kegg_utils import get_pathways_from_ec
 from langchain_core.tools import tool
 from backend.utils.output_paths import resolve_output_folder
+
+
+def _identifier_key(value):
+    if value is None or pd.isna(value):
+        return None
+    if isinstance(value, str):
+        value = value.strip()
+        return value or None
+    return value
+
+
+def _normalize_target_merge_key(series: pd.Series) -> pd.Series:
+    normalized = series.astype(object).copy()
+    missing_mask = normalized.isna()
+    normalized = normalized.astype(str)
+    normalized.loc[missing_mask | (normalized == "nan")] = "__missing_target_chembl_id__"
+    return normalized
 
 
 @tool
@@ -66,7 +84,8 @@ def annotate_chemicals(
     logging.basicConfig(
         filename=str(log_path),
         level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        force=True,
     )
     logger = logging.getLogger()
     
@@ -106,8 +125,14 @@ def annotate_chemicals(
             if id_type == "smiles":
                 compounds_list["SMILES"] = compounds_list[id_column]
             else:
+                resolved_smiles = {}
+                for value in compounds_list[id_column]:
+                    key = _identifier_key(value)
+                    if key is None or key in resolved_smiles:
+                        continue
+                    resolved_smiles[key] = resolve_smiles_any(value, identifier_type=id_type)
                 compounds_list["SMILES"] = compounds_list[id_column].map(
-                    lambda value: resolve_smiles_any(value, identifier_type=id_type)
+                    lambda value: resolved_smiles.get(_identifier_key(value))
                 )
 
         # Fetch data from ChEMBL
@@ -144,7 +169,12 @@ def annotate_chemicals(
         logger.info("All compounds have been processed. Now processing targets data...")
 
         # Fetch target data from ChEMBL
-        Targets_data = process_targets(Drugs_assay)
+        unique_assay_targets = (
+            Drugs_assay[["target_chembl_id"]]
+            .drop_duplicates()
+            .reset_index(drop=True)
+        )
+        Targets_data = process_targets(unique_assay_targets)
         Targets_data = Targets_data.reset_index(drop=True)
         Targets_data.index = Targets_data.index + 1
         if "target_chembl_id" not in Targets_data.columns:
@@ -222,10 +252,20 @@ def annotate_chemicals(
         Targets_data_with_pathways_p_class = Targets_data_with_pathways_p_class.reset_index(drop=True)
         Targets_data_with_pathways_p_class.index += 1
 
-        # Concatenate dataframes horizontally
-        Drugs_assay_Targets_data = pd.concat(
-            [Drugs_assay, Targets_data_with_pathways_p_class.drop('target_chembl_id', axis=1)],
-            axis=1
+        Drugs_assay_Targets_data = (
+            Drugs_assay.assign(
+                _target_merge_key=_normalize_target_merge_key(Drugs_assay["target_chembl_id"])
+            )
+            .merge(
+                Targets_data_with_pathways_p_class.assign(
+                    _target_merge_key=_normalize_target_merge_key(
+                        Targets_data_with_pathways_p_class["target_chembl_id"]
+                    )
+                ).drop(columns=["target_chembl_id"]),
+                on="_target_merge_key",
+                how="left",
+            )
+            .drop(columns=["_target_merge_key"])
         )
 
         # Reorder columns
@@ -252,16 +292,15 @@ def annotate_chemicals(
             Drugs_assay_Targets_data.to_excel(excel_writer, index=False)
 
         output_files = {
-            "Output description": "Belows are output files that can be used for subsequent analysis.",
+            "Output description": "Below are output files that can be used for subsequent analysis.",
             "Files":
                 {
                     str(Drugs_info_output): "Compound-level ChEMBL molecule annotations + drug indications, merged onto the original input rows (often one row per matched indication).",
                     str(Drugs_assay_output): "ChEMBL bioactivity/activity records for matched molecules, merged onto the original input rows (often one row per activity/assay measurement).",
                     str(Drugs_MoA_output): "ChEMBL mechanism-of-action annotations for matched molecules (one row per MoA record when available).",
-                    str(Targets_data_output): "Target metadata derived from assay targets (aligned to activity rows), including target description and UniProt ID when available.",
-                    str(pathway_data_output): "KEGG pathway mappings derived from target EC numbers (one row per target–pathway pair when available).",
-                    str(Drugs_assay_Targets_data_output): "Activity rows enriched with target metadata, KEGG pathway mappings, and protein classifications/hierarchy (when available).",
-                    str(log_path): "Run log with tool/version metadata and progress messages.",
+                    str(Targets_data_output): "Unique assay-target metadata, including target description, UniProt ID, and EC numbers when available.",
+                    str(pathway_data_output): "Target-level KEGG pathway mappings derived from EC numbers, with KEGG IDs and pathway names aggregated into semicolon-delimited fields.",
+                    str(Drugs_assay_Targets_data_output): "Activity rows enriched with target metadata, aggregated KEGG pathway mappings, and protein classifications/hierarchy (when available).",
                 },
         }
         

@@ -12,15 +12,38 @@ Institution: CBCS-SciLifeLab-Karolinska Institutet
 Year: 2025
 """
 
-import requests
+import math
+from functools import lru_cache
+from io import StringIO
+
 import pandas as pd
+import requests
 from chembl_webresource_client.new_client import new_client
 from chembl_webresource_client.utils import utils
-import math
 from tqdm import tqdm
-import json
+
 molecule = new_client.molecule
 activity = new_client.activity
+ASSAY_CLIENT = new_client.assay
+DOCUMENT_CLIENT = new_client.document
+TARGET_CLIENT = new_client.target
+
+
+def _df_to_cached_json(dataframe: pd.DataFrame) -> str:
+    return dataframe.to_json(orient="records")
+
+
+def _cached_json_to_df(payload: str) -> pd.DataFrame:
+    dataframe = pd.read_json(StringIO(payload))
+    for column_name in ("molecule_chembl_id", "target_chembl_id", "document_chembl_id"):
+        if column_name in dataframe.columns:
+            dataframe[column_name] = dataframe[column_name].astype(object)
+    return dataframe
+
+
+@lru_cache(maxsize=1)
+def _get_protein_class_df() -> pd.DataFrame:
+    return pd.DataFrame(new_client.protein_classification)
 
 def fetch_chembl_status():
     """
@@ -57,6 +80,7 @@ def append_empty_rows(dataframe, n):
         dataframe.loc[len(dataframe)] = pd.Series(dtype='float64')
 
 # %%
+@lru_cache(maxsize=50_000)
 def chembl_get_id(query, identifier):
     """
     Get the ChEMBL ID for a query structure.
@@ -89,7 +113,8 @@ def chembl_get_id(query, identifier):
         return ' '.join(ChEMBL_id)
 
 # %%
-def chembl_drug_annotations(chembl_id):
+@lru_cache(maxsize=50_000)
+def _chembl_drug_annotations_cached(chembl_id):
     """
     Get the drug annotations for a query structure.
 
@@ -122,7 +147,7 @@ def chembl_drug_annotations(chembl_id):
         
         # Return an empty DataFrame with predefined columns if no data found
         if not ChEMBL_drug_annotation:
-            return pd.DataFrame({col: [None] for col in columns})  # Return a DataFrame with NaN values if no data found
+            return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
         
         ChEMBL_drug_annotation = ChEMBL_drug_annotation[0]
 
@@ -166,16 +191,18 @@ def chembl_drug_annotations(chembl_id):
         
         # Create DataFrame
         ChEMBL_drug_annotation_df = pd.DataFrame([flat_data])
-        return ChEMBL_drug_annotation_df
+        return _df_to_cached_json(ChEMBL_drug_annotation_df)
     
     except Exception as e:
-        # Log the exception if necessary, e.g., print(e) or log to a file
-        return pd.DataFrame({col: [None] for col in columns})  # Return a DataFrame with NaN values in case of any exception
-    #ChEMBL_drug_annotation['CID']= cid
-    #return ChEMBL_drug_annotation
+        return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
+
+
+def chembl_drug_annotations(chembl_id):
+    return _cached_json_to_df(_chembl_drug_annotations_cached(chembl_id))
 
 # %%
-def chembl_drug_indications(chembl_id):
+@lru_cache(maxsize=50_000)
+def _chembl_drug_indications_cached(chembl_id):
      """
      Get the drug indications for a query structure.
 
@@ -212,7 +239,7 @@ def chembl_drug_indications(chembl_id):
                data_all = pd.DataFrame(data)
                data_all.drop(columns=['parent_molecule_chembl_id'], inplace=True, errors='ignore')
                data_all['total_count'] = total_count
-               return data_all
+               return _df_to_cached_json(data_all)
                    
           n_of_pages = (total_count + 19) // 20  # ceil division to get number of pages
         
@@ -237,20 +264,21 @@ def chembl_drug_indications(chembl_id):
           # Drop unnecessary columns
           data_all.drop(columns=['parent_molecule_chembl_id'], inplace=True, errors='ignore')
 
-          return data_all
+          return _df_to_cached_json(data_all)
 
      except requests.exceptions.RequestException as e:
-          # Handle HTTP request errors
-          #print(f"An error occurred while fetching data: {e}")
-          return pd.DataFrame({col: [None] for col in columns})
+          return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
 
      except Exception as e:
-          # Handle general errors
-          #print(f"An unexpected error occurred: {e}")
-          return pd.DataFrame({col: [None] for col in columns})
+          return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
+
+
+def chembl_drug_indications(chembl_id):
+     return _cached_json_to_df(_chembl_drug_indications_cached(chembl_id))
      
 # %%
-def chembl_mechanism_of_action(chembl_id):
+@lru_cache(maxsize=50_000)
+def _chembl_mechanism_of_action_cached(chembl_id):
     """
     Fetch the mechanism of action for a given ChEMBL compound ID using chembl_webresource_client.
 
@@ -277,7 +305,7 @@ def chembl_mechanism_of_action(chembl_id):
         mechanisms_list = list(mechanisms)
 
         if not mechanisms_list:
-            return pd.DataFrame({col: [None] for col in columns})
+            return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
 
         # Extract relevant fields
         MOA = []
@@ -289,14 +317,58 @@ def chembl_mechanism_of_action(chembl_id):
                 'target_chembl_id': m.get('target_chembl_id')
             })
 
-        return pd.DataFrame(MOA)
+        return _df_to_cached_json(pd.DataFrame(MOA))
 
     except Exception as e:
-        #print(f"Error fetching mechanism of action for {chembl_id}: {e}")
-        return pd.DataFrame({col: [None] for col in columns})
+        return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
+
+
+def chembl_mechanism_of_action(chembl_id):
+    return _cached_json_to_df(_chembl_mechanism_of_action_cached(chembl_id))
 
 # %%
-def chembl_assay_information(chembl_id, confidence_threshold=8, assay_type_in=['B', 'F'], pchembl_value_gte=6):
+@lru_cache(maxsize=100_000)
+def _fetch_assay_confidence(assay_chembl_id):
+    try:
+        assay_info = next(
+            iter(
+                ASSAY_CLIENT.filter(assay_chembl_id=assay_chembl_id).only(
+                    ["assay_chembl_id", "confidence_score"]
+                )
+            ),
+            None,
+        )
+        if not assay_info:
+            return None
+        return assay_info.get("confidence_score")
+    except Exception:
+        return None
+
+
+@lru_cache(maxsize=100_000)
+def _fetch_document_info(chembl_doc_id):
+    document_columns = ["doc_type", "doi", "journal", "pubmed_id", "title"]
+    if pd.isna(chembl_doc_id) or chembl_doc_id == "":
+        return _df_to_cached_json(pd.DataFrame(columns=document_columns))
+    try:
+        document = next(
+            iter(DOCUMENT_CLIENT.filter(chembl_id=chembl_doc_id).only(document_columns)),
+            None,
+        )
+        if not document:
+            return _df_to_cached_json(pd.DataFrame([{col: None for col in document_columns}]))
+        return _df_to_cached_json(pd.DataFrame([document])[document_columns])
+    except Exception:
+        return _df_to_cached_json(pd.DataFrame([{col: None for col in document_columns}]))
+
+
+@lru_cache(maxsize=50_000)
+def _chembl_assay_information_cached(
+    chembl_id,
+    confidence_threshold=8,
+    assay_type_in=("B", "F"),
+    pchembl_value_gte=6,
+):
     """
     Get the assay information for a query structure with a minimum confidence score.
 
@@ -330,19 +402,6 @@ def chembl_assay_information(chembl_id, confidence_threshold=8, assay_type_in=['
         'title'
     ]
 
-    def fetch_document_info(chembl_doc_id):
-        if pd.isna(chembl_doc_id) or chembl_doc_id == '':
-            return pd.DataFrame(document_columns)
-        try:
-            return next(iter(document_client.filter(chembl_id=chembl_doc_id)), None)
-        except Exception as e:
-            #print(f"Error fetching document {chembl_doc_id}: {str(e)}")
-            return pd.DataFrame(document_columns)
-            
-    activity = new_client.activity
-    document_client = new_client.document
-    assay_client = new_client.assay
-       
     try:
         activities = activity.filter(
             molecule_chembl_id = chembl_id, 
@@ -357,42 +416,69 @@ def chembl_assay_information(chembl_id, confidence_threshold=8, assay_type_in=['
         if not activities_list:
             empty_data = pd.DataFrame(columns=columns)
             empty_data['molecule_chembl_id'] = [chembl_id]
-            return empty_data
+            return _df_to_cached_json(empty_data)
             
 
-        # Extract relevant fields and fetch confidence scores
+        assay_ids = {
+            activity_row["assay_chembl_id"]
+            for activity_row in activities_list
+            if activity_row.get("assay_chembl_id")
+        }
+        assay_confidence = {
+            assay_id: _fetch_assay_confidence(assay_id) for assay_id in assay_ids
+        }
+
         activity_data = []
         for m in activities_list:
-            assay_info = next(iter(assay_client.filter(assay_chembl_id=m['assay_chembl_id'])), None)
-            if assay_info and assay_info.get('confidence_score', 0) >= confidence_threshold:
+            confidence_score = assay_confidence.get(m.get("assay_chembl_id"))
+            if confidence_score is not None and confidence_score >= confidence_threshold:
                 activity_dict = {field: m.get(field) for field in columns if field != 'confidence_score'}
-                activity_dict['confidence_score'] = assay_info.get('confidence_score', None)
+                activity_dict['confidence_score'] = confidence_score
                 activity_data.append(activity_dict)
 
         if not activity_data:  # If no activities meet the confidence threshold
             empty_data = pd.DataFrame(columns=columns)
             empty_data['molecule_chembl_id'] = [chembl_id]
-            return empty_data
+            return _df_to_cached_json(empty_data)
         
         activity_data = pd.DataFrame(activity_data)
         
-        # Loop through all the ChEMBL documents
-        document_data = [fetch_document_info(chembl_doc_id) for chembl_doc_id in activity_data['document_chembl_id']]
-        document_data = pd.DataFrame(document_data)[document_columns]
-        assay_information = pd.merge(activity_data, document_data, left_index=True, right_index=True)
-        return assay_information
+        document_ids = activity_data["document_chembl_id"].dropna().unique().tolist()
+        document_rows = []
+        for chembl_doc_id in document_ids:
+            document_df = _cached_json_to_df(_fetch_document_info(chembl_doc_id))
+            if document_df.empty:
+                document_df = pd.DataFrame([{col: None for col in document_columns}])
+            document_df["document_chembl_id"] = chembl_doc_id
+            document_rows.append(document_df[["document_chembl_id"] + document_columns])
+
+        if document_rows:
+            document_data = pd.concat(document_rows, ignore_index=True)
+        else:
+            document_data = pd.DataFrame(columns=["document_chembl_id"] + document_columns)
+
+        assay_information = activity_data.merge(document_data, on="document_chembl_id", how="left")
+        return _df_to_cached_json(assay_information)
         
     except requests.exceptions.RequestException as e:
-        # Handle HTTP request errors
-        #print(f"An error occurred while fetching data: {e}")
-        return pd.DataFrame({col: [None] for col in columns})
+        return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
 
     except Exception as e:
-        # Handle general errors
-        #print(f"An unexpected error occurred: {e}")
-        return pd.DataFrame({col: [None] for col in columns})
+        return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
+
+
+def chembl_assay_information(chembl_id, confidence_threshold=8, assay_type_in=("B", "F"), pchembl_value_gte=6):
+    return _cached_json_to_df(
+        _chembl_assay_information_cached(
+            chembl_id,
+            confidence_threshold=confidence_threshold,
+            assay_type_in=tuple(assay_type_in),
+            pchembl_value_gte=pchembl_value_gte,
+        )
+    )
 
 # %%
+@lru_cache(maxsize=50_000)
 def surechembl_get_id(query, identifier):
     """
     Retrieve the SureChEMBL compound ID for a given query, using the specified identifier type.
@@ -438,6 +524,7 @@ def surechembl_get_id(query, identifier):
         return None
 
 # %%
+@lru_cache(maxsize=50_000)
 def get_target_data(target_chembl_id):
     """
     Retrieve target information from ChEMBL for a given target ChEMBL ID.
@@ -469,10 +556,8 @@ def get_target_data(target_chembl_id):
             "UniProt ID": "",
             "EC Numbers": ""
         }
-    target = new_client.target
-    
     try:
-        result = target.get(target_chembl_id)
+        result = TARGET_CLIENT.get(target_chembl_id)
         
         if not result:
             print(f"No data found for {target_chembl_id}")
@@ -550,6 +635,7 @@ def process_targets(targets_list):
     return pd.DataFrame(target_data)
 
 # %%
+@lru_cache(maxsize=50_000)
 def get_protein_classifications(target_chembl_id):
     """
     Fetch protein classifications for a given ChEMBL target ID.
@@ -566,13 +652,12 @@ def get_protein_classifications(target_chembl_id):
     """
     try:
         # Step 1: Fetch component_id
-        target_url = f"https://www.ebi.ac.uk/chembl/api/data/target/{target_chembl_id}.json"
-        target_data = requests.get(target_url).json()
+        target_data = TARGET_CLIENT.get(target_chembl_id)
         component_id = target_data['target_components'][0]['component_id']
 
         # Step 2: Get protein_classification_ids
         component_url = f"https://www.ebi.ac.uk/chembl/api/data/target_component/{component_id}.json"
-        component_data = requests.get(component_url).json()
+        component_data = requests.get(component_url, timeout=35).json()
         protein_class_ids = [
             pc['protein_classification_id'] for pc in component_data.get('protein_classifications', [])
         ]
@@ -593,6 +678,27 @@ def get_protein_classifications(target_chembl_id):
         return None
 
 # %%
+@lru_cache(maxsize=100_000)
+def _trace_hierarchy_cached(protein_class_id):
+    if protein_class_id is None or (isinstance(protein_class_id, float) and math.isnan(protein_class_id)):
+        return ""
+
+    protein_class_df = _get_protein_class_df()
+    hierarchy = []
+    current_id = int(protein_class_id)
+    while True:
+        row = protein_class_df[protein_class_df["protein_class_id"] == current_id]
+        if row.empty:
+            break
+        hierarchy.insert(0, row.iloc[0]["pref_name"])
+        parent_id = row.iloc[0]["parent_id"]
+        if pd.isna(parent_id):
+            break
+        current_id = int(parent_id)
+
+    return " > ".join(hierarchy[1:])
+
+
 def trace_hierarchy(protein_class_id, hierarchy=None):
     """
     Recursively traces the hierarchy of a given protein_class_id.
@@ -609,30 +715,7 @@ def trace_hierarchy(protein_class_id, hierarchy=None):
     list: 
         A list representing the traced protein hierarchy.
     """
-    protein_class = new_client.protein_classification
-    pclass=pd.DataFrame(protein_class)
-
-    if hierarchy is None:
-        hierarchy = []
-
-    # Find the row corresponding to the given protein_class_id
-    row = pclass[pclass["protein_class_id"] == protein_class_id]
-
-    if row.empty:
-        return hierarchy  # Return the accumulated hierarchy if no match is found
-
-    # Add the current protein_class_id to the hierarchy
-    current_name = row.iloc[0]["pref_name"]
-    hierarchy.insert(0, current_name)  # Insert at the beginning to maintain root-to-leaf order
-
-    # Get the parent_id of the current protein_class_id
-    parent_id = row.iloc[0]["parent_id"]
-
-    # If there's a parent_id, recursively trace it
-    if not pd.isna(parent_id):
-        return trace_hierarchy(int(parent_id), hierarchy)
-    hierarchy = " > ".join(hierarchy[1:])
-    return hierarchy
+    return _trace_hierarchy_cached(protein_class_id)
 
 # %%
 def trace_hierarchy_for_list(protein_class_ids):
@@ -654,8 +737,7 @@ def trace_hierarchy_for_list(protein_class_ids):
         try:
             # Ensure the ID is treated as an integer
             protein_class_id = int(protein_class_id)
-            hierarchy = trace_hierarchy(protein_class_id)
-            results[protein_class_id] = " > ".join(hierarchy[1:])
+            results[protein_class_id] = trace_hierarchy(protein_class_id)
         except ValueError:
             results[protein_class_id] = "Invalid ID"
     return results
