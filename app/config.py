@@ -14,7 +14,11 @@ logger = logging.getLogger(__name__)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY",'sk-***')
 
 # Memory directory setup
-MEMORY_DIR = Path(os.environ.get("MEMORY_ROOT", "persistence/memory"))
+# Use an absolute, project-root-based default so relative paths don't depend on `cwd`
+# (e.g., when running notebooks from `analysis/**`).
+_DEFAULT_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_DEFAULT_MEMORY_ROOT = (_DEFAULT_PROJECT_ROOT / "persistence" / "memory").resolve()
+MEMORY_DIR = Path(os.environ.get("MEMORY_ROOT", str(_DEFAULT_MEMORY_ROOT)))
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 DEMO_THREADS_FILE = MEMORY_DIR / "demo_threads.json"
 
