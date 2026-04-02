@@ -127,7 +127,7 @@ def CYP3A4_classifier(smiles_input: Union[str, List[str]]):
     cmd = f"java -jar models/CPSign/cpsign-2.0.0-fatjar.jar predict \
     --model models/CYP3A4_clf_trained.jar \
     --predict-file CSV {data_path} \
-    --confidences 0.79 \
+    --confidences 0.80 \
     --output-format CSV \
     --output {output_str}"
     _ = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -159,7 +159,7 @@ def hERG_classifier(smiles_input: Union[str, List[str]]):
     cmd = f"java -jar models/CPSign/cpsign-2.0.0-fatjar.jar predict \
     --model models/hERG_clf_trained.jar \
     --predict-file CSV {data_path} \
-    --confidences 0.78 \
+    --confidences 0.80 \
     --output-format CSV \
     --output {output_str}"
     _ = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -191,7 +191,7 @@ def AMES_classifier(smiles_input: Union[str, List[str]]):
     cmd = f"java -jar models/CPSign/cpsign-2.0.0-fatjar.jar predict \
     --model models/AMES_clf_trained.jar \
     --predict-file CSV {data_path} \
-    --confidences 0.81 \
+    --confidences 0.80 \
     --output-format CSV \
     --output {output_str}"
     _ = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -223,7 +223,7 @@ def PGP_classifier(smiles_input: Union[str, List[str]]):
     cmd = f"java -jar models/CPSign/cpsign-2.0.0-fatjar.jar predict \
     --model models/PGP_clf_trained.jar \
     --predict-file CSV {data_path} \
-    --confidences 0.83 \
+    --confidences 0.80 \
     --output-format CSV \
     --output {output_str}"
     _ = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -323,7 +323,7 @@ def PAMPA_classifier(smiles_input: Union[str, List[str]]):
     cmd = f"java -jar models/CPSign/cpsign-2.0.0-fatjar.jar predict \
     --model models/PAMPA_clf_trained.jar \
     --predict-file CSV {data_path} \
-    --confidences 0.75 \
+    --confidences 0.80 \
     --output-format CSV \
     --output {output_str}"
     _ = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -451,7 +451,7 @@ def CYP1A2_classifier(smiles_input: Union[str, List[str]]):
     cmd = f"java -jar models/CPSign/cpsign-2.0.0-fatjar.jar predict \
     --model models/CYP1A2_clf_trained.jar \
     --predict-file CSV {data_path} \
-    --confidences 0.84 \
+    --confidences 0.80 \
     --output-format CSV \
     --output {output_str}"
     _ = subprocess.run(cmd, shell=True, capture_output=True, text=True)
