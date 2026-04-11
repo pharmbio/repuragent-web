@@ -1,0 +1,44 @@
+[
+  {
+    "thread_id": "7b87215a-cefd-46b5-be7b-ab162989611b:865308e9-6c13-46dc-9a3c-4f785b51ca35",
+    "created_at": "2025-11-25 21:55:35",
+    "title": "Case study 1: AML repurposing",
+    "results_user_id": "7b87215a-cefd-46b5-be7b-ab162989611b",
+    "results_thread_id": "865308e9-6c13-46dc-9a3c-4f785b51ca35"
+  },
+  {
+    "thread_id": "7b87215a-cefd-46b5-be7b-ab162989611b:729828e1-3450-4ac3-9795-11c738762249",
+    "created_at": "2025-11-25 21:55:35",
+    "title": "Case study 2: COVID19 - Agent as assistant - Primary - Constrain",
+    "results_user_id": "7b87215a-cefd-46b5-be7b-ab162989611b",
+    "results_thread_id": "729828e1-3450-4ac3-9795-11c738762249"
+  },
+  {
+    "thread_id": "7b87215a-cefd-46b5-be7b-ab162989611b:df4a7195-237e-46e3-a2e7-dde9aa2e9f59",
+    "created_at": "2025-11-25 21:55:35",
+    "title": "Case study 2: COVID19 - Agent as assistant - Primary",
+    "results_user_id": "7b87215a-cefd-46b5-be7b-ab162989611b",
+    "results_thread_id": "df4a7195-237e-46e3-a2e7-dde9aa2e9f59"
+  },
+  {
+    "thread_id": "7b87215a-cefd-46b5-be7b-ab162989611b:69604ca0-49e7-43b6-b34f-6d7a2edf01ca",
+    "created_at": "2025-11-25 21:55:35",
+    "title": "Case study 2: COVID19 - Agent as assistant - Validation",
+    "results_user_id": "7b87215a-cefd-46b5-be7b-ab162989611b",
+    "results_thread_id": "69604ca0-49e7-43b6-b34f-6d7a2edf01ca"
+  },
+  {
+    "thread_id": "7b87215a-cefd-46b5-be7b-ab162989611b:e5d18ce7-b0e1-427a-aec4-dbd7a571d1df",
+    "created_at": "2025-11-25 21:55:35",
+    "title": "Case study 2: COVID19 - Agent as assistant - Final",
+    "results_user_id": "7b87215a-cefd-46b5-be7b-ab162989611b",
+    "results_thread_id": "e5d18ce7-b0e1-427a-aec4-dbd7a571d1df"
+  },
+  {
+    "thread_id": "7b87215a-cefd-46b5-be7b-ab162989611b:c57c34bb-3c18-49ad-b849-5ece5274200f",
+    "created_at": "2025-11-25 21:55:35",
+    "title": "Case study 3: MSD Repurposing",
+    "results_user_id": "7b87215a-cefd-46b5-be7b-ab162989611b",
+    "results_thread_id": "c57c34bb-3c18-49ad-b849-5ece5274200f"
+  }
+]
