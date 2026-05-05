@@ -22,7 +22,6 @@ from backend.utils.local_python_executor import (
     local_python_executor,
     reset_executor_state,
 )
-from backend.utils.fuzzy_path import prompt_with_file_path
 from core.prompts.prompts import DATA_SYSTEM_PROMPT_ver3
 from backend.utils.output_paths import ensure_task_dir
 
@@ -113,7 +112,7 @@ def create_agent_builder(
     
     Args:
         model: The LangChain chat model that supports tool calling. Defaults to gpt-4o.
-        tools: A list of tools. Defaults to [python_tool, prompt_with_file_path].
+        tools: A list of tools. Defaults to [python_tool].
         prompt: System prompt for the LLM. Defaults to DATA_SYSTEM_PROMPT_ver2.
         checkpointer: An optional checkpoint saver object.
         store: An optional store object.
@@ -237,7 +236,7 @@ __all__ = [
 def build_data_agent(llm, *, message_trimmer=None):
     return create_agent_builder(
         model=llm,
-        tools=[python_executor, reset_python_state, prompt_with_file_path],
+        tools=[python_executor, reset_python_state],
         prompt=DATA_SYSTEM_PROMPT_ver3,
         name="data_agent",
         message_trimmer=message_trimmer,
