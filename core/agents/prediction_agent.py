@@ -1,7 +1,6 @@
 from langgraph.prebuilt import create_react_agent
 
 from core.prompts.prompts import PREDICTION_SYSTEM_PROMPT_ver3
-from backend.utils.fuzzy_path import prompt_with_file_path
 from backend.utils.prediction_tools import (
     AMES_classifier,
     BBB_classifier,
@@ -33,7 +32,6 @@ def build_prediction_agent(llm, *, pre_model_hook=None):
                 Lipophilicity_regressor,
                 PAMPA_classifier, 
                 BBB_classifier,
-                prompt_with_file_path,
                 predict_repurposedrugs], 
         name='prediction_agent',
         prompt=PREDICTION_SYSTEM_PROMPT_ver3,
