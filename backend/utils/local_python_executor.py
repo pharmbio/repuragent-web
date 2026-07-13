@@ -221,7 +221,6 @@ _BUILTIN_DENYLIST = {
     "__import__",
     "globals",
     "locals",
-    "open",
     "input",
     "help",
     "exit",
