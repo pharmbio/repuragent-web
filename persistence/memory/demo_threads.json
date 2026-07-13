@@ -1,10 +1,10 @@
 [
   {
-    "thread_id": "7b87215a-cefd-46b5-be7b-ab162989611b:865308e9-6c13-46dc-9a3c-4f785b51ca35",
-    "created_at": "2025-11-25 21:55:35",
+    "thread_id": "c8deab08-f02a-482f-a59b-fe0c7e0f5f36:0bee543e-d29b-4b33-8f51-72e6de949b51",
+    "created_at": "2025-11-26 21:55:35",
     "title": "Case study 1: AML repurposing",
-    "results_user_id": "7b87215a-cefd-46b5-be7b-ab162989611b",
-    "results_thread_id": "865308e9-6c13-46dc-9a3c-4f785b51ca35"
+    "results_user_id": "c8deab08-f02a-482f-a59b-fe0c7e0f5f36",
+    "results_thread_id": "0bee543e-d29b-4b33-8f51-72e6de949b51"
   },
   {
     "thread_id": "7b87215a-cefd-46b5-be7b-ab162989611b:729828e1-3450-4ac3-9795-11c738762249",
@@ -35,10 +35,10 @@
     "results_thread_id": "e5d18ce7-b0e1-427a-aec4-dbd7a571d1df"
   },
   {
-    "thread_id": "7b87215a-cefd-46b5-be7b-ab162989611b:c57c34bb-3c18-49ad-b849-5ece5274200f",
+    "thread_id": "c8deab08-f02a-482f-a59b-fe0c7e0f5f36:e41790f4-f00e-4edb-90a5-da84ba49d953",
     "created_at": "2025-11-25 21:55:35",
     "title": "Case study 3: MSD Repurposing",
-    "results_user_id": "7b87215a-cefd-46b5-be7b-ab162989611b",
-    "results_thread_id": "c57c34bb-3c18-49ad-b849-5ece5274200f"
+    "results_user_id": "c8deab08-f02a-482f-a59b-fe0c7e0f5f36",
+    "results_thread_id": "e41790f4-f00e-4edb-90a5-da84ba49d953"
   }
 ]
