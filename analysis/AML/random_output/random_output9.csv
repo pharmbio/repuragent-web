@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+SONESITATUG VEDOTIN,CHEMBL6068297,2.0,Neoplasms
+MBC-11,CHEMBL4802143,1.0,Neoplasm Metastasis
+FARLETUZUMAB ECTERIBULIN,CHEMBL4802212,2.0,"Carcinoma, Non-Small-Cell Lung; Neoplasms; Ovarian Neoplasms"
+LEVETIRACETAM,CHEMBL1286,2.0,"Brain Neoplasms; Glioblastoma; Leukemia, Myeloid, Acute; Lymphoma, Follicular; Neuroblastoma; Paraganglioma"
+HYDROMORPHONE,CHEMBL398707,3.0,Cancer Pain; Kidney Neoplasms
+PALTIMATRECTINIB,CHEMBL5095076,1.0,Neoplasms
+SGN-30,CHEMBL2109256,2.0,"Hematologic Neoplasms; Hodgkin Disease; Lymphoma; Lymphoma, Large-Cell, Anaplastic; Lymphoma, T-Cell, Cutaneous; Sarcoma, Kaposi"
+EPRATUZUMAB 90Y,CHEMBL2108357,1.0,"Lymphoma, B-Cell"
+PODENTAMIG,CHEMBL6068163,2.0,Neoplasms
+INODIFTAGENE VIXTEPLASMID,CHEMBL4594478,2.0,Urinary Bladder Neoplasms
+MOGAMULIZUMAB,CHEMBL1743041,4.0,"Carcinoma; Carcinoma, Hepatocellular; Carcinoma, Non-Small-Cell Lung; Leukemia-Lymphoma, Adult T-Cell; Lymphoma; Lymphoma, T-Cell, Cutaneous; Lymphoma, T-Cell, Peripheral; Mycosis Fungoides; Neoplasms; Sezary Syndrome"
+IDROXIOLEIC ACID,CHEMBL6068000,2.0,Glioblastoma; Glioma; Neoplasms
+IRATUMUMAB,CHEMBL2108612,2.0,Hematologic Neoplasms; Hodgkin Disease; Lymphoma
+LEFLUNOMIDE,CHEMBL960,3.0,"Breast Neoplasms; Central Nervous System Neoplasms; Melanoma; Multiple Myeloma; Neoplasms; Prostatic Neoplasms, Castration-Resistant; Smoldering Multiple Myeloma"
+SERTRALINE,CHEMBL809,1.0,"Glioblastoma; Leukemia, Myeloid, Acute"
+ANTILYMPHOCYTE IMMUNOGLOBULIN (HORSE),CHEMBL2108981,1.0,Leukemia; Lymphoma; Neuroblastoma
+PLOCABULIN,CHEMBL4297636,2.0,Colorectal Neoplasms; Neoplasms
+ZIDOVUDINE,CHEMBL129,2.0,"Leukemia-Lymphoma, Adult T-Cell; Lymphoma; Lymphoma, AIDS-Related; Sarcoma, Kaposi"
+POLIGLUSAM,CHEMBL2108133,3.0,"Breast Neoplasms; Prostatic Neoplasms, Castration-Resistant"
+IMZOKITUG,CHEMBL6068454,1.0,Neoplasms

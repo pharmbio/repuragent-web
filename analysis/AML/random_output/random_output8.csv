@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+HUA33,CHEMBL2109435,1.0,Colorectal Neoplasms
+TRASTUZUMAB VEDOTIN,CHEMBL5315030,3.0,"Biliary Tract Neoplasms; Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Neoplasms; Urinary Bladder Neoplasms"
+CABOZANTINIB,CHEMBL2105717,4.0,"Adenocarcinoma, Follicular; Adrenal Cortex Neoplasms; Astrocytoma; Bile Duct Neoplasms; Breast Neoplasms; Carcinoid Tumor; Carcinoma; Carcinoma, Hepatocellular; Carcinoma, Medullary; Carcinoma, Neuroendocrine; Carcinoma, Non-Small-Cell Lung; Carcinoma, Renal Cell; Carcinoma, Squamous Cell; Cholangiocarcinoma; Colorectal Neoplasms; Gastrointestinal Stromal Tumors; Glioblastoma; Gliosarcoma; Kidney Neoplasms; Leukemia, Myeloid, Acute; Liver Neoplasms; Lung Neoplasms; Melanoma; Meningioma; Multiple Myeloma; Neoplasms; Neuroendocrine Tumors; Osteosarcoma; Pancreatic Neoplasms; Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant; Rectal Neoplasms; Salivary Gland Neoplasms; Sarcoma; Thyroid Neoplasms; Urinary Bladder Neoplasms; Urogenital Neoplasms; Uterine Cervical Neoplasms"
+ESOMEPRAZOLE,CHEMBL1201320,3.0,Breast Neoplasms; Esophageal Neoplasms; Lymphoma; Neoplasms
+ROCAKINOGENE SIFUPLASMID,CHEMBL4594560,1.0,"Carcinoma, Hepatocellular; Glioblastoma; Neoplasms; Urinary Bladder Neoplasms"
+COBALAMIN,CHEMBL4297272,3.0,"Carcinoma, Non-Small-Cell Lung"
+ASANDEUTERTINIB,CHEMBL6068008,2.0,Neoplasms
+CANERPATUREV,CHEMBL4297226,2.0,Melanoma; Neoplasms; Pancreatic Neoplasms
+DEXTROSE,CHEMBL1222250,3.0,"Biliary Tract Neoplasms; Breast Neoplasms; Carcinoma, Hepatocellular; Lymphoma, B-Cell, Marginal Zone; Neoplasms"
+TAFOLECIMAB,CHEMBL4594554,2.0,Lung Neoplasms
+PEMVIDUTIDE,CHEMBL5095142,1.0,"Leukemia, Myeloid, Acute; Melanoma; Multiple Myeloma; Neoplasms; Urethral Neoplasms; Urinary Bladder Neoplasms"
+EFPEGERGLUCAGON,CHEMBL5314827,2.0,Neoplasms
+RACEMETYROSINE,CHEMBL1330596,3.0,Breast Neoplasms; Neoplasms; Pancreatic Neoplasms
+NELFINAVIR,CHEMBL584,3.0,"Carcinoma; Carcinoma, Non-Small-Cell Lung; Carcinoma, Renal Cell; Colorectal Neoplasms; Glioblastoma; Lung Neoplasms; Lymphoma; Multiple Myeloma; Neoplasms; Pancreatic Neoplasms; Paraganglioma; Uterine Cervical Neoplasms; Vulvar Neoplasms"
+RMC-5552,CHEMBL5314926,1.0,Glioblastoma; Neoplasms
+PANOBINOSTAT LACTATE,CHEMBL3545368,4.0,Multiple Myeloma
+HYDROCODONE,CHEMBL1457,2.0,Neoplasms
+DEXAMETHASONE,CHEMBL384467,4.0,"Blastic Plasmacytoid Dendritic Cell Neoplasm; Brain Neoplasms; Breast Carcinoma In Situ; Breast Neoplasms; Burkitt Lymphoma; Carcinoma, Hepatocellular; Carcinoma, Non-Small-Cell Lung; Carcinoma, Renal Cell; Carcinoma, Squamous Cell; Cholangiocarcinoma; Colorectal Neoplasms; Endocrine Gland Neoplasms; Endometrial Neoplasms; Esophageal Neoplasms; Genital Neoplasms, Female; Genital Neoplasms, Male; Glioblastoma; Head and Neck Neoplasms; Hematologic Neoplasms; Hodgkin Disease; Leukemia; Leukemia, Biphenotypic, Acute; Leukemia, Erythroblastic, Acute; Leukemia, Hairy Cell; Leukemia, Lymphocytic, Chronic, B-Cell; Leukemia, Lymphoid; Leukemia, Megakaryoblastic, Acute; Leukemia, Monocytic, Acute; Leukemia, Myeloid, Acute; Leukemia, Myelomonocytic, Acute; Leukemia, Myelomonocytic, Chronic; Leukemia, Plasma Cell; Leukemia, T-Cell; Leukemia-Lymphoma, Adult T-Cell; Liposarcoma, Myxoid; Liver Neoplasms; Lung Neoplasms; Lymphoma; Lymphoma, Follicular; Lymphoma, Large B-Cell, Diffuse; Lymphoma, Large-Cell, Anaplastic; Lymphoma, Mantle-Cell; Lymphoma, Non-Hodgkin; Lymphoma, T-Cell, Cutaneous; Lymphoma, T-Cell, Peripheral; Melanoma; Meningeal Carcinomatosis; Mesothelioma; Mouth Neoplasms; Multiple Myeloma; Mycosis Fungoides; Nasopharyngeal Carcinoma; Neoplasm Metastasis; Neoplasms; Neoplasms, Plasma Cell; Ovarian Neoplasms; Pancreatic Neoplasms; Precursor Cell Lymphoblastic Leukemia-Lymphoma; Precursor T-Cell Lymphoblastic Leukemia-Lymphoma; Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant; Rectal Neoplasms; Sarcoma; Small Cell Lung Carcinoma; Smoldering Multiple Myeloma; Stomach Neoplasms; Urinary Bladder Neoplasms"
+M170,CHEMBL2109523,1.0,"Breast Neoplasms; Prostatic Neoplasms, Castration-Resistant"
+PFK-158,CHEMBL4303611,1.0,Neoplasms

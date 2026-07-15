@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+PEMETREXED DISODIUM,CHEMBL2360464,4.0,"Adenocarcinoma of Lung; Adenocarcinoma, Bronchiolo-Alveolar; Breast Neoplasms; Carcinoma, Large Cell; Carcinoma, Non-Small-Cell Lung; Carcinoma, Squamous Cell; Colorectal Neoplasms; Endometrial Neoplasms; Fallopian Tube Neoplasms; Gallbladder Neoplasms; Head and Neck Neoplasms; Liver Neoplasms; Lung Neoplasms; Lymphoma; Mesothelioma; Mesothelioma, Malignant; Neoplasm Metastasis; Neoplasms; Ovarian Neoplasms; Pancreatic Neoplasms; Peritoneal Neoplasms; Prostatic Neoplasms, Castration-Resistant; Salivary Gland Neoplasms; Sarcoma; Stomach Neoplasms; Thymoma; Urethral Neoplasms; Urinary Bladder Neoplasms; Urogenital Neoplasms; Uterine Cervical Neoplasms"
+DEXAMETHASONE ACETATE,CHEMBL1530428,4.0,Leukemia; Lymphoma; Multiple Myeloma
+CVX-060,CHEMBL4594470,2.0,"Carcinoma; Carcinoma, Renal Cell; Glioblastoma; Neoplasms"
+INIXACICLIB,CHEMBL5095102,2.0,Neoplasms
+IRUPLINALKIB,CHEMBL5095068,2.0,Neoplasms
+MEGESTROL ACETATE,CHEMBL1201139,4.0,Adrenal Cortex Neoplasms; Breast Neoplasms; Carcinoma in Situ; Endometrial Neoplasms; Head and Neck Neoplasms; Liver Neoplasms; Neoplasms; Uterine Neoplasms
+4G7XH22,CHEMBL2109641,1.0,Leukemia; Lymphoma
+RAD-140,CHEMBL1672635,1.0,Breast Neoplasms
+VITAMIN K,CHEMBL1201519,1.0,Melanoma; Neoplasms; Prostatic Neoplasms
+SENAPARIB,CHEMBL4802152,2.0,"Breast Neoplasms; Neoplasms; Ovarian Neoplasms; Prostatic Neoplasms, Castration-Resistant"
+BENDAMUSTINE HYDROCHLORIDE,CHEMBL1201734,4.0,"Astrocytoma; Glioblastoma; Gliosarcoma; Hematologic Neoplasms; Hodgkin Disease; Leukemia; Leukemia, Lymphocytic, Chronic, B-Cell; Leukemia, Lymphoid; Lung Neoplasms; Lymphoma; Lymphoma, Follicular; Lymphoma, Large B-Cell, Diffuse; Lymphoma, Mantle-Cell; Lymphoma, Non-Hodgkin; Multiple Myeloma; Oligodendroglioma; Small Cell Lung Carcinoma"
+FIMAPORFIN,CHEMBL4297882,2.0,Cholangiocarcinoma; Neoplasms
+BMS-184476,CHEMBL4297267,1.0,Neoplasms
+PATIDEGIB HYDROCHLORIDE,CHEMBL2105764,1.0,"Carcinoma, Basal Cell"
+PF-06688992,CHEMBL4594487,1.0,Melanoma
+ERY-974,CHEMBL4297948,1.0,"Carcinoma, Hepatocellular; Neoplasms"
+IMC-CS4,CHEMBL2109323,1.0,Neoplasms; Pancreatic Neoplasms
+CINACALCET HYDROCHLORIDE,CHEMBL1200776,4.0,"Carcinoma; Parathyroid Neoplasms; Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant"
+CHLORAMBUCIL,CHEMBL515,4.0,"Carcinoma, Pancreatic Ductal; Hodgkin Disease; Leukemia; Leukemia, Lymphocytic, Chronic, B-Cell; Lymphoma; Lymphoma, B-Cell, Marginal Zone; Lymphoma, Mantle-Cell; Neoplasms; Precursor Cell Lymphoblastic Leukemia-Lymphoma; Stomach Neoplasms"
+GENISTEIN,CHEMBL44,2.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Colonic Neoplasms; Colorectal Neoplasms; Neoplasms; Pancreatic Neoplasms; Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant; Rectal Neoplasms; Urinary Bladder Neoplasms"

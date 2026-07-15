@@ -1190,25 +1190,30 @@ def nonparametric_repuragent_tests(
     df: pd.DataFrame,
     metrics=("recall", "precision", "jaccard"),
     ref_model="Repuragent",
+    random_model="Random cancer drugs",  # random baseline arm; included as a comparison if present
     p_adjust="holm",          # "holm", "bonferroni", "fdr_bh", ...
 ):
     """
     Non-parametric testing per metric:
-      1) Kruskal–Wallis across all models
-      2) Pairwise Mann–Whitney U: ref_model vs each other model
+      1) Kruskal–Wallis across all models (including the random arm if present)
+      2) Pairwise Mann–Whitney U: ref_model vs each other model (incl. random arm)
       3) Multiple testing correction across those pairwise p-values
 
     Returns:
       stats: dict keyed by metric with kruskal p, pairwise raw/adjusted p, reject flags
       summary_df: tidy table of pairwise results (one row per metric x comparison)
     """
-    
+
     if "model" not in df.columns:
         raise ValueError("df must include a 'model' column")
 
     models = df["model"].dropna().unique().tolist()
     if ref_model not in models:
         raise ValueError(f"Reference model '{ref_model}' not found. Available: {models}")
+
+    # Consistent ordering: reference first, other models alphabetically, random baseline last
+    others = sorted(m for m in models if m not in (ref_model, random_model))
+    models = [ref_model] + others + ([random_model] if random_model in models else [])
 
     stats = {}
     rows = []
@@ -1267,13 +1272,16 @@ def plot_grouped_bars_with_repuragent_significance(
     stats: dict,
     metrics=("recall", "precision", "jaccard"),
     ref_model="Repuragent",
-    err="std",        # "std", "sem", or "ci95"
-    figsize=(12, 6),
+    random_model="Random cancer drugs",   # random baseline arm; drawn last with a distinct grey/hatched style
+    err="std",          # "std", "sem", or "ci95"
+    figsize=(12, 7),
     title=None,
 ):
     """
     Grouped bar plot with metrics as groups on x-axis and models as bars within each group.
-    Shows mean ± std/sem/95%CI and significance brackets from ref_model to any model where 
+    Shows mean ± std/sem/95%CI and significance brackets from ref_model to any model.
+    Models are ordered as: ref_model first, other models alphabetically, and the random
+    baseline arm (random_model) last, styled distinctly so it reads as the random floor.
     """
 
     def _significance_label(p_value: float) -> str:
@@ -1298,9 +1306,13 @@ def plot_grouped_bars_with_repuragent_significance(
     else:
         raise ValueError(f"err must be 'std', 'sem', or 'ci95', got {err}")
 
-    models_order = means.index.tolist()
-    if ref_model not in models_order:
+    available = means.index.tolist()
+    if ref_model not in available:
         raise ValueError(f"Reference model '{ref_model}' not found in data.")
+
+    # Explicit ordering: reference first, other models alphabetically, random baseline last
+    others = sorted(m for m in available if m not in (ref_model, random_model))
+    models_order = [ref_model] + others + ([random_model] if random_model in available else [])
 
     n_models = len(models_order)
     n_metrics = len(metrics)
@@ -1316,6 +1328,12 @@ def plot_grouped_bars_with_repuragent_significance(
         values = [means.loc[model, metric] for metric in metrics]
         errors = [errs.loc[model, metric] for metric in metrics]
 
+        # Style the random baseline arm distinctly (grey + hatch)
+        if model == random_model:
+            bar_kwargs = dict(color="lightgrey", edgecolor="grey", hatch="//")
+        else:
+            bar_kwargs = {}
+
         ax.bar(
             x + i * width,
             values,
@@ -1323,6 +1341,7 @@ def plot_grouped_bars_with_repuragent_significance(
             yerr=errors,
             capsize=3,
             label=model,
+            **bar_kwargs,
         )
 
     # Significance brackets: for each metric, compare ref_model to others
@@ -1346,7 +1365,12 @@ def plot_grouped_bars_with_repuragent_significance(
         y_top = np.nanmax(metric_values)
         y = y_top + group_offset
 
-        for other, p_adj in zip(info["comparisons"], info["pvals_adj"]):
+        # Draw the random-baseline comparison last so its (widest) bracket sits
+        # on top of every bar and above all the other brackets.
+        comparisons = list(zip(info["comparisons"], info["pvals_adj"]))
+        comparisons.sort(key=lambda c: c[0] == random_model)
+
+        for other, p_adj in comparisons:
             label = _significance_label(p_adj)
 
             other_idx = models_order.index(other)

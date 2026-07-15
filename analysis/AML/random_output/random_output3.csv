@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+ODM-204,CHEMBL6068517,1.0,"Prostatic Neoplasms, Castration-Resistant"
+HISTRELIN,CHEMBL1201255,4.0,Neoplasms; Prostatic Neoplasms
+TALORASIB,CHEMBL6068034,2.0,Neoplasms
+OMALIZUMAB,CHEMBL1201589,1.0,Colonic Neoplasms
+BRIVANIB,CHEMBL377300,3.0,"Carcinoma; Carcinoma, Hepatocellular; Colorectal Neoplasms; Liver Neoplasms; Neoplasm Metastasis; Neoplasms; Ovarian Neoplasms; Uterine Cervical Neoplasms"
+LUMINESPIB,CHEMBL252164,2.0,"Adenocarcinoma of Lung; Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Carcinoma, Squamous Cell; Colonic Neoplasms; Colorectal Neoplasms; Gastrointestinal Stromal Tumors; Lymphoma; Multiple Myeloma; Neoplasms; Rectal Neoplasms; Stomach Neoplasms"
+DALOTUZUMAB,CHEMBL1743006,2.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Colorectal Neoplasms; Lung Neoplasms; Multiple Myeloma; Neoplasms; Neuroendocrine Tumors; Rectal Neoplasms"
+LINVOSELTAMAB,CHEMBL5095373,3.0,"Multiple Myeloma; Neoplasms; Neoplasms, Plasma Cell"
+LUMISTOBART,CHEMBL6068135,2.0,Neoplasms
+RUCAPARIB CAMSYLATE,CHEMBL3833368,4.0,Neoplasms; Ovarian Neoplasms; Prostatic Neoplasms
+"GINSENG, AMERICAN",CHEMBL2109196,3.0,"Breast Neoplasms; Leukemia; Leukemia, Lymphocytic, Chronic, B-Cell; Neoplasms"
+FLUOXYMESTERONE,CHEMBL1445,4.0,Breast Neoplasms; Neoplasms
+REZORSTOBART,CHEMBL5314872,2.0,Neoplasms
+GILMELISIB,CHEMBL5095067,2.0,Neoplasms
+BINTRAFUSP ALFA,CHEMBL4298024,3.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Carcinoma, Squamous Cell; Cholangiocarcinoma; Colorectal Neoplasms; Esophageal Neoplasms; Gallbladder Neoplasms; Head and Neck Neoplasms; Lung Neoplasms; Mesothelioma; Neoplasms; Oropharyngeal Neoplasms; Pancreatic Neoplasms; Penile Neoplasms; Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant; Sarcoma; Sarcoma, Kaposi; Small Cell Lung Carcinoma; Stomach Neoplasms; Thymoma; Triple Negative Breast Neoplasms; Urogenital Neoplasms; Uterine Cervical Neoplasms; Vaginal Neoplasms"
+INOTUZUMAB OZOGAMICIN,CHEMBL2108611,4.0,"Burkitt Lymphoma; Hematologic Neoplasms; Leukemia; Leukemia, Biphenotypic, Acute; Leukemia, Myelogenous, Chronic, BCR-ABL Positive; Lymphoma; Lymphoma, Follicular; Lymphoma, Large B-Cell, Diffuse; Lymphoma, Non-Hodgkin; Neoplasms; Precursor B-Cell Lymphoblastic Leukemia-Lymphoma; Precursor Cell Lymphoblastic Leukemia-Lymphoma"
+ENOXAPARIN SODIUM,CHEMBL1201476,3.0,"Carcinoma, Non-Small-Cell Lung; Esophageal Neoplasms; Lymphoma; Neoplasms; Ovarian Neoplasms; Pancreatic Neoplasms; Small Cell Lung Carcinoma"
+REOZALIMAB,CHEMBL5095359,2.0,Neoplasms
+EXISULIND,CHEMBL488025,3.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Colorectal Neoplasms; Lung Neoplasms; Neoplasm Metastasis; Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant"
+ABARELIX,CHEMBL1252,4.0,"Neoplasms; Prostatic Neoplasms, Castration-Resistant"

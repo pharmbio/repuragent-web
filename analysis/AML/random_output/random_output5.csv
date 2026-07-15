@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+ABEQUOLIXRON,CHEMBL573677,1.0,"Carcinoma, Non-Small-Cell Lung; Endometrial Neoplasms; Neoplasms"
+REZATAPOPT,CHEMBL5314538,2.0,Neoplasms
+DARINAPARSIN,CHEMBL3247378,2.0,"Bone Marrow Neoplasms; Carcinoma, Hepatocellular; Lymphoma; Lymphoma, Non-Hodgkin; Lymphoma, T-Cell, Peripheral; Multiple Myeloma; Neoplasms"
+GURETOLIMOD,CHEMBL5314554,1.0,Neoplasms
+PUCOTENLIMAB,CHEMBL4650472,3.0,"Carcinoma, Hepatocellular; Carcinoma, Non-Small-Cell Lung; Melanoma; Neoplasms; Stomach Neoplasms; Thyroid Neoplasms; Urinary Bladder Neoplasms"
+TOPOTECAN HYDROCHLORIDE,CHEMBL1607,4.0,"Brain Neoplasms; Breast Neoplasms; Carcinoma; Carcinoma, Endometrioid; Carcinoma, Non-Small-Cell Lung; Carcinoma, Ovarian Epithelial; Carcinoma, Small Cell; Carcinoma, Squamous Cell; Central Nervous System Neoplasms; Esophageal Neoplasms; Fallopian Tube Neoplasms; Ganglioneuroblastoma; Leukemia; Lung Neoplasms; Lymphoma; Multiple Myeloma; Neoplasms; Neoplasms, Plasma Cell; Neuroblastoma; Neuroectodermal Tumors, Primitive, Peripheral; Ovarian Neoplasms; Peritoneal Neoplasms; Prostatic Neoplasms, Castration-Resistant; Retinoblastoma; Rhabdomyosarcoma; Sarcoma; Small Cell Lung Carcinoma; Uterine Cervical Neoplasms"
+NORGESTREL,CHEMBL2107797,2.0,Endometrial Neoplasms
+GALGENPROSTUCEL-L,CHEMBL2108031,2.0,"Prostatic Neoplasms, Castration-Resistant"
+NIRAPARIB TOSYLATE MONOHYDRATE,CHEMBL3989922,4.0,Breast Neoplasms; Fallopian Tube Neoplasms; Neoplasms; Ovarian Neoplasms; Peritoneal Neoplasms
+SENDEGOBRESIB,CHEMBL5095228,2.0,"Neoplasms; Sarcoma, Synovial"
+TUVUSERTIB,CHEMBL5314933,2.0,"Breast Neoplasms; Carcinoma, Merkel Cell; Carcinoma, Non-Small-Cell Lung; Neoplasms; Prostatic Neoplasms; Urinary Bladder Neoplasms"
+VIBECOTAMAB,CHEMBL4298131,2.0,"Leukemia, Myeloid, Acute; Neoplasms"
+ROCILETINIB,CHEMBL3545308,3.0,"Carcinoma, Non-Small-Cell Lung; Neoplasms"
+MONTELUKAST,CHEMBL787,3.0,"Carcinoma, Non-Small-Cell Lung; Multiple Myeloma"
+AROPLATIN,CHEMBL4297263,2.0,Colorectal Neoplasms; Pancreatic Neoplasms
+CDX-014,CHEMBL4297719,1.0,"Carcinoma, Renal Cell"
+AMG553,CHEMBL4650295,1.0,"Leukemia, Myeloid, Acute"
+TISLELIZUMAB,CHEMBL4297840,4.0,"Adenocarcinoma; Adenocarcinoma of Lung; Astrocytoma; Biliary Tract Neoplasms; Breast Neoplasms; Carcinoma; Carcinoma, Hepatocellular; Carcinoma, Non-Small-Cell Lung; Carcinoma, Pancreatic Ductal; Carcinoma, Renal Cell; Carcinoma, Squamous Cell; Cholangiocarcinoma; Colonic Neoplasms; Colorectal Neoplasms; Digestive System Neoplasms; Endometrial Neoplasms; Esophageal Neoplasms; Esophageal Squamous Cell Carcinoma; Glioblastoma; Head and Neck Neoplasms; Hodgkin Disease; Kidney Neoplasms; Leukemia; Liver Neoplasms; Lung Neoplasms; Lymphoma; Lymphoma, Large B-Cell, Diffuse; Lymphoma, Non-Hodgkin; Lymphoma, T-Cell; Lymphoma, T-Cell, Peripheral; Melanoma; Nasopharyngeal Carcinoma; Nasopharyngeal Neoplasms; Neoplasms; Oligodendroglioma; Ovarian Neoplasms; Pancreatic Neoplasms; Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant; Rectal Neoplasms; Small Cell Lung Carcinoma; Squamous Cell Carcinoma of Head and Neck; Stomach Neoplasms; Thyroid Neoplasms; Triple Negative Breast Neoplasms; Urinary Bladder Neoplasms; Uterine Cervical Neoplasms"
+PHENYLEPHRINE,CHEMBL1215,1.0,Neoplasms
+IGN-002,CHEMBL4594366,1.0,"Lymphoma, Non-Hodgkin"

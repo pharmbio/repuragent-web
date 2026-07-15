@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+DEFACTINIB,CHEMBL3137331,3.0,"Carcinoma, Endometrioid; Carcinoma, Non-Small-Cell Lung; Carcinoma, Pancreatic Ductal; Colorectal Neoplasms; Genital Neoplasms, Female; Glioblastoma; Lung Neoplasms; Melanoma; Mesothelioma; Neoplasms; Ovarian Neoplasms; Pancreatic Neoplasms; Thyroid Neoplasms"
+TIPIRACIL,CHEMBL235668,3.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Cholangiocarcinoma; Colonic Neoplasms; Colorectal Neoplasms; Neoplasms; Pancreatic Neoplasms; Rectal Neoplasms; Stomach Neoplasms; Urinary Bladder Neoplasms"
+HEPARIN SODIUM,CHEMBL1201657,3.0,Colorectal Neoplasms
+WX-037,CHEMBL3545385,1.0,Neoplasms
+4-ISOTHIOUREIDOBUTYRONITRILE,CHEMBL4297540,2.0,Neoplasms; Ovarian Neoplasms
+VALSPODAR,CHEMBL1086218,3.0,"Breast Neoplasms; Carcinoma, Renal Cell; Kidney Neoplasms; Leukemia; Leukemia, Basophilic, Acute; Leukemia, Erythroblastic, Acute; Leukemia, Megakaryoblastic, Acute; Leukemia, Monocytic, Acute; Leukemia, Myeloid, Acute; Leukemia, Myelomonocytic, Acute; Lymphoma; Multiple Myeloma; Neoplasm Metastasis; Neoplasms; Neoplasms, Plasma Cell; Ovarian Neoplasms; Sarcoma"
+CEVOSTAMAB,CHEMBL4297908,2.0,Multiple Myeloma; Neoplasms
+FLUDEOXYGLUCOSE,CHEMBL2068864,2.0,"Carcinoma, Non-Small-Cell Lung; Colorectal Neoplasms"
+CV-8102,CHEMBL4802202,1.0,"Carcinoma, Hepatocellular"
+BERUBICIN,CHEMBL2110580,2.0,Glioblastoma
+MICVOTABART PELIDOTIN,CHEMBL6068141,2.0,Neoplasms
+ABAGOVOMAB,CHEMBL1742981,2.0,Fallopian Tube Neoplasms; Ovarian Neoplasms; Peritoneal Neoplasms
+ABEFOLASTAT TESAROXETAN,CHEMBL5314501,2.0,Neoplasms
+GARLIC,CHEMBL2108463,2.0,"Lymphoma, Follicular"
+OCTANOIC ACID,CHEMBL324846,1.0,"Bile Duct Neoplasms; Carcinoma, Non-Small-Cell Lung; Cholangiocarcinoma; Gallbladder Neoplasms; Leukemia, Myeloid, Acute; Sarcoma, Myeloid; Small Cell Lung Carcinoma"
+UPREVSTOBART,CHEMBL5314890,2.0,Neoplasms
+BECLOMETHASONE DIPROPIONATE,CHEMBL1200500,2.0,Small Cell Lung Carcinoma
+DEXAMETHASONE SODIUM PHOSPHATE,CHEMBL2021430,4.0,Hematologic Neoplasms; Leukemia; Lymphoma; Multiple Myeloma; Mycosis Fungoides
+SATOREOTIDE TETRAXETAN,CHEMBL4297531,1.0,Neuroendocrine Tumors
+SJG-136,CHEMBL16498,1.0,"Leukemia, Lymphocytic, Chronic, B-Cell; Leukemia, Myeloid, Acute; Neoplasms"

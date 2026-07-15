@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+ISOPROPYL ALCOHOL,CHEMBL582,4.0,Prostatic Neoplasms
+ANCESTIM,CHEMBL2108975,2.0,Lymphoma; Multiple Myeloma; Neoplasms
+AZD-1208,CHEMBL3545423,1.0,"Leukemia, Myeloid, Acute; Lymphoma; Neoplasms"
+BALTALEUCEL-T,CHEMBL3990003,2.0,Lymphoma
+PANULISIB,CHEMBL5095025,1.0,Neoplasms
+TIGILANOL TIGLATE,CHEMBL3989916,2.0,Head and Neck Neoplasms; Melanoma; Sarcoma
+ISOPHENOXODIOL,CHEMBL195560,3.0,"Fallopian Tube Neoplasms; Ovarian Neoplasms; Peritoneal Neoplasms; Prostatic Neoplasms, Castration-Resistant"
+SOMATOSTATIN,CHEMBL1823872,3.0,"Carcinoid Tumor; Carcinoma, Hepatocellular; Gallbladder Neoplasms; Neuroendocrine Tumors; Prostatic Neoplasms"
+IMMUNOCYTOKINE NHS-IL12,CHEMBL4298056,2.0,"Breast Neoplasms; Colorectal Neoplasms; Head and Neck Neoplasms; Neoplasms; Oropharyngeal Neoplasms; Pancreatic Neoplasms; Penile Neoplasms; Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant; Sarcoma, Kaposi; Uterine Cervical Neoplasms; Vaginal Neoplasms"
+VEPDEGESTRANT,CHEMBL5095210,3.0,Breast Neoplasms; Hemangiosarcoma; Neoplasms
+SULFAMETHOXAZOLE,CHEMBL443,2.0,"Astrocytoma; Brain Neoplasms; Glioblastoma; Leukemia; Leukemia, Biphenotypic, Acute; Lymphoma, AIDS-Related; Neoplasms"
+IPAFRICEPT,CHEMBL3301577,1.0,Neoplasms
+ENVONALKIB,CHEMBL5095063,2.0,Neoplasms
+PATRITUMAB DERUXTECAN,CHEMBL4594611,3.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Neoplasms"
+EPOETIN BETA,CHEMBL2109092,3.0,"Fallopian Tube Neoplasms; Head and Neck Neoplasms; Hodgkin Disease; Leukemia, Myelomonocytic, Chronic; Lymphoma; Lymphoma, Large B-Cell, Diffuse; Neoplasms; Ovarian Neoplasms; Peritoneal Neoplasms; Uterine Cervical Neoplasms"
+ABIPAPOGENE SUVAPLASMID,CHEMBL6068196,2.0,Neoplasms; Uterine Cervical Neoplasms
+TEPOTINIB HYDROCHLORIDE,CHEMBL4594292,4.0,"Carcinoma, Non-Small-Cell Lung; Neoplasms"
+POZIOTINIB,CHEMBL3545154,3.0,"Adenocarcinoma of Lung; Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Esophageal Neoplasms; Head and Neck Neoplasms; Lung Neoplasms; Neoplasms; Stomach Neoplasms"
+SC-004,CHEMBL4297823,1.0,Neoplasms
+GLUTAMINE,CHEMBL930,3.0,"Breast Neoplasms; Carcinoma, Pancreatic Ductal; Carcinoma, Squamous Cell; Colorectal Neoplasms; Head and Neck Neoplasms; Lymphoma; Multiple Myeloma; Neoplasms; Prostatic Neoplasms, Castration-Resistant"

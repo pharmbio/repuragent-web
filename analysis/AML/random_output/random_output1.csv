@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+PANTOPRAZOLE,CHEMBL1502,2.0,"Prostatic Neoplasms, Castration-Resistant"
+LEMZOPARLIMAB,CHEMBL4650520,1.0,"Leukemia, Myeloid, Acute; Lymphoma; Multiple Myeloma; Neoplasms"
+LEFLUNOMIDE,CHEMBL960,3.0,"Breast Neoplasms; Central Nervous System Neoplasms; Melanoma; Multiple Myeloma; Neoplasms; Prostatic Neoplasms, Castration-Resistant; Smoldering Multiple Myeloma"
+TABALUMAB,CHEMBL1743075,2.0,Multiple Myeloma
+ZIFCASIRAN SODIUM,CHEMBL5095466,1.0,Neoplasms
+PANOBINOSTAT,CHEMBL483254,4.0,"Breast Neoplasms; Carcinoma, Hepatocellular; Carcinoma, Non-Small-Cell Lung; Carcinoma, Renal Cell; Colonic Neoplasms; Colorectal Neoplasms; Diffuse Intrinsic Pontine Glioma; Glioblastoma; Glioma; Hematologic Neoplasms; Hodgkin Disease; Leukemia; Leukemia, Myelogenous, Chronic, BCR-ABL Positive; Leukemia, Myeloid, Acute; Leukemia, Myelomonocytic, Chronic; Leukemia, Plasma Cell; Liver Neoplasms; Lung Neoplasms; Lymphoma; Lymphoma, Large B-Cell, Diffuse; Lymphoma, Mantle-Cell; Lymphoma, Non-Hodgkin; Lymphoma, T-Cell, Cutaneous; Melanoma; Multiple Myeloma; Nasopharyngeal Neoplasms; Neoplasms; Neoplasms, Plasma Cell; Neuroendocrine Tumors; Pancreatic Neoplasms; Paraganglioma; Precursor Cell Lymphoblastic Leukemia-Lymphoma; Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant; Rectal Neoplasms; Skin Neoplasms; Stomach Neoplasms; Thyroid Neoplasms"
+MOCETINOSTAT,CHEMBL272980,2.0,"Carcinoma, Non-Small-Cell Lung; Hodgkin Disease; Leiomyosarcoma; Leukemia; Leukemia, Lymphocytic, Chronic, B-Cell; Leukemia, Myeloid, Acute; Lung Neoplasms; Lymphoma; Lymphoma, Follicular; Melanoma; Neoplasms; Rhabdomyosarcoma; Squamous Cell Carcinoma of Head and Neck; Urinary Bladder Neoplasms"
+ANAKINRA,CHEMBL1201570,2.0,"Breast Neoplasms; Leukemia, Lymphocytic, Chronic, B-Cell; Lymphoma, Follicular; Multiple Myeloma; Neoplasms; Pancreatic Neoplasms; Prostatic Neoplasms, Castration-Resistant; Rectal Neoplasms; Smoldering Multiple Myeloma"
+REPICERICEL,CHEMBL5314870,2.0,Neoplasms
+PEGENZILEUKIN,CHEMBL4650426,2.0,"Carcinoma, Squamous Cell; Hodgkin Disease; Lymphoma, Large B-Cell, Diffuse; Multiple Myeloma; Neoplasm Metastasis; Neoplasms"
+PF-06671008,CHEMBL4297805,1.0,Neoplasms
+TALOTREXIN AMMONIUM,CHEMBL2104985,1.0,"Carcinoma, Non-Small-Cell Lung; Leukemia; Neoplasms"
+MOXIFLOXACIN HYDROCHLORIDE,CHEMBL1200735,2.0,Breast Neoplasms
+INTERLEUKIN-12 HUMAN RECOMBINANT,CHEMBL5095343,1.0,"Breast Neoplasms; Sarcoma, Kaposi"
+CRELOSIDENIB GENTISATE,CHEMBL6068390,1.0,Neoplasms
+ESEPAPOGENE ZALARNAREPVEC,CHEMBL5314676,1.0,Neoplasms
+COPANLISIB HYDROCHLORIDE,CHEMBL3545068,4.0,"Breast Neoplasms; Hodgkin Disease; Lymphoma, Follicular; Lymphoma, Large B-Cell, Diffuse; Lymphoma, Mantle-Cell; Lymphoma, Non-Hodgkin; Lymphoma, T-Cell, Cutaneous; Multiple Myeloma; Mycosis Fungoides; Neoplasms; Triple Negative Breast Neoplasms"
+LIOTHYRONINE,CHEMBL1544,2.0,Breast Neoplasms; Gliosarcoma
+HENATINIB,CHEMBL1277072,1.0,Neoplasms
+GUSACITINIB HYDROCHLORIDE,CHEMBL4594276,1.0,Hematologic Neoplasms

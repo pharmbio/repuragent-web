@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+DEFERASIROX,CHEMBL550348,2.0,"Leukemia, Myeloid, Acute; Precursor Cell Lymphoblastic Leukemia-Lymphoma"
+GALETERONE,CHEMBL2105738,3.0,"Pancreatic Neoplasms; Prostatic Neoplasms, Castration-Resistant"
+CAMIBIRSTAT,CHEMBL5095181,2.0,Neoplasms
+ARTEMETHER,CHEMBL566534,1.0,Neoplasms
+NIMOTUZUMAB,CHEMBL2108359,3.0,"Adenocarcinoma; Brain Stem Neoplasms; Breast Neoplasms; Carcinoma; Carcinoma, Hepatocellular; Carcinoma, Non-Small-Cell Lung; Carcinoma, Squamous Cell; Colorectal Neoplasms; Diffuse Intrinsic Pontine Glioma; Esophageal Neoplasms; Glioblastoma; Head and Neck Neoplasms; Hypopharyngeal Neoplasms; Lung Neoplasms; Nasopharyngeal Carcinoma; Nasopharyngeal Neoplasms; Neoplasms; Oropharyngeal Neoplasms; Pancreatic Neoplasms; Paraganglioma; Penile Neoplasms; Rectal Neoplasms; Squamous Cell Carcinoma of Head and Neck; Stomach Neoplasms; Uterine Cervical Neoplasms"
+PAMIDRONIC ACID,CHEMBL834,3.0,Breast Neoplasms; Multiple Myeloma
+DEXMEDETOMIDINE,CHEMBL778,3.0,Brain Neoplasms; Breast Neoplasms; Colorectal Neoplasms; Neoplasms; Stomach Neoplasms
+CEMAVAFUSP,CHEMBL5314730,2.0,Neoplasms
+BAY-1082439,CHEMBL3644672,1.0,Neoplasms
+PELCITOCLAX,CHEMBL4802151,1.0,"Lymphoma, Non-Hodgkin; Neuroendocrine Tumors; Small Cell Lung Carcinoma"
+BIRABRESIB,CHEMBL3581647,2.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Carcinoma, Pancreatic Ductal; Glioblastoma; Leukemia, Myeloid, Acute; Lymphoma, Large B-Cell, Diffuse; Prostatic Neoplasms, Castration-Resistant"
+SGN-CD123A,CHEMBL4297826,1.0,"Leukemia, Myeloid, Acute"
+ANZURSTOBART,CHEMBL5095321,1.0,Neoplasms
+TRAMADOL HYDROCHLORIDE,CHEMBL1237065,3.0,Neoplasms
+RHENIUM RE-186 OBISBEMEDA,CHEMBL5315005,1.0,Meningeal Carcinomatosis
+TRILACICLIB DIHYDROCHLORIDE,CHEMBL4650272,4.0,Small Cell Lung Carcinoma
+PRN-1371,CHEMBL4068509,1.0,Urinary Bladder Neoplasms
+PEMETREXED TROMETHAMINE,CHEMBL3989962,4.0,"Adenocarcinoma; Carcinoma, Large Cell; Carcinoma, Non-Small-Cell Lung; Mesothelioma"
+EFLORNITHINE,CHEMBL830,3.0,"Astrocytoma; Carcinoma; Colorectal Neoplasms; Esophageal Neoplasms; Glioblastoma; Glioma; Neoplasms; Neuroblastoma; Paraganglioma; Precancerous Conditions; Prostatic Neoplasms, Castration-Resistant; Stomach Neoplasms; Urinary Bladder Neoplasms; Uterine Cervical Neoplasms"
+NENDOCABTAGENE ONOGEDLEUCEL,CHEMBL6068149,2.0,Neoplasms

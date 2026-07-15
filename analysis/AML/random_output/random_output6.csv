@@ -1,0 +1,21 @@
+drug_name,chembl_id,max_phase,cancer_indications
+TOVETUMAB,CHEMBL2364651,2.0,"Carcinoma, Non-Small-Cell Lung; Glioblastoma; Neoplasms"
+CRISANTASPASE,CHEMBL2108931,4.0,"Hematologic Neoplasms; Leukemia, Lymphoid; Leukemia, Myeloid, Acute; Lymphoma, Non-Hodgkin; Precursor Cell Lymphoblastic Leukemia-Lymphoma"
+BELVARAFENIB,CHEMBL3977543,2.0,Melanoma; Neoplasms
+SUPINOXIN,CHEMBL1278118,1.0,Neoplasms
+BIRABRESIB,CHEMBL3581647,2.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Carcinoma, Pancreatic Ductal; Glioblastoma; Leukemia, Myeloid, Acute; Lymphoma, Large B-Cell, Diffuse; Prostatic Neoplasms, Castration-Resistant"
+NUVUSTOTUG,CHEMBL6068273,2.0,Neoplasms
+BICARBONATE,CHEMBL1161632,0.5,"Prostatic Neoplasms; Prostatic Neoplasms, Castration-Resistant"
+ISOTRETINOIN,CHEMBL547,3.0,"Astrocytoma; Brain Neoplasms; Breast Neoplasms; Burkitt Lymphoma; Carcinoma, Renal Cell; Central Nervous System Neoplasms; Ganglioneuroblastoma; Glioblastoma; Glioma; Gliosarcoma; Head and Neck Neoplasms; Hodgkin Disease; Kidney Neoplasms; Leukemia; Leukemia, Myelogenous, Chronic, BCR-ABL Positive; Leukemia, Myeloid, Acute; Leukemia, Myelomonocytic, Juvenile; Leukemia, Promyelocytic, Acute; Lung Neoplasms; Lymphoma; Lymphoma, Large B-Cell, Diffuse; Medulloblastoma; Multiple Myeloma; Mycosis Fungoides; Neoplasms; Neuroblastoma; Oligodendroglioma; Precursor Cell Lymphoblastic Leukemia-Lymphoma; Prostatic Neoplasms, Castration-Resistant; Uterine Cervical Neoplasms; Wilms Tumor"
+FLUCONAZOLE,CHEMBL106,3.0,"Leukemia, Myeloid, Acute; Lymphoma; Neoplasms"
+PODOFILOX,CHEMBL61,4.0,"Carcinoma, Squamous Cell"
+GIMISTOTUG,CHEMBL6068122,3.0,"Carcinoma, Non-Small-Cell Lung; Carcinoma, Squamous Cell; Nasopharyngeal Neoplasms; Neoplasms"
+ABIRATERONE ACETATE,CHEMBL271227,4.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Neoplasms; Prostatic Neoplasms; Salivary Gland Neoplasms"
+CURCUMIN,CHEMBL140,3.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Colonic Neoplasms; Colorectal Neoplasms; Endometrial Neoplasms; Leukemia, Lymphocytic, Chronic, B-Cell; Lymphoma, T-Cell, Cutaneous; Multiple Myeloma; Neoplasms; Pancreatic Neoplasms; Precursor Cell Lymphoblastic Leukemia-Lymphoma; Prostatic Neoplasms, Castration-Resistant; Rectal Neoplasms; Uterine Cervical Neoplasms"
+TRASTUZUMAB BOTIDOTIN,CHEMBL5314782,2.0,Neoplasms
+ASARETOCLAX,CHEMBL5754780,2.0,Neoplasms
+ADAVOSERTIB,CHEMBL1976040,2.0,"Breast Neoplasms; Carcinoma, Non-Small-Cell Lung; Carcinoma, Renal Cell; Carcinoma, Squamous Cell; Carcinoma, Verrucous; Fallopian Tube Neoplasms; Glioblastoma; Lung Neoplasms; Medulloblastoma; Multiple Myeloma; Neoplasms; Neuroblastoma; Ovarian Neoplasms; Pancreatic Neoplasms; Peritoneal Neoplasms; Prostatic Neoplasms, Castration-Resistant; Small Cell Lung Carcinoma; Squamous Cell Carcinoma of Head and Neck; Stomach Neoplasms; Triple Negative Breast Neoplasms; Urinary Bladder Neoplasms; Uterine Cervical Neoplasms; Uterine Neoplasms"
+DENENICOKIN,CHEMBL2107855,2.0,"Carcinoma, Renal Cell; Lymphoma; Lymphoma, Non-Hodgkin; Melanoma; Neoplasms; Ovarian Neoplasms"
+2-METHOXYESTRADIOL,CHEMBL299613,2.0,Multiple Myeloma; Neoplasms
+MORPHINE,CHEMBL70,3.0,"Cancer Pain; Leukemia; Leukemia, Myeloid, Acute; Neoplasms; Prostatic Neoplasms, Castration-Resistant"
+CDX-014,CHEMBL4297719,1.0,"Carcinoma, Renal Cell"
