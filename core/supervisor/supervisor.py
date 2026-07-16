@@ -30,11 +30,11 @@ def initialize_agents(
     pre_model_hook=None,
 ):
     """Initialize all agents with optional episodic learning for planning agent."""
-    planning_llm = init_chat_model("gpt-4o", model_provider="openai", api_key=OPENAI_API_KEY)
-    data_llm = init_chat_model("gpt-5.2", model_provider="openai", api_key=OPENAI_API_KEY)
-    research_llm = init_chat_model("gpt-5-mini", model_provider="openai", api_key=OPENAI_API_KEY)
-    prediction_llm = init_chat_model("gpt-5-mini", model_provider="openai", api_key=OPENAI_API_KEY)
-    report_llm = init_chat_model("gpt-5-mini", model_provider="openai", api_key=OPENAI_API_KEY)
+    planning_llm = init_chat_model("gpt-4o-2024-11-20", model_provider="openai", api_key=OPENAI_API_KEY)
+    data_llm = init_chat_model("gpt-5.2-2025-12-11", model_provider="openai", api_key=OPENAI_API_KEY)
+    research_llm = init_chat_model("gpt-5-mini-2025-08-07", model_provider="openai", api_key=OPENAI_API_KEY)
+    prediction_llm = init_chat_model("gpt-5-mini-2025-08-07", model_provider="openai", api_key=OPENAI_API_KEY)
+    report_llm = init_chat_model("gpt-5-mini-2025-08-07", model_provider="openai", api_key=OPENAI_API_KEY)
 
     research_agent = build_research_agent(research_llm, pre_model_hook=pre_model_hook)
     data_agent = build_data_agent(data_llm, message_trimmer=build_llm_input_messages)
@@ -88,14 +88,14 @@ SUMMARY_PROMPT = (
 def _get_approval_judge_llm():
     global _approval_judge_llm
     if _approval_judge_llm is None:
-        _approval_judge_llm = init_chat_model("gpt-5-nano", model_provider="openai", api_key=OPENAI_API_KEY)
+        _approval_judge_llm = init_chat_model("gpt-5-nano-2025-08-07", model_provider="openai", api_key=OPENAI_API_KEY)
     return _approval_judge_llm
 
 
 def _get_summary_llm():
     global _summary_llm
     if _summary_llm is None:
-        _summary_llm = init_chat_model("gpt-5.2", model_provider="openai", api_key=OPENAI_API_KEY)
+        _summary_llm = init_chat_model("gpt-5.2-2025-12-11", model_provider="openai", api_key=OPENAI_API_KEY)
     return _summary_llm
 
 
@@ -384,7 +384,7 @@ def route_from_start(state) -> Literal["plan", "skip"]:
         return "plan"
 
     # Initialize LLM for routing decision
-    llm = init_chat_model("gpt-4o", model_provider="openai", api_key=OPENAI_API_KEY)
+    llm = init_chat_model("gpt-4o-2024-11-20", model_provider="openai", api_key=OPENAI_API_KEY)
 
     prompt = (
         "You are a router for an agent workflow.\n"
@@ -530,7 +530,7 @@ def human_chat_node(state):
 
 async def _create_app_with_checkpointer(checkpointer, user_request: Optional[str] = None, use_episodic_learning: bool = True):
     """Create app with the provided checkpointer."""
-    llm = init_chat_model("gpt-5-mini", model_provider="openai", api_key=OPENAI_API_KEY)
+    llm = init_chat_model("gpt-5-mini-2025-08-07", model_provider="openai", api_key=OPENAI_API_KEY)
     pre_model_hook = _build_llm_input
     
     # Build agents with episodic learning for planning agent
