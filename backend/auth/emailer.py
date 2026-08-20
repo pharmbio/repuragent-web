@@ -1,4 +1,4 @@
-"""Simple email dispatcher for verification/reset flows."""
+'''Simple email dispatcher for verification/reset flows.'''
 
 from __future__ import annotations
 

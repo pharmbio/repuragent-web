@@ -1,4 +1,4 @@
-"""Shared async PostgreSQL connection pool with resilient reconnects."""
+'''Shared async PostgreSQL connection pool with resilient reconnects.'''
 
 from __future__ import annotations
 
@@ -9,7 +9,13 @@ from psycopg import InterfaceError, OperationalError, errors as pg_errors
 from psycopg_pool import AsyncConnectionPool, PoolClosed, PoolTimeout
 from psycopg.rows import dict_row
 
-from app.config import DATABASE_URL, logger
+from app.config import (
+    DATABASE_URL,
+    POSTGRES_POOL_MAX_SIZE,
+    POSTGRES_POOL_MIN_SIZE,
+    POSTGRES_POOL_TIMEOUT,
+    logger,
+)
 
 DEFAULT_RETRY_ATTEMPTS = 5
 DEFAULT_RETRY_INITIAL_DELAY = 0.5
@@ -37,7 +43,7 @@ DEFAULT_RETRYABLE_EXCEPTIONS: Tuple[type[BaseException], ...] = (
 
 
 class _ResilientConnectionContext:
-    """Async context manager that retries acquiring a connection with backoff."""
+    '''Async context manager that retries acquiring a connection with backoff.'''
 
     __slots__ = ("_acquire_cb", "_args", "_kwargs", "_pool", "_inner_cm")
 
@@ -89,7 +95,7 @@ class _ResilientConnectionContext:
 
 
 class ResilientAsyncConnectionPool(AsyncConnectionPool):
-    """AsyncConnectionPool that retries connection acquisition to survive DB restarts."""
+    '''AsyncConnectionPool that retries connection acquisition to survive DB restarts.'''
 
     def __init__(
         self,
@@ -118,7 +124,12 @@ _pool_lock: Optional[asyncio.Lock] = None
 
 
 async def get_async_pool() -> ResilientAsyncConnectionPool:
-    """Return a singleton async connection pool."""
+    '''Return a singleton async connection pool.
+
+    Returns:
+    ----------
+    pool (ResilientAsyncConnectionPool): the process-wide singleton, which reconnects rather than failing a run.
+    '''
 
     global _pool
     if _pool and not _pool.closed:
@@ -133,12 +144,14 @@ async def get_async_pool() -> ResilientAsyncConnectionPool:
             return _pool
 
         if not DATABASE_URL:
-            raise ValueError("DATABASE_URL environment variable is required for auth features")
+            raise ValueError(
+                "DATABASE_URL is required: it backs both LangGraph checkpointing and user accounts."
+            )
 
         conninfo = DATABASE_URL
         if "application_name" not in conninfo:
             separator = "&" if "?" in conninfo else "?"
-            conninfo = f"{conninfo}{separator}application_name=repuragent_auth"
+            conninfo = f"{conninfo}{separator}application_name=repuragent"
 
         kwargs = {
             "autocommit": True,
@@ -149,11 +162,11 @@ async def get_async_pool() -> ResilientAsyncConnectionPool:
         pool = ResilientAsyncConnectionPool(
             conninfo=conninfo,
             kwargs=kwargs,
-            min_size=2,
-            max_size=10,
+            min_size=POSTGRES_POOL_MIN_SIZE,
+            max_size=POSTGRES_POOL_MAX_SIZE,
             max_idle=300.0,
             max_lifetime=3600.0,
-            timeout=30.0,
+            timeout=float(POSTGRES_POOL_TIMEOUT),
             reconnect_timeout=300.0,
             open=False,
             acquire_retries=7,
@@ -163,15 +176,15 @@ async def get_async_pool() -> ResilientAsyncConnectionPool:
 
         await pool.open()
         _pool = pool
-        logger.info("Authentication pool initialized")
+        logger.info("PostgreSQL pool initialized")
         return _pool
 
 
 async def close_async_pool() -> None:
-    """Close the shared pool when the app shuts down."""
+    '''Close the shared pool when the app shuts down.'''
 
     global _pool
     if _pool and not _pool.closed:
         await _pool.close()
-        logger.info("Authentication pool closed")
+        logger.info("PostgreSQL pool closed")
     _pool = None

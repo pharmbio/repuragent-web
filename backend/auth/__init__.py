@@ -1,4 +1,4 @@
-"""Authentication utilities for Repuragent."""
+'''Authentication utilities for Repuragent.'''
 
 from .repository import AuthRepository
 from .passwords import PasswordHasher

@@ -1,4 +1,4 @@
-"""Helpers for issuing verification/reset tokens."""
+'''Helpers for issuing verification/reset tokens.'''
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ class TokenPurpose(str, enum.Enum):
 
 
 class TokenService:
-    """Issue random URL-safe tokens and hash them for storage."""
+    '''Issue random URL-safe tokens and hash them for storage.'''
 
     def __init__(self, *, length: int = 32) -> None:
         self.length = length

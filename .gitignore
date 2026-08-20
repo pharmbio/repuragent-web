@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# OS
+.DS_Store
+
+# Secrets and local config
+.env
+.env.local
+
+# Client caches
+.chembl_ws_client__*
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# NOTE: persistence/ is deliberately tracked. It ships the read-only demo
+# conversations (persistence/results/<user>/<thread>/ referenced by
+# persistence/memory/demo_threads.json), the prebuilt SOP RAG index
+# (persistence/memory/sop_documents/) and the episodic-memory store. Do not add
+# it here — a fresh clone needs those to work.

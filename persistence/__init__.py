@@ -1,1 +1,1 @@
-"""Persistent storage modules and assets for Repuragent."""
+'''Persistent storage modules and assets for Repuragent.'''

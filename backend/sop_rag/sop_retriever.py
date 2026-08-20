@@ -1,100 +1,168 @@
-import os
+'''Retrieval over the SOP corpus (regulatory guidance, protocols, standards).
+
+A `MultiVectorRetriever`: short summaries are embedded in Chroma, the original
+chunks live in a file-backed docstore, and a hit returns the original rather than
+its summary — which matters when a regulatory clause has to be quoted as written.
+
+**Obtain one through `get_sop_retriever()`.** Constructing a retriever reopens
+Chroma and walks the docstore, and `protocol_search_sop` is called on nearly every
+grounding step, so building a fresh one per query made SOP search several times
+slower than the retrieval itself. Call `clear_sop_retriever_cache()` after
+rebuilding the index on disk.
+'''
+
+from __future__ import annotations
+
+import json
+import threading
 from base64 import b64decode
-from typing import List, Dict, Any
+from typing import Any, Dict, List, Optional
 
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
-from langchain_core.messages import HumanMessage
+from langchain_classic.retrievers.multi_vector import MultiVectorRetriever
+from langchain_classic.storage import LocalFileStore
 from langchain_community.vectorstores import Chroma
-from langchain.retrievers.multi_vector import MultiVectorRetriever
-from langchain.storage import LocalFileStore
+from langchain_core.documents import Document
+from langchain_core.messages import HumanMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableLambda, RunnablePassthrough
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
-import sys
-from pathlib import Path
-
-# Ensure we can import both the SOP config (local) and global app config
-CURRENT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = CURRENT_DIR.parents[1]
-for path in (CURRENT_DIR, PROJECT_ROOT):
-    path_str = str(path)
-    if path_str not in sys.path:
-        sys.path.insert(0, path_str)
-
-from config import (
+from app.config import OPENAI_API_KEY, logger
+from backend.sop_rag.config import (
     CHROMA_PERSIST_PATH,
     COLLECTION_NAME,
+    DOCSTORE_DIR,
+    EMBEDDING_MODEL,
+    ID_KEY,
     LLM_CONFIG,
     RETRIEVAL_CONFIG,
-    ID_KEY,
-    DOCSTORE_PATH,
+    index_exists,
 )
-from app.config import OPENAI_API_KEY
 
 
 def _require_openai_api_key() -> str:
-    """Return the configured OpenAI API key or raise if missing."""
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY is not configured; cannot run SOP retrieval.")
     return OPENAI_API_KEY
 
+
 class SOPRetriever:
-    def __init__(self):
-        self.retriever = None
+    def __init__(self) -> None:
+        self.retriever: Optional[MultiVectorRetriever] = None
         self.rag_chain = None
         self._api_key = _require_openai_api_key()
         self._initialize()
-    
-    def _initialize(self):
-        """Initialize the MultiVectorRetriever and RAG chain."""
-        if not os.path.exists(str(CHROMA_PERSIST_PATH)):
+
+    def _initialize(self) -> None:
+        if not index_exists():
             raise FileNotFoundError(
-                f"Vector store not found at {CHROMA_PERSIST_PATH}. "
-                "Please run sop_indexer.py first to create the index."
+                f"SOP index not found at {CHROMA_PERSIST_PATH} / {DOCSTORE_DIR}. "
+                "Run `python -m backend.sop_rag.sop_indexer` to build it."
             )
-        
-        docstore_dir = DOCSTORE_PATH.parent / "docstore"
-        if not os.path.exists(str(docstore_dir)):
-            raise FileNotFoundError(
-                f"Document store not found at {docstore_dir}. "
-                "Please run sop_indexer.py first to create the index."
-            )
-        
-        # Create vector store
+
         vectorstore = Chroma(
             collection_name=COLLECTION_NAME,
-            embedding_function=OpenAIEmbeddings(model = "text-embedding-3-small", api_key=self._api_key),
+            embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL, api_key=self._api_key),
             persist_directory=str(CHROMA_PERSIST_PATH),
         )
-        
-        # Check if collection has documents
-        if vectorstore._collection.count() == 0:
+        count = vectorstore._collection.count()
+        if count == 0:
             raise ValueError(
-                "Vector store is empty. Please run sop_indexer.py to index documents."
+                "SOP vector store is empty. Run `python -m backend.sop_rag.sop_indexer`."
             )
-        
-        print(f"Loaded vector store with {vectorstore._collection.count()} documents")
-        
-        # Create docstore
-        docstore = LocalFileStore(str(docstore_dir))
-        
-        # Create MultiVectorRetriever
+
+        docstore = LocalFileStore(str(DOCSTORE_DIR))
         self.retriever = MultiVectorRetriever(
             vectorstore=vectorstore,
             docstore=docstore,
             id_key=ID_KEY,
-            search_kwargs={"k": RETRIEVAL_CONFIG['default_k']}
+            search_kwargs={"k": RETRIEVAL_CONFIG["default_k"]},
         )
-        
-        print(f"MultiVectorRetriever created with vectorstore and docstore")
-        print(f"Docstore contains {len(list(docstore.yield_keys()))} documents")
-        
-        # Create RAG chain
+        logger.info("SOP retriever ready: %s embedded summaries", count)
         self.rag_chain = self._create_rag_chain(self.retriever)
-    
+
+    # --- retrieval ------------------------------------------------------------
+
+    def search(self, question: str) -> List[Document]:
+        '''Documents relevant to `question`, as Documents rather than raw bytes.
+
+        Parameters:
+        ---------
+        question (str): what to retrieve SOP material for.
+
+        Returns:
+        ----------
+        documents (list): the relevant chunks as Documents rather than raw docstore bytes.
+        '''
+
+        if self.retriever is None:
+            raise ValueError("SOP retriever not initialized")
+        return self.as_documents(self.retriever.invoke(question))
+
+    @staticmethod
+    def as_documents(retrieved_items: List[Any]) -> List[Document]:
+        '''Turn docstore payloads back into Documents.
+
+        The docstore holds JSON-serialised documents as bytes, so a hit needs
+        decoding before its metadata (the source filename, which the caller cites)
+        is reachable.
+
+        Parameters:
+        ---------
+        retrieved_items (list): raw docstore payloads.
+
+        Returns:
+        ----------
+        documents (list): the same payloads as Documents.
+        '''
+
+        documents: List[Document] = []
+        for item in retrieved_items:
+            if isinstance(item, bytes):
+                try:
+                    payload = json.loads(item.decode("utf-8"))
+                    documents.append(
+                        Document(
+                            page_content=payload["page_content"],
+                            metadata=payload.get("metadata") or {},
+                        )
+                    )
+                except (json.JSONDecodeError, KeyError, UnicodeDecodeError):
+                    documents.append(Document(page_content=item.decode("utf-8", errors="replace")))
+            elif isinstance(item, Document):
+                documents.append(item)
+            elif hasattr(item, "page_content"):
+                documents.append(item)
+            else:
+                documents.append(Document(page_content=str(item)))
+        return documents
+
+    # Kept for callers that used the private name.
+    _convert_bytes_to_docs = as_documents
+
+    def get_sources(self, question: str) -> List[str]:
+        '''Distinct source filenames behind the hits for `question`.
+
+        Parameters:
+        ---------
+        question (str): what to retrieve SOP material for.
+
+        Returns:
+        ----------
+        sources (list): the distinct source filenames behind the hits, for citation.
+        '''
+
+        sources = []
+        for doc in self.search(question):
+            filename = (getattr(doc, "metadata", None) or {}).get("filename")
+            if filename:
+                sources.append(str(filename).rsplit("/", 1)[-1])
+        return sorted(set(sources))
+
+    # --- generation -----------------------------------------------------------
+
     def _create_rag_chain(self, retriever):
-        """Create the complete RAG chain for question answering."""
         return {
             "context": retriever | RunnableLambda(self._parse_docs),
             "question": RunnablePassthrough(),
@@ -105,146 +173,84 @@ class SOPRetriever:
                 | StrOutputParser()
             )
         )
-    
-    def _convert_bytes_to_docs(self, retrieved_items: List[Any]) -> List[Any]:
-        """Convert bytes from docstore back to Document objects."""
-        documents = []
-        for item in retrieved_items:
-            if isinstance(item, bytes):
-                try:
-                    # Try to deserialize JSON data with metadata
-                    import json
-                    from langchain.schema.document import Document
-                    doc_dict = json.loads(item.decode('utf-8'))
-                    documents.append(Document(
-                        page_content=doc_dict['page_content'],
-                        metadata=doc_dict['metadata']
-                    ))
-                except (json.JSONDecodeError, KeyError):
-                    # Fallback: treat as plain text
-                    from langchain.schema.document import Document
-                    content = item.decode('utf-8')
-                    documents.append(Document(page_content=content))
-            elif hasattr(item, 'page_content'):
-                # Already a Document
-                documents.append(item)
-            else:
-                # Handle other cases
-                from langchain.schema.document import Document
-                documents.append(Document(page_content=str(item)))
-        return documents
-    
+
     def _parse_docs(self, docs: List[Any]) -> Dict[str, List[Any]]:
-        """Split base64-encoded images and texts."""
-        # First convert bytes to documents if needed
-        docs = self._convert_bytes_to_docs(docs)
-        
-        b64 = []
-        text = []
-        for doc in docs:
+        '''Split base64 images from text chunks.
+
+        Parameters:
+        ---------
+        docs (list): the retrieved payloads, which mix text and base64 images.
+
+        Returns:
+        ----------
+        grouped (dict): the two kinds separated, since only text goes into the prompt.
+        '''
+
+        images: List[str] = []
+        texts: List[Document] = []
+        for doc in self.as_documents(docs):
             try:
-                # Check if it's a base64 image
-                b64decode(doc.page_content)
-                b64.append(doc.page_content)
+                b64decode(doc.page_content, validate=True)
+                images.append(doc.page_content)
             except Exception:
-                text.append(doc)
-        return {"images": b64, "texts": text}
-    
+                texts.append(doc)
+        return {"images": images, "texts": texts}
+
     def _build_prompt(self, kwargs: Dict[str, Any]) -> ChatPromptTemplate:
-        """Build a prompt with context and question for RAG queries."""
         docs_by_type = kwargs["context"]
-        user_question = kwargs["question"]
+        question = kwargs["question"]
+        context_text = "\n\n".join(doc.page_content for doc in docs_by_type["texts"])
 
-        context_text = ""
-        if len(docs_by_type["texts"]) > 0:
-            for text_element in docs_by_type["texts"]:
-                context_text += text_element.page_content + "\n\n"
-
-        prompt_template = f"""
-Answer the question based only on the following context, which can include text, tables, and the below image.
-Context: {context_text}
-Question: {user_question}
-"""
-
-        prompt_content = [{"type": "text", "text": prompt_template}]
-
-        if len(docs_by_type["images"]) > 0:
-            for image in docs_by_type["images"]:
-                prompt_content.append({
-                    "type": "image_url",
-                    "image_url": {"url": f"data:image/jpeg;base64,{image}"},
-                })
-
+        prompt_content: List[Dict[str, Any]] = [
+            {
+                "type": "text",
+                "text": (
+                    "Answer the question using only the following context, which may "
+                    "include text, tables and images.\n"
+                    f"Context: {context_text}\n"
+                    f"Question: {question}\n"
+                ),
+            }
+        ]
+        for image in docs_by_type["images"]:
+            prompt_content.append(
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image}"}}
+            )
         return ChatPromptTemplate.from_messages([HumanMessage(content=prompt_content)])
-    
+
     def query(self, question: str) -> Dict[str, Any]:
-        """Query the RAG system with a question."""
         if self.rag_chain is None:
             raise ValueError("RAG chain not initialized")
-        
-        response = self.rag_chain.invoke(question)
-        return response
-    
-    def get_sources(self, question: str) -> List[str]:
-        """Get source documents for a question without generating response."""
-        
-        # First check what's in vectorstore (summaries)
-        summary_docs = self.retriever.vectorstore.as_retriever(
-            search_kwargs={"k": RETRIEVAL_CONFIG['default_k']}
-        ).invoke(question)
-        
-        # Then get full documents from MultiVectorRetriever (docstore)
-        docs = self.retriever.invoke(question)
-        
-        docs = self._convert_bytes_to_docs(docs)
-        
-        sources = []
-        for doc in docs:
-            if hasattr(doc, 'metadata') and 'filename' in doc.metadata:
-                sources.append(os.path.basename(doc.metadata['filename']))
-        
-        return list(set(sources))  # Remove duplicates
+        return self.rag_chain.invoke(question)
 
-def main(query):
-    """Main execution function for testing."""
-    try:
-        retriever = SOPRetriever()
-        
-        print(f"\nQuery: {query}")
-        print("-" * 50)
-            
-        try:
-            response = retriever.query(query)
-            print(f"Response: {response['response']}")
-                
-            # Show sources with text content
-            sources = retriever.get_sources(query)
-            if sources:
-                print(f"\nSources:")
-                for source in sorted(sources):
-                    print(f"  - {source}")
-                
-                
-                # Get and display the actual retrieved documents (full content from docstore)
-                docs = retriever.retriever.invoke(query)
-                docs = retriever._convert_bytes_to_docs(docs)
-                
-                print(f"\nRetrieved Content:")
-                for i, doc in enumerate(docs, 1):
-                    filename = os.path.basename(doc.metadata.get('filename', 'Unknown')) if hasattr(doc, 'metadata') else 'Unknown'
-                    print(f"\n--- Document {i} ---")
-                    print(f"Source: {filename}")
-                    print(f"Original Text: {doc.page_content}")  
-                
-        except Exception as e:
-            print(f"Error processing query: {e}")
-            
-        print("\n" + "="*60)
-    
-    except Exception as e:
-        print(f"Error initializing retriever: {e}")
-        print("Please run sop_indexer.py first to create the index.")
 
-if __name__ == "__main__":
-    query = input('Query:')
-    main(query)
+_retriever: Optional[SOPRetriever] = None
+_retriever_lock = threading.Lock()
+
+
+def get_sop_retriever() -> SOPRetriever:
+    '''The shared retriever, built at most once per process.
+
+    Returns:
+    ----------
+    retriever (SOPRetriever): the shared instance, built at most once per process.
+    '''
+
+    global _retriever
+    if _retriever is not None:
+        return _retriever
+    with _retriever_lock:
+        if _retriever is None:
+            _retriever = SOPRetriever()
+        return _retriever
+
+
+def clear_sop_retriever_cache() -> None:
+    '''Forget the cached retriever, e.g. after rebuilding the index on disk.'''
+
+    global _retriever
+    with _retriever_lock:
+        _retriever = None
+
+
+__all__ = ["SOPRetriever", "clear_sop_retriever_cache", "get_sop_retriever"]

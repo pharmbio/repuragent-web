@@ -1,83 +1,136 @@
+'''Build the SOP index: PDFs -> summarised chunks -> Chroma + file docstore.
+
+Maintenance script, not part of a request path. Run it after adding or replacing
+PDFs under `DATA_ROOT/SOP`:
+
+    python -m backend.sop_rag.sop_indexer
+
+It rebuilds from scratch (the existing collection and docstore are cleared), so
+the shipped index is only replaced deliberately. Call
+`clear_sop_retriever_cache()` in any process that already holds a retriever.
+'''
+
+from __future__ import annotations
+
+import json
 import os
+import shutil
 import uuid
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
-from unstructured.partition.pdf import partition_pdf
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnableLambda
+from langchain_classic.retrievers.multi_vector import MultiVectorRetriever
+from langchain_classic.storage import LocalFileStore
 from langchain_community.vectorstores import Chroma
-from langchain.schema.document import Document
-from langchain.retrievers.multi_vector import MultiVectorRetriever
-from langchain.storage import LocalFileStore
+from langchain_core.documents import Document
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableLambda
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from unstructured.partition.pdf import partition_pdf
 
-import sys
-
-# Add current directory (for local SOP config) and project root (for app config) to sys.path
-CURRENT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = CURRENT_DIR.parents[1]
-for path in (CURRENT_DIR, PROJECT_ROOT):
-    path_str = str(path)
-    if path_str not in sys.path:
-        sys.path.insert(0, path_str)
-
-from config import (
-    SOP_DATA_DIR,
+from app.config import OPENAI_API_KEY
+from backend.sop_rag.config import (
     CHROMA_PERSIST_PATH,
     COLLECTION_NAME,
+    DOCSTORE_DIR,
+    EMBEDDING_MODEL,
     ID_KEY,
-    DOCSTORE_PATH,
-    PDF_PROCESSING_CONFIG,
     LLM_CONFIG,
+    PDF_PROCESSING_CONFIG,
+    SOP_DATA_DIR,
     ensure_directories,
 )
-from app.config import OPENAI_API_KEY
 
 
 def _require_openai_api_key() -> str:
-    """Return the configured OpenAI API key or raise if missing."""
+    '''Return the configured OpenAI API key or raise if missing.
+
+    Returns:
+    ----------
+    api_key (str): the configured key, or a raised error naming what is missing.
+    '''
+
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY is not configured; cannot index SOP documents.")
     return OPENAI_API_KEY
 
 def discover_pdf_files(directory: str) -> List[str]:
-    """Discover all PDF files in the specified directory."""
+    '''Discover all PDF files in the specified directory.
+
+    Parameters:
+    ---------
+    directory (str): the folder to scan, normally `$DATA_ROOT/SOP`.
+
+    Returns:
+    ----------
+    paths (list): every PDF found in it.
+    '''
+
     pdf_files = []
     directory_path = Path(directory)
-    
+
     if not directory_path.exists():
         raise FileNotFoundError(f"Directory {directory} does not exist")
-    
+
     for file_path in directory_path.glob("*.pdf"):
         if file_path.is_file():
             pdf_files.append(str(file_path))
-    
+
     return sorted(pdf_files)
 
 def extract_pdf_content(file_path: str) -> List[Any]:
-    """Extract and chunk PDF content including text, tables, and images."""
+    '''Extract and chunk PDF content including text, tables, and images.
+
+    Parameters:
+    ---------
+    file_path (str): the PDF to read.
+
+    Returns:
+    ----------
+    chunks (list): its text, tables and images as chunked elements.
+    '''
+
     return partition_pdf(
         filename=file_path,
         **PDF_PROCESSING_CONFIG
     )
 
 def separate_content_types(chunks: List[Any]) -> Dict[str, List[Any]]:
-    """Separate chunks into tables, texts, and images."""
+    '''Separate chunks into tables, texts, and images.
+
+    Parameters:
+    ---------
+    chunks (list): the chunked elements from one PDF.
+
+    Returns:
+    ----------
+    grouped (dict): the chunks split into `tables`, `texts` and `images`, which are summarized differently.
+    '''
+
     tables = []
     texts = []
-    
+
     for chunk in chunks:
         if "Table" in str(type(chunk)):
             tables.append(chunk)
         elif "CompositeElement" in str(type(chunk)):
             texts.append(chunk)
-    
+
     return {"tables": tables, "texts": texts}
 
 def extract_images_base64(chunks: List[Any]) -> List[str]:
-    """Extract base64-encoded images from CompositeElement chunks."""
+    '''Extract base64-encoded images from CompositeElement chunks.
+
+    Parameters:
+    ---------
+    chunks (list): the chunked elements to search.
+
+    Returns:
+    ----------
+    images (list): base64-encoded images pulled out of the CompositeElements.
+    '''
+
     images_b64 = []
     for chunk in chunks:
         if "CompositeElement" in str(type(chunk)):
@@ -88,7 +141,13 @@ def extract_images_base64(chunks: List[Any]) -> List[str]:
     return images_b64
 
 def create_text_table_summarizer() -> RunnableLambda:
-    """Create a chain for summarizing text and table content."""
+    '''Create a chain for summarizing text and table content.
+
+    Returns:
+    ----------
+    chain (RunnableLambda): summarizes text and table chunks into the strings that get embedded.
+    '''
+
     prompt_text_tables = """
 You are an assistant tasked with summarizing tables and text.
 Give a concise summary of the table or text.
@@ -107,11 +166,22 @@ Table or text chunk:
     return template | llm | StrOutputParser()
 
 def create_image_summarizer() -> RunnableLambda:
-    """Create a chain for summarizing image content."""
-    prompt_images = """Describe the image in detail. For context,
-the image is part of a research paper explaining the transformers
-architecture. Be specific about graphs, such as bar plots."""
-    
+    '''Create a chain for summarizing image content.
+
+    Returns:
+    ----------
+    chain (RunnableLambda): summarizes an image into the string that gets embedded in its place.
+    '''
+
+    # The image comes from a regulatory or laboratory-procedure document, not
+    # from a machine-learning paper — the placeholder prompt this replaced
+    # described "a research paper explaining the transformers architecture",
+    # which pushed the description away from what the figure actually shows.
+    prompt_images = """Describe this figure from a standard operating procedure,
+regulatory guidance document or laboratory protocol. State what it depicts and
+what a reader is meant to take from it. Be specific about any decision tree,
+workflow, threshold, table of values, or plotted axis and its units."""
+
     messages = [
         (
             "user",
@@ -129,7 +199,13 @@ architecture. Be specific about graphs, such as bar plots."""
     return prompt | ChatOpenAI(model=LLM_CONFIG["image_description_model"], api_key=api_key) | StrOutputParser()
 
 def create_multi_vector_retriever():
-    """Create MultiVectorRetriever with persistent ChromaDB and LocalFileStore."""
+    '''Create MultiVectorRetriever with persistent ChromaDB and LocalFileStore.
+
+    Returns:
+    ----------
+    retriever (MultiVectorRetriever): embeddings in ChromaDB, original chunks in a LocalFileStore, both persistent.
+    '''
+
     # Ensure directory exists
     ensure_directories()
     api_key = _require_openai_api_key()
@@ -137,41 +213,49 @@ def create_multi_vector_retriever():
     # Create vector store for summaries (search)
     vectorstore = Chroma(
         collection_name=COLLECTION_NAME,
-        embedding_function=OpenAIEmbeddings(model = "text-embedding-3-small", api_key=api_key),
+        embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL, api_key=api_key),
         persist_directory=str(CHROMA_PERSIST_PATH),
     )
-    
+
     # Create docstore for original content (retrieval)
-    docstore = LocalFileStore(str(DOCSTORE_PATH.parent / "docstore"))
-    
+    docstore = LocalFileStore(str(DOCSTORE_DIR))
+
     # Create MultiVectorRetriever
     retriever = MultiVectorRetriever(
         vectorstore=vectorstore,
         docstore=docstore,
         id_key=ID_KEY
     )
-    
+
     return retriever
 
 def add_content_to_retriever(retriever: MultiVectorRetriever, content: List[Any], summaries: List[str]) -> None:
-    """Add content and summaries to the MultiVectorRetriever."""
+    '''Add content and summaries to the MultiVectorRetriever.
+
+    Parameters:
+    ---------
+    retriever (MultiVectorRetriever): the retriever to populate.
+    content (list): the original chunks, kept in the docstore.
+    summaries (list): one summary per chunk, which is what gets embedded.
+    '''
+
     doc_ids = [str(uuid.uuid4()) for _ in content]
     summary_docs = []
     original_docs = []
-    
+
     for i, summary in enumerate(summaries):
         # Create summary document for vector store (used for search)
         summary_metadata = {
             ID_KEY: doc_ids[i],
             'content_type': str(type(content[i]).__name__)
         }
-        
+
         # Preserve filename if available
         if hasattr(content[i], 'metadata') and hasattr(content[i].metadata, 'filename'):
             summary_metadata['filename'] = content[i].metadata.filename
-            
+
         summary_docs.append(Document(page_content=summary, metadata=summary_metadata))
-        
+
         # Create original document for docstore (retrieved content)
         original_text = ""
         if hasattr(content[i], 'text'):
@@ -180,13 +264,12 @@ def add_content_to_retriever(retriever: MultiVectorRetriever, content: List[Any]
             original_text = content[i].metadata.text_as_html
         elif isinstance(content[i], str):  # For images
             original_text = f"[Base64 Image Data: {len(content[i])} characters]"
-            
+
         original_docs.append(Document(page_content=original_text, metadata=summary_metadata))
-    
+
     # Add documents to the retriever
     retriever.vectorstore.add_documents(summary_docs)
     # Store original documents with metadata as JSON in docstore
-    import json
     doc_data = []
     for doc in original_docs:
         doc_dict = {
@@ -194,63 +277,68 @@ def add_content_to_retriever(retriever: MultiVectorRetriever, content: List[Any]
             'metadata': doc.metadata
         }
         doc_data.append(json.dumps(doc_dict).encode('utf-8'))
-    
+
     retriever.docstore.mset(list(zip(doc_ids, doc_data)))
 
 def clear_existing_collection():
-    """Clear existing collection and docstore to rebuild from scratch."""
+    '''Clear existing collection and docstore to rebuild from scratch.'''
+
     api_key = _require_openai_api_key()
     try:
         vectorstore = Chroma(
             collection_name=COLLECTION_NAME,
-            embedding_function=OpenAIEmbeddings(model = "text-embedding-3-small", api_key=api_key),
+            embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL, api_key=api_key),
             persist_directory=str(CHROMA_PERSIST_PATH),
         )
         vectorstore.delete_collection()
         print("Cleared existing collection")
     except Exception as e:
         print(f"No existing collection to clear: {e}")
-    
+
     # Clear docstore
     try:
-        docstore_dir = DOCSTORE_PATH.parent / "docstore"
-        if docstore_dir.exists():
-            import shutil
-            shutil.rmtree(docstore_dir)
+        if DOCSTORE_DIR.exists():
+            shutil.rmtree(DOCSTORE_DIR)
             print("Cleared existing docstore")
     except Exception as e:
         print(f"No existing docstore to clear: {e}")
 
 def process_and_index_pdfs(directory: str) -> None:
-    """Process all PDF files and store in persistent vector database."""    
+    '''Process all PDF files and store in persistent vector database.
+
+    Parameters:
+    ---------
+    directory (str): the folder of SOP PDFs to index.
+    '''
+
     # Clear existing collection
     clear_existing_collection()
-    
+
     # Discover PDF files
     pdf_files = discover_pdf_files(str(SOP_DATA_DIR))
     print(f"Found {len(pdf_files)} PDF files to process:")
     for file in pdf_files:
         print(f"  - {os.path.basename(file)}")
-    
+
     if not pdf_files:
         print("No PDF files found to process")
         return
-    
+
     # Create MultiVectorRetriever
     retriever = create_multi_vector_retriever()
-    
+
     # Create summarizers
     text_table_summarizer = create_text_table_summarizer()
     image_summarizer = create_image_summarizer()
-    
+
     total_texts = 0
     total_tables = 0
     total_images = 0
-    
+
     # Process each PDF file
     for pdf_file in pdf_files:
         print(f"\nProcessing {os.path.basename(pdf_file)}...")
-        
+
         try:
             # Extract content from current PDF
             chunks = extract_pdf_content(pdf_file)
@@ -258,14 +346,14 @@ def process_and_index_pdfs(directory: str) -> None:
             texts = content_types["texts"]
             tables = content_types["tables"]
             images = extract_images_base64(chunks)
-            
+
             # Process texts
             if texts:
                 print(f"  - Processing {len(texts)} text chunks...")
                 text_summaries = text_table_summarizer.batch(texts)
                 add_content_to_retriever(retriever, texts, text_summaries)
                 total_texts += len(texts)
-            
+
             # Process tables
             if tables:
                 print(f"  - Processing {len(tables)} tables...")
@@ -273,24 +361,25 @@ def process_and_index_pdfs(directory: str) -> None:
                 table_summaries = text_table_summarizer.batch(tables_html)
                 add_content_to_retriever(retriever, tables, table_summaries)
                 total_tables += len(tables)
-            
+
             # Process images
             if images:
                 print(f"  - Processing {len(images)} images...")
                 image_summaries = image_summarizer.batch(images)
                 add_content_to_retriever(retriever, images, image_summaries)
                 total_images += len(images)
-                
+
         except Exception as e:
             print(f"  - Error processing {pdf_file}: {e}")
             continue
-    
+
     print(f"\n=== Indexing Complete ===")
     print(f"Total indexed: {total_texts} text chunks, {total_tables} tables, {total_images} images")
     print(f"Vector store saved to: {CHROMA_PERSIST_PATH}")
 
 def main():
-    """Main execution function."""
+    '''Main execution function.'''
+
     process_and_index_pdfs(str(SOP_DATA_DIR))
 
 if __name__ == "__main__":

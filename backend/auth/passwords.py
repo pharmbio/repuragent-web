@@ -1,4 +1,4 @@
-"""Password hashing helpers using Argon2id."""
+'''Password hashing helpers using Argon2id.'''
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from argon2.exceptions import VerifyMismatchError
 
 
 class PasswordHasher:
-    """Wrap Argon2 to include optional peppering and rehash checks."""
+    '''Wrap Argon2 to include optional peppering and rehash checks.'''
 
     def __init__(
         self,

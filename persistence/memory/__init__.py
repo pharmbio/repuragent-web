@@ -1,1 +1,1 @@
-"""Persistent memory state and helper modules."""
+'''Persistent memory state and helper modules.'''

@@ -1,5 +1,16 @@
-"""Database helpers for shared PostgreSQL access."""
+'''Shared PostgreSQL access: one pool, one LangGraph checkpointer.'''
 
-from .pool import get_async_pool, close_async_pool
+from .checkpointer import (
+    check_postgres_connection,
+    close_postgres_checkpointer,
+    get_postgres_checkpointer,
+)
+from .pool import close_async_pool, get_async_pool
 
-__all__ = ["get_async_pool", "close_async_pool"]
+__all__ = [
+    "check_postgres_connection",
+    "close_async_pool",
+    "close_postgres_checkpointer",
+    "get_async_pool",
+    "get_postgres_checkpointer",
+]

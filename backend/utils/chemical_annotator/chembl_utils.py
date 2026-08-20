@@ -1,5 +1,4 @@
-"""
-chembl_utils.py
+'''chembl_utils.py
 
 Utility functions for retrieving and processing data from the ChEMBL database.
 
@@ -10,7 +9,7 @@ Contact: flavio.ballante@ki.se, flavioballante@gmail.com
 Institution: CBCS-SciLifeLab-Karolinska Institutet
 
 Year: 2025
-"""
+'''
 
 import math
 from functools import lru_cache
@@ -46,14 +45,18 @@ def _get_protein_class_df() -> pd.DataFrame:
     return pd.DataFrame(new_client.protein_classification)
 
 def fetch_chembl_status():
-    """
-    Check the current status of the ChEMBL web service.
+    '''Check the current status of the ChEMBL web service.
 
-    Returns
-    -------
+    Returns:
+    ----------
     dict or None: The parsed JSON response from the ChEMBL status endpoint if successful,
-                  otherwise None if the request fails or returns a non-200 status code.
-    """
+    otherwise None if the request fails or returns a non-200 status code.
+
+    Returns:
+    ----------
+    status (dict): what the ChEMBL web service reports about itself, or an error description.
+    '''
+
     try:
         response = requests.get('https://www.ebi.ac.uk/chembl/api/data/status?format=json', timeout=35)
         if response.status_code == 200:
@@ -68,42 +71,39 @@ chembl_status = fetch_chembl_status()
 
 # %%
 def append_empty_rows(dataframe, n):
-    """
-    Append n empty rows to a DataFrame.
+    '''Append n empty rows to a DataFrame.
 
-    Parameters
-    ----------
-    dataframe: dataframe
-    n: number of empty rows to append
-    """
+    Parameters:
+    ---------
+    dataframe (Pandas DataFrame): the frame to append the empty rows to.
+    n (int): number of empty rows to append.
+    '''
+
     for _ in range(n):
         dataframe.loc[len(dataframe)] = pd.Series(dtype='float64')
 
 # %%
 @lru_cache(maxsize=50_000)
 def chembl_get_id(query, identifier):
-    """
-    Get the ChEMBL ID for a query structure.
+    '''Get the ChEMBL ID for a query structure.
 
-    Parameters
+    Parameters:
+    ---------
+    query (str): compound's structure (SMILES, InChI, or InChIKey).
+    identifier (str): type of identifier (SMILES, InChI, or InChIKey).
+
+    Returns:
     ----------
-    query: string
-        compound's structure (SMILES, InChI, or InChIKey).
-    identifier: string
-        type of identifier (SMILES, InChI, or InChIKey).
-        
-    Returns
-    -------
-    list
-        ChEMBL ID.
-    """
+    chembl_ids (list): ChEMBL ID.
+    '''
+
     if identifier.lower() == "smiles":
         ChEMBL_mol_std = utils.smiles2inchiKey(query)
     elif identifier.lower() == "inchi":
         ChEMBL_mol_std = utils.inchi2inchiKey(query)
     elif identifier.lower() == "inchikey":
         ChEMBL_mol_std = query
-        
+
     ChEMBL_id=molecule.filter(molecule_structures__standard_inchi_key=ChEMBL_mol_std).only(['molecule_chembl_id'])
     ChEMBL_id=[item['molecule_chembl_id'] for item in ChEMBL_id]
     if len(ChEMBL_id) == 0:
@@ -115,19 +115,17 @@ def chembl_get_id(query, identifier):
 # %%
 @lru_cache(maxsize=50_000)
 def _chembl_drug_annotations_cached(chembl_id):
-    """
-    Get the drug annotations for a query structure.
+    '''Get the drug annotations for a query structure.
 
-    Parameters
+    Parameters:
+    ---------
+    chembl_id (str): ChEMBL compound ID.
+
+    Returns:
     ----------
-    chembl_id : str
-        ChEMBL compound ID.
+    annotations (Pandas DataFrame): DataFrame containing the compound's annotations or an empty DataFrame with predefined columns if an error occurs.
+    '''
 
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing the compound's annotations or an empty DataFrame with predefined columns if an error occurs.
-    """
     # Define the column names
     columns = [
         'molecule_chembl_id', 'active_chembl_id', 'parent_chembl_id', 'canonical_smiles',
@@ -144,11 +142,11 @@ def _chembl_drug_annotations_cached(chembl_id):
             'indication_class', 'therapeutic_flag', 'first_approval', 'max_phase',
             'withdrawn_flag'
         ])
-        
+
         # Return an empty DataFrame with predefined columns if no data found
         if not ChEMBL_drug_annotation:
             return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
-        
+
         ChEMBL_drug_annotation = ChEMBL_drug_annotation[0]
 
         # Handle potential empty 'molecule_synonyms'
@@ -161,7 +159,7 @@ def _chembl_drug_annotations_cached(chembl_id):
             molecule_synonym = None
             syn_type = None
             synonyms = None
-        
+
         # Flatten the dictionary
         flat_data = {
             'molecule_chembl_id': ChEMBL_drug_annotation.get('molecule_chembl_id'),
@@ -188,11 +186,11 @@ def _chembl_drug_annotations_cached(chembl_id):
             'therapeutic_flag': ChEMBL_drug_annotation.get('therapeutic_flag'),
             'withdrawn_flag': ChEMBL_drug_annotation.get('withdrawn_flag')
         }
-        
+
         # Create DataFrame
         ChEMBL_drug_annotation_df = pd.DataFrame([flat_data])
         return _df_to_cached_json(ChEMBL_drug_annotation_df)
-    
+
     except Exception as e:
         return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
 
@@ -203,20 +201,17 @@ def chembl_drug_annotations(chembl_id):
 # %%
 @lru_cache(maxsize=50_000)
 def _chembl_drug_indications_cached(chembl_id):
-     """
-     Get the drug indications for a query structure.
+     '''Get the drug indications for a query structure.
 
-     Parameters
+     Parameters:
+     ---------
+     chembl (str): ChEMBL compound ID.
+
+     Returns:
      ----------
-     chembl : str
-          ChEMBL compound ID.
+     indications (Pandas DataFrame): DataFrame containing the compound's indications.
+     '''
 
-     Returns
-     -------
-     pd.DataFrame
-          DataFrame containing the compound's indications.
-          
-     """
      # Define the column names and initialize NaN values
      columns = [
      'indication_refs.ref_id', 'indication_refs.ref_type', 'indication_refs.ref_url',
@@ -240,12 +235,12 @@ def _chembl_drug_indications_cached(chembl_id):
                data_all.drop(columns=['parent_molecule_chembl_id'], inplace=True, errors='ignore')
                data_all['total_count'] = total_count
                return _df_to_cached_json(data_all)
-                   
+
           n_of_pages = (total_count + 19) // 20  # ceil division to get number of pages
-        
+
           # Initialize an empty DataFrame with the defined columns
           data_all = pd.DataFrame(columns=columns)
-     
+
           # Loop through all pages to get all data
           for page in range(n_of_pages):
                offset = 20 * page
@@ -275,24 +270,21 @@ def _chembl_drug_indications_cached(chembl_id):
 
 def chembl_drug_indications(chembl_id):
      return _cached_json_to_df(_chembl_drug_indications_cached(chembl_id))
-     
+
 # %%
 @lru_cache(maxsize=50_000)
 def _chembl_mechanism_of_action_cached(chembl_id):
-    """
-    Fetch the mechanism of action for a given ChEMBL compound ID using chembl_webresource_client.
+    '''Fetch the mechanism of action for a given ChEMBL compound ID using chembl_webresource_client.
 
-    Parameters
+    Parameters:
+    ---------
+    chembl_id (str): ChEMBL compound ID.
+
+    Returns:
     ----------
-    chembl_id : str
-        ChEMBL compound ID.
+    mechanisms (Pandas DataFrame): DataFrame containing the action type, mechanism of action, and target ChEMBL ID. Returns an empty DataFrame if no data is found or if an error occurs.
+    '''
 
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing the action type, mechanism of action, and target ChEMBL ID.
-        Returns an empty DataFrame if no data is found or if an error occurs.
-    """
     # Define the column names and initialize NaN values
     columns = [
     'molecule_chembl_id', 'action_type', 'mechanism_of_action', 'target_chembl_id'
@@ -369,25 +361,20 @@ def _chembl_assay_information_cached(
     assay_type_in=("B", "F"),
     pchembl_value_gte=6,
 ):
-    """
-    Get the assay information for a query structure with a minimum confidence score.
+    '''Get the assay information for a query structure with a minimum confidence score.
 
-    Parameters
+    Parameters:
+    ---------
+    chembl_id (str): ChEMBL compound ID.
+    confidence_threshold (int, optional): Minimum confidence score for assays (default is 8).
+    assay_type_in (list of str, optional): List of assay types to include (default: ['B', 'F']).
+    pchembl_value_gte (float, optional): Minimum pChEMBL value to include (default: 6).
+
+    Returns:
     ----------
-    chembl_id : str
-        ChEMBL compound ID.
-    confidence_threshold : int, optional
-        Minimum confidence score for assays (default is 8).
-    assay_type_in : list of str, optional
-        List of assay types to include (default: ['B', 'F']).
-    pchembl_value_gte : float, optional
-        Minimum pChEMBL value to include (default: 6).    
+    assays (Pandas DataFrame): DataFrame containing the compound's assay information with confidence scores above the threshold.
+    '''
 
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame containing the compound's assay information with confidence scores above the threshold.
-    """
     # Define the column names and initialize NaN values
     columns = [
         'molecule_chembl_id', 'activity_id', 'assay_chembl_id', 'assay_description', 
@@ -396,7 +383,7 @@ def _chembl_assay_information_cached(
         'standard_value', 'target_pref_name', 'target_chembl_id', 'target_organism',
         'confidence_score'  # Add confidence_score to the columns
     ]
-     
+
     document_columns = [
         'doc_type', 'doi', 'journal', 'pubmed_id',
         'title'
@@ -417,7 +404,7 @@ def _chembl_assay_information_cached(
             empty_data = pd.DataFrame(columns=columns)
             empty_data['molecule_chembl_id'] = [chembl_id]
             return _df_to_cached_json(empty_data)
-            
+
 
         assay_ids = {
             activity_row["assay_chembl_id"]
@@ -440,9 +427,9 @@ def _chembl_assay_information_cached(
             empty_data = pd.DataFrame(columns=columns)
             empty_data['molecule_chembl_id'] = [chembl_id]
             return _df_to_cached_json(empty_data)
-        
+
         activity_data = pd.DataFrame(activity_data)
-        
+
         document_ids = activity_data["document_chembl_id"].dropna().unique().tolist()
         document_rows = []
         for chembl_doc_id in document_ids:
@@ -459,7 +446,7 @@ def _chembl_assay_information_cached(
 
         assay_information = activity_data.merge(document_data, on="document_chembl_id", how="left")
         return _df_to_cached_json(assay_information)
-        
+
     except requests.exceptions.RequestException as e:
         return _df_to_cached_json(pd.DataFrame({col: [None] for col in columns}))
 
@@ -480,24 +467,21 @@ def chembl_assay_information(chembl_id, confidence_threshold=8, assay_type_in=("
 # %%
 @lru_cache(maxsize=50_000)
 def surechembl_get_id(query, identifier):
-    """
-    Retrieve the SureChEMBL compound ID for a given query, using the specified identifier type.
+    '''Retrieve the SureChEMBL compound ID for a given query, using the specified identifier type.
 
     This function converts the query to an InChIKey if necessary, then queries the UniChem API
     to fetch the corresponding SureChEMBL compound ID.
 
-    Parameters
-    ----------
-    query : str
-        The compound identifier (SMILES, InChI, or InChIKey).
-    identifier : str
-        The type of the query, e.g., "smiles", "inchi", or "inchikey".
+    Parameters:
+    ---------
+    query (str): The compound identifier (SMILES, InChI, or InChIKey).
+    identifier (str): The type of the query, e.g., "smiles", "inchi", or "inchikey".
 
-    Returns
-    -------
-        str or None:
-        The SureChEMBL compound ID if found, otherwise None if not found or if an error occurs.
-    """
+    Returns:
+    ----------
+    surechembl_id (str or None): The SureChEMBL compound ID if found, otherwise None if not found or if an error occurs.
+    '''
+
     if identifier.lower() == "smiles":
         ChEMBL_mol_std = utils.smiles2inchiKey(query)
     elif identifier.lower() == "inchi":
@@ -526,27 +510,21 @@ def surechembl_get_id(query, identifier):
 # %%
 @lru_cache(maxsize=50_000)
 def get_target_data(target_chembl_id):
-    """
-    Retrieve target information from ChEMBL for a given target ChEMBL ID.
+    '''Retrieve target information from ChEMBL for a given target ChEMBL ID.
 
     This function fetches the target's description, UniProt ID, and EC numbers using the ChEMBL web service client.
     If the target_chembl_id is empty, None, or NaN, or if the target is not found in ChEMBL, or if an error occurs,
     it returns a dictionary with error messages.
 
-    Parameters
-    ----------
-    target_chembl_id : str, float, or None
-        The ChEMBL ID of the target. If empty, None, or NaN, the function returns
-        an error message without querying ChEMBL.
+    Parameters:
+    ---------
+    target_chembl_id (str, float, or None): The ChEMBL ID of the target. If empty, None, or NaN, the function returns an error message without querying ChEMBL.
 
-    Returns
-    -------
-    dict: A dictionary containing:
-        - 'target_chembl_id': The input target ChEMBL ID 
-        - 'Description': The target's preferred name (if found)
-        - 'UniProt ID': The first UniProt accession found among the target components (if available)
-        - 'EC Numbers': A semicolon-separated string of EC numbers (if available)
-    """
+    Returns:
+    ----------
+    target (dict): A dictionary containing: - 'target_chembl_id': The input target ChEMBL ID - 'Description': The target's preferred name (if found) - 'UniProt ID': The first UniProt accession found among the target components (if available) - 'EC Numbers': A semicolon-separated string of EC numbers (if available)
+    '''
+
     # Check if target_chembl_id is empty, None, or NaN
     if not target_chembl_id or (isinstance(target_chembl_id, float) and math.isnan(target_chembl_id)):
         #print(f"Warning: target_chembl_id is empty, None, or NaN")
@@ -558,7 +536,7 @@ def get_target_data(target_chembl_id):
         }
     try:
         result = TARGET_CLIENT.get(target_chembl_id)
-        
+
         if not result:
             print(f"No data found for {target_chembl_id}")
             return {
@@ -567,29 +545,29 @@ def get_target_data(target_chembl_id):
                 "UniProt ID": "",
                 "EC Numbers": ""
             }
-        
+
         description = result.get('pref_name', '')
         components = result.get('target_components', [])
-        
+
         uniprot_id = ""
         ec_numbers = []
-        
+
         for component in components:
             accession = component.get('accession', [])
             if accession:
                 uniprot_id = accession
-            
+
             for synonym in component.get('target_component_synonyms', []):
                 if synonym.get('syn_type') == "EC_NUMBER":
                     ec_numbers.append(synonym.get('component_synonym', ''))
-        
+
         return {
             "target_chembl_id": target_chembl_id,
             "Description": description,
             "UniProt ID": uniprot_id,
             "EC Numbers": "; ".join(ec_numbers)
         }
-    
+
     except Exception as e:
         #print(f"Error fetching data for {target_chembl_id}: {str(e)}")
         return {
@@ -601,26 +579,24 @@ def get_target_data(target_chembl_id):
 
 # %%
 def process_targets(targets_list):
-    """
-    Process a list of target ChEMBL IDs and collect their associated data.
+    '''Process a list of target ChEMBL IDs and collect their associated data.
 
-    Parameters
+    Parameters:
+    ---------
+    targets_list (Pandas DataFrame): DataFrame containing a column named 'target_chembl_id' with ChEMBL IDs of the targets to process.
+
+    Returns:
     ----------
-    targets_list : DataFrame
-        DataFrame containing a column named 'target_chembl_id' with ChEMBL IDs of the targets to process.
+    targets (Pandas DataFrame): DataFrame where each row contains the processed data for a target.
+    '''
 
-    Returns
-    -------
-    DataFrame
-        DataFrame where each row contains the processed data for a target.
-    """
     target_data = []
     #Get the total number of targets
     total_targets = len(targets_list)
-   
+
     #Initialize tqdm with position on the left
     pbar = tqdm(total=total_targets, desc="Processing targets", position=0, bar_format="{percentage:3.0f}%|{bar}|{desc}")
-    
+
     #Iterate through each target in the list with a progress bar
     for i, (index, row) in enumerate (targets_list.iterrows(), start=1):
         target_chembl_id = row["target_chembl_id"]
@@ -628,7 +604,7 @@ def process_targets(targets_list):
         pbar.set_description(f"Processing target n.: {i}")
         single_target_data = get_target_data(target_chembl_id)
         target_data.append(single_target_data)
-        
+
          #Update the progress bar
         pbar.update(1)
 
@@ -637,19 +613,17 @@ def process_targets(targets_list):
 # %%
 @lru_cache(maxsize=50_000)
 def get_protein_classifications(target_chembl_id):
-    """
-    Fetch protein classifications for a given ChEMBL target ID.
+    '''Fetch protein classifications for a given ChEMBL target ID.
 
-    Parameters
+    Parameters:
+    ---------
+    target_chembl_id (str): ChEMBL Target ID (e.g., CHEMBL2933).
+
+    Returns:
     ----------
-    target_chembl_id : str
-        ChEMBL Target ID (e.g., CHEMBL2933).
+    classifications (str): A comma-separated string of protein classifications.
+    '''
 
-    Returns
-    -------
-    str
-        A comma-separated string of protein classifications.
-    """
     try:
         # Step 1: Fetch component_id
         target_data = TARGET_CLIENT.get(target_chembl_id)
@@ -700,38 +674,33 @@ def _trace_hierarchy_cached(protein_class_id):
 
 
 def trace_hierarchy(protein_class_id, hierarchy=None):
-    """
-    Recursively traces the hierarchy of a given protein_class_id.
+    '''Recursively traces the hierarchy of a given protein_class_id.
 
-    Parameters
+    Parameters:
+    ---------
+    protein_class_id (int): The ID of the protein class to trace.
+    hierarchy (list): Accumulator for the hierarchy path.
+
+    Returns:
     ----------
-    protein_class_id : int
-        The ID of the protein class to trace.
-    hierarchy : list
-        Accumulator for the hierarchy path.
+    hierarchy (list): A list representing the traced protein hierarchy.
+    '''
 
-    Returns
-    -------
-    list: 
-        A list representing the traced protein hierarchy.
-    """
     return _trace_hierarchy_cached(protein_class_id)
 
 # %%
 def trace_hierarchy_for_list(protein_class_ids):
-    """
-    Traces hierarchies for a list of protein_class_ids.
+    '''Traces hierarchies for a list of protein_class_ids.
 
-    Parameters
+    Parameters:
+    ---------
+    protein_class_ids (list): A list of protein_class_ids (numbers) to trace.
+
+    Returns:
     ----------
-    protein_class_ids : list
-        A list of protein_class_ids (numbers) to trace.
+    hierarchies (dict): A dictionary where keys are protein_class_ids and values are their hierarchies.
+    '''
 
-    Returns
-    -------
-    dict: 
-        A dictionary where keys are protein_class_ids and values are their hierarchies.
-    """
     results = {}
     for protein_class_id in protein_class_ids:
         try:

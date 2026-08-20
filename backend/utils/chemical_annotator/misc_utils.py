@@ -1,5 +1,4 @@
-"""
-misc_utils.py
+'''misc_utils.py
 
 Miscellaneous helper functions used throughout the Chemical Annotator tool.
 
@@ -10,7 +9,7 @@ Contact: flavio.ballante@ki.se, flavioballante@gmail.com
 Institution: CBCS-SciLifeLab-Karolinska Institutet
 
 Year: 2025
-"""
+'''
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
@@ -41,9 +40,17 @@ def _normalize_header(value) -> str:
 
 
 def _infer_identifier_type(value: str) -> str | None:
-    """
-    Infer the identifier type ('smiles', 'inchi', 'inchikey') from a column-like string.
-    """
+    '''Infer the identifier type ('smiles', 'inchi', 'inchikey') from a column-like string.
+
+    Parameters:
+    ---------
+    value (str): a column name, or a value from it.
+
+    Returns:
+    ----------
+    identifier_type (str): `smiles`, `inchi` or `inchikey`, or None when it looks like none of them.
+    '''
+
     normalized = _normalize_header(value)
     if not normalized:
         return None
@@ -57,9 +64,17 @@ def _infer_identifier_type(value: str) -> str | None:
 
 
 def find_smiles_column(compounds_list: pd.DataFrame) -> str | None:
-    """
-    Return the first column name that contains 'smiles' (case-insensitive).
-    """
+    '''Return the first column name that contains 'smiles' (case-insensitive).
+
+    Parameters:
+    ---------
+    compounds_list (Pandas DataFrame): the table to inspect.
+
+    Returns:
+    ----------
+    column (str): the first column whose name contains 'smiles', case-insensitively, or None.
+    '''
+
     for col in compounds_list.columns:
         if "smiles" in str(col).strip().lower():
             return col
@@ -67,14 +82,23 @@ def find_smiles_column(compounds_list: pd.DataFrame) -> str | None:
 
 
 def resolve_identifier_column(compounds_list: pd.DataFrame, identifier: str) -> tuple[str, str]:
-    """
-    Resolve which DataFrame column contains the requested compound identifiers.
+    '''Resolve which DataFrame column contains the requested compound identifiers.
 
     - Case-insensitive for common identifier types ('SMILES', 'InChI', 'InChIKey').
     - Flexible for SMILES-like columns (e.g., 'SMILES', 'canonical_smiles').
     - Returns (column_name, identifier_type) where identifier_type is one of:
       'smiles', 'inchi', 'inchikey'.
-    """
+
+    Parameters:
+    ---------
+    compounds_list (Pandas DataFrame): the table to inspect.
+    identifier (str): the identifier type the caller asked for.
+
+    Returns:
+    ----------
+    resolved (tuple): `(column name, identifier type)` for the requested identifiers.
+    '''
+
     if not isinstance(identifier, str) or not identifier.strip():
         raise ValueError("identifier must be a non-empty string")
 
@@ -159,10 +183,18 @@ def resolve_identifier_column(compounds_list: pd.DataFrame, identifier: str) -> 
 
 
 def auto_detect_identifier_column(compounds_list: pd.DataFrame) -> tuple[str, str]:
-    """
-    Try to detect a single identifier column, preferring SMILES, then InChIKey, then InChI.
+    '''Try to detect a single identifier column, preferring SMILES, then InChIKey, then InChI.
     Returns (column_name, identifier_type).
-    """
+
+    Parameters:
+    ---------
+    compounds_list (Pandas DataFrame): the table to inspect.
+
+    Returns:
+    ----------
+    resolved (tuple): `(column name, identifier type)`, preferring SMILES, then InChIKey, then InChI.
+    '''
+
     for candidate in ("smiles", "inchikey", "inchi"):
         try:
             return resolve_identifier_column(compounds_list, candidate)
@@ -231,13 +263,24 @@ def resolve_smiles_any(
     pause_s: float = 0.0,
     timeout_s: float = 15.0,
 ) -> str | None:
-    """
-    Resolve many identifier types to canonical SMILES.
+    '''Resolve many identifier types to canonical SMILES.
     Order:
       1) ChEMBL IDs via ChEMBL API
       2) CACTUS resolver
       3) PubChem (CID / InChIKey / name)
-    """
+
+    Parameters:
+    ---------
+    identifier (str): the value to resolve.
+    identifier_type (str): its type, or None to infer it.
+    pause_s (float): seconds to wait between calls, to stay inside the service's rate limit.
+    timeout_s (float): how long to wait for one lookup.
+
+    Returns:
+    ----------
+    smiles (str): the canonical SMILES, or None when nothing resolved it.
+    '''
+
     ident = _clean_identifier(identifier)
     if not ident:
         return None
@@ -359,31 +402,25 @@ def _fetch_compound_bundle(
 
 
 def process_compounds(compounds_list, identifier, confidence_threshold=8, assay_type_in=['B', 'F'], pchembl_value_gte=6):
-    """
-    Process a list of compounds by retrieving drug annotations, indications, assay information,
+    '''Process a list of compounds by retrieving drug annotations, indications, assay information,
     and mechanisms of action from ChEMBL and other databases.
 
-    Parameters
-    ----------
-    compounds_list : DataFrame
-        DataFrame containing a list of compounds.
-    identifier : str
-        Identifier type ('SMILES', 'InChI', 'InChIKey') or a column name containing one of those.
-        Matching is case-insensitive and will also accept SMILES-like columns such as 'canonical_smiles'.
-    confidence_threshol : int, optional
-        Minimum confidence threshold for assay data. Defaults to 8.
-    assay_type_in : list, optional
-        List of assay types to include. Defaults to ['B', 'F'].
-    pchembl_value_gte : int, optional
-        Minimum pChEMBL value for assay data. Defaults to 6.
+    Parameters:
+    ---------
+    compounds_list (Pandas DataFrame): DataFrame containing a list of compounds.
+    identifier (str): Identifier type ('SMILES', 'InChI', 'InChIKey') or a column name containing one of those. Matching is case-insensitive and will also accept SMILES-like columns such as 'canonical_smiles'.
+    confidence_threshol (int, optional): Minimum confidence threshold for assay data. Defaults to 8.
+    assay_type_in (list, optional): List of assay types to include. Defaults to ['B', 'F'].
+    pchembl_value_gte (int, optional): Minimum pChEMBL value for assay data. Defaults to 6.
 
-    Returns
-    -------
-        Three DataFrames containing:
-            - all_drug_info: Merged drug annotations and indications
-            - all_drug_assay: Merged assay information
-            - all_MoA: Merged mechanisms of action
-    """
+    Returns:
+    ----------
+    frames (tuple): Three DataFrames containing:
+    - all_drug_info: Merged drug annotations and indications
+    - all_drug_assay: Merged assay information
+    - all_MoA: Merged mechanisms of action
+    '''
+
     identifier_column, identifier_type = resolve_identifier_column(compounds_list, identifier)
     assay_type_in = tuple(assay_type_in)
     rows = compounds_list.to_dict("records")

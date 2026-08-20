@@ -1,10 +1,11 @@
-"""Database access helpers for authentication."""
+'''Database access helpers for authentication.'''
 
 from __future__ import annotations
 
 import asyncio
 import json
 from dataclasses import dataclass
+from pathlib import Path
 from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import UUID
@@ -13,6 +14,9 @@ from psycopg.rows import dict_row
 
 from app.config import logger
 from backend.db import get_async_pool
+
+_schema_ready = False
+_schema_lock: Optional[asyncio.Lock] = None
 from .tokens import TokenPurpose
 
 _thread_timeline_ready = False
@@ -33,7 +37,50 @@ class UserRecord:
 
 
 class AuthRepository:
-    """Execute auth-related queries using the shared pool."""
+    '''Execute auth-related queries using the shared pool.'''
+
+    async def ensure_schema(self) -> None:
+        '''Apply the committed migration once per process.
+
+        `backend/auth/migrations/initialise_db.sql` is entirely idempotent
+        (`CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`), so running it at
+        startup keeps one source of truth for the schema and removes the manual
+        `psql -f` step a fresh deployment used to need before it could accept a
+        single login.
+        '''
+
+        global _schema_ready, _schema_lock
+
+        if _schema_ready:
+            return
+        if _schema_lock is None:
+            _schema_lock = asyncio.Lock()
+
+        async with _schema_lock:
+            if _schema_ready:
+                return
+            migration = (
+                Path(__file__).resolve().parent / "migrations" / "initialise_db.sql"
+            )
+            try:
+                sql = migration.read_text(encoding="utf-8")
+            except OSError as exc:
+                logger.error("Could not read %s: %s", migration, exc)
+                return
+            pool = await get_async_pool()
+            async with pool.connection() as conn:
+                async with conn.cursor() as cur:
+                    # `prepare=False` is load-bearing. The pool sets
+                    # `prepare_threshold=0` (the LangGraph Postgres checkpointer
+                    # requires it), so psycopg prepares every statement from the
+                    # first execution — and a prepared statement holds exactly one
+                    # command, so the migration's twelve statements come back as
+                    # "cannot insert multiple commands into a prepared statement".
+                    # Opting out drops this one call to the simple query protocol,
+                    # which accepts a whole script.
+                    await cur.execute(sql, prepare=False)
+            _schema_ready = True
+            logger.info("Database schema verified")
 
     async def _ensure_thread_timeline_column(self) -> None:
         global _thread_timeline_ready, _thread_timeline_lock
@@ -258,7 +305,39 @@ class AuthRepository:
                 )
                 return await cur.fetchall()
 
-    async def get_thread_timeline(self, thread_id: str) -> Optional[Dict[str, Any]]:
+    async def get_thread(self, user_id: UUID, thread_id: str) -> Optional[Dict[str, Any]]:
+        pool = await get_async_pool()
+        async with pool.connection() as conn:
+            async with conn.cursor(row_factory=dict_row) as cur:
+                await cur.execute(
+                    """
+                    SELECT thread_id, title, created_at, updated_at
+                    FROM user_threads
+                    WHERE user_id = %s AND thread_id = %s
+                    LIMIT 1
+                    """,
+                    (user_id, thread_id),
+                )
+                return await cur.fetchone()
+
+    async def update_thread_title(self, user_id: UUID, thread_id: str, title: str) -> None:
+        pool = await get_async_pool()
+        async with pool.connection() as conn:
+            async with conn.cursor() as cur:
+                await cur.execute(
+                    """
+                    UPDATE user_threads
+                    SET title = %s, updated_at = NOW()
+                    WHERE user_id = %s AND thread_id = %s
+                    """,
+                    (title, user_id, thread_id),
+                )
+
+    async def get_thread_timeline(
+        self, user_id: UUID, thread_id: str
+    ) -> Optional[Dict[str, Any]]:
+        # Scoped by user as well as thread: a thread id embeds its owner's id and
+        # so is partly guessable, and a rendered timeline is the whole conversation.
         await self._ensure_thread_timeline_column()
         pool = await get_async_pool()
         async with pool.connection() as conn:
@@ -267,16 +346,18 @@ class AuthRepository:
                     """
                     SELECT ui_timeline
                     FROM user_threads
-                    WHERE thread_id = %s
+                    WHERE user_id = %s AND thread_id = %s
                     LIMIT 1
                     """,
-                    (thread_id,),
+                    (user_id, thread_id),
                 )
                 row = await cur.fetchone()
         timeline = row.get("ui_timeline") if row else None
         return timeline if isinstance(timeline, dict) else None
 
-    async def update_thread_timeline(self, thread_id: str, timeline: Dict[str, Any]) -> None:
+    async def update_thread_timeline(
+        self, user_id: UUID, thread_id: str, timeline: Dict[str, Any]
+    ) -> None:
         await self._ensure_thread_timeline_column()
         pool = await get_async_pool()
         payload = json.dumps(timeline or {}, ensure_ascii=True)
@@ -287,9 +368,9 @@ class AuthRepository:
                     UPDATE user_threads
                     SET ui_timeline = %s::jsonb,
                         updated_at = NOW()
-                    WHERE thread_id = %s
+                    WHERE user_id = %s AND thread_id = %s
                     """,
-                    (payload, thread_id),
+                    (payload, user_id, thread_id),
                 )
 
     async def delete_thread(self, user_id: UUID, thread_id: str) -> None:

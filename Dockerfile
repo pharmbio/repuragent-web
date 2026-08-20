@@ -69,7 +69,7 @@ COPY . .
 RUN mkdir -p ${DATA_ROOT} ${RESULTS_ROOT} ${MEMORY_ROOT} \
     && chown -R $USER:$USER ${PERSIST_ROOT}
 
-# Set proper permissions
+# The ADMET models are invoked as `java -jar`, so the jars must be readable.
 RUN chmod +x models/CPSign/cpsign-2.0.0-fatjar.jar 2>/dev/null || true
 RUN chmod -R 755 $HOME/app
 RUN chown -R $USER:$USER $HOME
