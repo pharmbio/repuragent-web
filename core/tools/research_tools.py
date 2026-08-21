@@ -8,7 +8,11 @@ import requests
 from langchain_core.tools import tool
 
 from app.config import logger
+from backend.sop_rag.config import RETRIEVAL_CONFIG
 from backend.sop_rag.sop_retriever import get_sop_retriever
+
+# The tool's default, and the retriever's, are the same number by construction.
+DEFAULT_SOP_RESULTS = RETRIEVAL_CONFIG["max_results"]
 
 @dataclass
 class LitSenseObject:
@@ -76,19 +80,22 @@ def _format_sop_results(documents) -> str:
 
     Returns:
     ----------
-    text (str): the chunks rendered for the agent, each headed by its source.
+    text (str): the chunks rendered for the agent, each headed by its source and page.
     '''
 
     result_lines: List[str] = []
     for idx, doc in enumerate(documents, start=1):
-        filename = "Unknown"
-        if hasattr(doc, "metadata"):
-            filename = os.path.basename(doc.metadata.get("filename", "Unknown"))
+        metadata = getattr(doc, "metadata", None) or {}
+        source = metadata.get("source") or metadata.get("filename") or "Unknown"
+        heading = os.path.basename(str(source))
+        page = metadata.get("page")
+        if page is not None:
+            heading = f"{heading}, page {page}"
 
         result_lines.extend(
             [
                 f"\n--- Document {idx} ---\n",
-                f"Source: {filename}\n",
+                f"Source: {heading}\n",
                 f"Content: {getattr(doc, 'page_content', '')}\n",
             ]
         )
@@ -133,9 +140,8 @@ def literature_search_pubmed(query: str, limit: int = 5) -> str:
 
 
 @tool
-def protocol_search_sop(query: str) -> str:
+def protocol_search_sop(query: str, max_results: int = DEFAULT_SOP_RESULTS) -> str:
     '''Search the SOP corpus for protocols, standards and regulatory procedures.
-
     Use this to ground any claim that has to follow a documented procedure —
     assay protocols, reporting standards, regulatory definitions and thresholds.
     Returns the original passages with their source filenames, so the wording can
@@ -144,6 +150,7 @@ def protocol_search_sop(query: str) -> str:
     Parameters:
     ---------
     query (str): What you need the procedure for, in the terms the document would use.
+    max_results (int): How many passages to return. Leave at the default unless you have a reason: a passage is a whole section of a document, so asking for more costs proportionally more of your context. Ask for fewer (2-3) when you need one specific threshold or definition, and for more (8-10) when you are surveying what a procedure covers and do not yet know which section holds it.
 
     Returns:
     ----------
@@ -151,9 +158,7 @@ def protocol_search_sop(query: str) -> str:
     '''
 
     try:
-        # Cached: constructing a retriever reopens Chroma and walks the docstore,
-        # and this tool is called on nearly every grounding step.
-        documents = get_sop_retriever().search(query)
+        documents = get_sop_retriever().query(query, max_results=max_results)
 
         if not documents:
             return f"No SOP content found for query '{query}'."
@@ -166,6 +171,7 @@ def protocol_search_sop(query: str) -> str:
 
 
 __all__ = [
+    "DEFAULT_SOP_RESULTS",
     "LitSenseObject",
     "PyLitSense",
     "literature_search_pubmed",
