@@ -101,6 +101,12 @@ DATA_TOOLS = [python_executor, reset_python_state, read_files]
 
 REPORT_TOOLS = [read_files, python_executor]
 
+PLANNING_TOOLS = [
+    literature_search_pubmed,
+    protocol_search_sop,
+    read_files
+]
+
 # One posture block per route. The supervisor's tools and specialists are identical
 # in all three cases and only its guidance differs, so this is a middleware
 # concern rather than three separate agents.
