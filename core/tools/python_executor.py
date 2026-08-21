@@ -74,7 +74,6 @@ DEFAULT_AUTHORIZED_IMPORTS = [
     "app",
     "backend",
     "core",
-    # data and chemistry
     "pandas",
     "numpy",
     "scipy",
@@ -89,7 +88,6 @@ DEFAULT_AUTHORIZED_IMPORTS = [
     "chembl_webresource_client",
     "pubchempy",
     "Bio",
-    # plumbing
     "asyncio",
     "dotenv",
     "fuzzywuzzy",
@@ -103,6 +101,8 @@ DEFAULT_AUTHORIZED_IMPORTS = [
     "sqlalchemy",
     "sys",
     "textwrap",
+    "pickle",
+    "inspect",
 ]
 AUTHORIZED_IMPORTS = sorted(set(BASE_BUILTIN_MODULES) | set(DEFAULT_AUTHORIZED_IMPORTS))
 
