@@ -116,6 +116,10 @@ APPROVAL_JUDGE_MODEL = os.environ.get("APPROVAL_JUDGE_MODEL", "gpt-5-nano-2025-0
 CONTEXT_SUMMARY_MODEL = os.environ.get("CONTEXT_SUMMARY_MODEL", "gpt-5.2-2025-12-11")
 EPISODE_EXTRACTION_MODEL = os.environ.get("EPISODE_EXTRACTION_MODEL", "gpt-4o-mini-2024-07-18")
 
+# SOP indexing
+SOP_IMAGE_DESCRIPTION_MODEL = os.environ.get("SOP_IMAGE_DESCRIPTION_MODEL", "gpt-5-mini-2025-08-07")
+SOP_EMBEDDING_MODEL = os.environ.get("SOP_EMBEDDING_MODEL", "text-embedding-3-large")
+
 # Counts every superstep across the graph and its sub-agents, so roughly two per
 # model+tool exchange. A plan-driven repurposing run delegates to three
 # specialists many times over; 100 truncated those mid-execution.
