@@ -7,6 +7,7 @@ Main updates:
 - Supervisor: Deterministic plan monitoring: the supervisor writes and updates the plan in an external plan.md file. This also makes task resumption smoother and more reliable.
 - UI: Added a persistent plan monitoring panel so users can see which step they're on while a task is still running.
 - Agent interaction: The supervisor now holds persistent context for the entire task, while sub-agents receive only a task briefing. Each briefing contains the objective and all artifacts produced so far.
+- SOP search system: Implement a ensembel retriever (and correspoding indexer), which combines search from ParentDocumentRetriever (LangChain) and BM25, then re-rank using combsum function. The component exists in backend with flexible implementation that could be investigate and optimize different configs.
 
 ## Overview
 
@@ -44,7 +45,11 @@ Drug repurposing offers an efficient strategy to accelerate therapeutic discover
 - **Conversation state** — checkpointed in PostgreSQL, so a conversation survives a
   restart and a plan can wait at its approval gate indefinitely.
 - **SOP retrieval** — a prebuilt index over regulatory guidance and protocol
-  documents, so procedural claims are grounded in the wording of the source.
+  documents, so procedural claims are grounded in the wording of the source. A
+  keyword arm and a semantic arm are searched together and fused, because an SOP is
+  asked both for a clause by its identifier and for a procedure by description. Add
+  a document by dropping the PDF into `persistence/data/SOP` and running
+  `python reindex.py` there; only what changed is re-indexed.
 
 ## Running it with Docker
 
