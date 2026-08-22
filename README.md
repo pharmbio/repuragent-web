@@ -39,23 +39,12 @@ Drug repurposing offers an efficient strategy to accelerate therapeutic discover
 
 ### Memory
 
-- **Episodic memory** — how successful tasks were decomposed, retrieved as precedent
+- **Episodic memory:** how successful tasks were decomposed, retrieved as precedent
   when planning a similar one. Recording an episode is deliberate: press *Remember
   this plan*.
-- **Conversation state** — checkpointed in PostgreSQL, so a conversation survives a
+- **Conversation state:** checkpointed in PostgreSQL, so a conversation survives a
   restart and a plan can wait at its approval gate indefinitely.
-- **SOP retrieval** — a prebuilt index over regulatory guidance and protocol
-  documents, so procedural claims are grounded in the wording of the source. A
-  keyword arm and a semantic arm are searched together and fused, because an SOP is
-  asked both for a clause by its identifier and for a procedure by description. Add
+- **SOP retrieval** a prebuilt index over regulatory guidance and protocol
+  documents, so procedural claims are grounded in the wording of the source. Add
   a document by dropping the PDF into `persistence/data/SOP` and running
   `python reindex.py` there; only what changed is re-indexed.
-
-## Running it with Docker
-
-First, you need to set up .env file, then:
-
-```bash
-docker build --platform linux/amd64 -t repuragent:trial .
-docker run -p 7860:7860 --env-file .env repuragent:trial
-```
