@@ -1,33 +1,67 @@
-'''Paths and settings for the SOP retrieval-augmented index.
-
-Source PDFs live under `DATA_ROOT/SOP`; the built index (Chroma vectors plus a
-file-backed docstore of the original chunks) lives under
-`MEMORY_ROOT/sop_documents` and is shipped with the repository, so a fresh clone
-can answer SOP questions without re-indexing.
-'''
-
 from __future__ import annotations
 
 from pathlib import Path
 
+from app.config import SOP_EMBEDDING_MODEL, SOP_IMAGE_DESCRIPTION_MODEL
 from backend.utils.storage_paths import get_data_root, get_memory_root
 
+# Fundamental dir path
 DATA_DIR = get_data_root()
 MEMORY_DIR = get_memory_root()
-
 SOP_DATA_DIR = DATA_DIR / "SOP"
 SOP_MEMORY_DIR = MEMORY_DIR / "sop_documents"
-CHROMA_PERSIST_PATH = SOP_MEMORY_DIR / "chroma_db" / "sop_rag"
-DOCSTORE_PATH = SOP_MEMORY_DIR / "docstore.pkl"
-DOCSTORE_DIR = SOP_MEMORY_DIR / "docstore"
 
-COLLECTION_NAME = "sop_rag"
+# Dir path for SOP RAG system
+INDEX_DIR = SOP_MEMORY_DIR / "ensemble"
+CHROMA_PERSIST_PATH = INDEX_DIR / "chroma_db"
+DOCSTORE_DIR = INDEX_DIR / "docstore"
+BM25_CORPUS_PATH = INDEX_DIR / "bm25_corpus.json"
+MANIFEST_PATH = INDEX_DIR / "manifest.json"
+
+
+def ensure_directories() -> None:
+    '''Create the index directories, so a first run has somewhere to write.'''
+    for directory in (SOP_DATA_DIR, SOP_MEMORY_DIR, INDEX_DIR, CHROMA_PERSIST_PATH, DOCSTORE_DIR):
+        Path(directory).mkdir(parents=True, exist_ok=True)
+
+
+# `doc_id` links a child vector to its parent
 ID_KEY = "doc_id"
+# `source` is the PDF filename, and is what makes one document's chunks findable.
+SOURCE_KEY = "source"
 
-EMBEDDING_MODEL = "text-embedding-3-small"
+# Models' config
+EMBEDDING_MODEL = SOP_EMBEDDING_MODEL
+LLM_CONFIG = {
+    "image_description_model": SOP_IMAGE_DESCRIPTION_MODEL,
+}
 
-# `unstructured` hi-res partitioning: expensive, but it is what keeps tables and
-# figures out of the text chunks. Only used when rebuilding the index.
+# ParentDocumentRetriever child splitter config.
+#
+# There is deliberately no parent splitter beside it: a parent is exactly one
+# `unstructured` section, whatever length that comes out at, so that parent
+# boundaries match the sibling ChemSafeAgent pipeline the retrieval defaults
+# below were swept on. `PDF_PROCESSING_CONFIG`'s `max_characters` is therefore
+# the only bound on a parent, and it is applied before figure descriptions are
+# written in — so a figure-heavy section can exceed it.
+CHILD_SPLITTER_CONFIG = {
+    "chunk_size": 400,
+    "chunk_overlap": 50,
+}
+
+
+def _slug(name: str) -> str:
+    '''Filesystem- and collection-safe form of a model id.'''
+    normalized = name.replace("/", "_").replace(":", "_").replace(".", "_")
+    return normalized
+
+
+COLLECTION_NAME = (
+    f"sop_rag_{_slug(SOP_EMBEDDING_MODEL)}"
+    f"_c{CHILD_SPLITTER_CONFIG['chunk_size']}_o{CHILD_SPLITTER_CONFIG['chunk_overlap']}"
+)
+
+# `unstructured` hi-res partitioning config
 PDF_PROCESSING_CONFIG = {
     "strategy": "hi_res",
     "infer_table_structure": True,
@@ -39,29 +73,22 @@ PDF_PROCESSING_CONFIG = {
     "new_after_n_chars": 6000,
 }
 
-LLM_CONFIG = {
-    "summarization_model": "gpt-5-mini-2025-08-07",
-    "image_description_model": "gpt-5-mini-2025-08-07",
-    "rag_response_model": "gpt-5-mini-2025-08-07",
+PDF_FALLBACK_STRATEGY = "fast"
+
+
+# EnsembleRetriever config
+ENSEMBLE_CONFIG = {
+    "bm25_weight": 0.4,
+    "dense_weight": 0.6,
+    "bm25_k1": 0.8,
+    "bm25_b": 0.3,
+    "rrf_c": 60,
 }
 
 RETRIEVAL_CONFIG = {
-    "default_k": 4,
     "search_type": "similarity",
+    "default_score_threshold": 0.3,
+    "fetch_k": 50,
+    "max_results": 5,
+    "fuse_func": "combsum",
 }
-
-
-def ensure_directories() -> None:
-    for directory in (SOP_DATA_DIR, SOP_MEMORY_DIR, CHROMA_PERSIST_PATH):
-        directory.mkdir(parents=True, exist_ok=True)
-
-
-def index_exists() -> bool:
-    '''True when both halves of the index are present on disk.
-
-    Returns:
-    ----------
-    present (boolean): True when both the vector store and the docstore are on disk.
-    '''
-
-    return Path(CHROMA_PERSIST_PATH).exists() and Path(DOCSTORE_DIR).exists()
