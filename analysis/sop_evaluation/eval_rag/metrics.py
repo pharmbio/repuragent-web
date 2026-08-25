@@ -1,33 +1,3 @@
-'''Retrieval metrics for the SOP question set.
-
-Each question has exactly one gold passage, given as an `evidence_snippet`
-quoted out of one `evidence_file`. So "did retrieval work" is a
-graded-relevance question with a single relevant document, and the metrics
-follow from that:
-
-* **recall@k** — the gold snippet appears in one of the top k passages. With one
-  relevant document this is also precision-oriented hit-rate; it is the
-  objective this notebook selects on.
-* **nDCG@k** — the same event, discounted by *where* it landed. Two
-  configurations can both find the passage while one puts it at rank 1 and the
-  other at rank 5, and only nDCG separates them.
-* **MRR@k** — the same idea, read as "how far down the list does the agent have
-  to look".
-* **source_recall@k** — did any returned passage come from the right *document*.
-  A cheap, fuzzy-matching-independent sanity check: it catches a configuration
-  that retrieves the right SOP but the wrong section, which recall@k scores as a
-  flat miss.
-* **tokens@k** — what the k passages cost in the specialist's context. Recall
-  rises monotonically with k and cost rises with it, so k cannot be chosen from
-  recall alone.
-
-Matching is fuzzy because the gold snippet is quoted from the PDF while the
-passage came through `unstructured` — hyphenation, ligatures, table
-linearisation and whitespace all differ. `rapidfuzz.fuzz.partial_ratio > 90`
-on whitespace-normalised lowercase text is the reference project's rule and is
-kept unchanged, so the two evaluations' numbers are comparable.
-'''
-
 from __future__ import annotations
 
 import re

@@ -1,20 +1,3 @@
-'''Parse the SOP PDFs into parent sections, once, and cache the result.
-
-This is the only expensive step in the whole evaluation: `unstructured`
-hi-res partitioning plus one LLM call per figure. Every index variant below is
-built from the *same* cached sections, so the sweeps compare retrieval and
-nothing else — a variant that differed in its parse would confound every
-number in the notebook.
-
-The parse itself is the production one: `backend.sop_rag.sop_indexer.
-build_parent_documents`, with the production `PDF_PROCESSING_CONFIG`. The one
-thing done afterwards is to split the `[Source: <filename>]` line back off the
-front of each section, so that whether the retriever sees it becomes a knob
-(`IndexSpec.source_prefix`) rather than a fact.
-
-Delete `cache/parents.json` to force a re-parse.
-'''
-
 from __future__ import annotations
 
 import json
