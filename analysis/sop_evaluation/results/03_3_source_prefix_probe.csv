@@ -1,0 +1,4 @@
+arm,right document at rank 1,right document in top 3
+"sparse, [Source:] present",1.0,1.0
+"sparse, [Source:] removed",0.7272727272727273,1.0
+"dense, [Source:] present",1.0,1.0

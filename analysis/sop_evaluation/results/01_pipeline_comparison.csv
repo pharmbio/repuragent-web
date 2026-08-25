@@ -1,0 +1,5 @@
+pipeline,index,documents,recall@1
+Basic,basic_large_c1000_o200,337,0.54
+ParentDoc,parent_child_large_c400_o50,61,0.7018181818181818
+BM25,parent_child_large_c400_o50,61,0.7963636363636364
+Ensemble,basic_large_c1000_o200,337,0.7127272727272728

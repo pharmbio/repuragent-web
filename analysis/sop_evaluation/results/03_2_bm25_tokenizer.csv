@@ -1,0 +1,4 @@
+tokenizer,vocabulary,recall@1
+str.split,8549,0.6763636363636364
+lowercase only,7772,0.7163636363636363
+preprocess_bm25_text,6145,0.8036363636363636

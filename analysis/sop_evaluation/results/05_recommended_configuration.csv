@@ -1,0 +1,13 @@
+where,setting,value,chosen in
+EMBEDDING_MODEL,embedding model,text-embedding-3-large,2.1
+CHILD_SPLITTER_CONFIG,chunk_size,200,2.1
+CHILD_SPLITTER_CONFIG,chunk_overlap,50,2.2
+(parent splitter),parent_chunk_size,none - whole section,"fixed, not swept"
+RETRIEVAL_CONFIG,search_type,similarity,"fixed, not swept"
+ENSEMBLE_CONFIG,bm25_k1,1.0,3.1
+ENSEMBLE_CONFIG,bm25_b,0.75,3.1
+ENSEMBLE_CONFIG,bm25_weight,0.6,4.1
+ENSEMBLE_CONFIG,dense_weight,0.4,4.1
+RETRIEVAL_CONFIG,fuse_func,combsum,4.1
+RETRIEVAL_CONFIG,fetch_k,20,4.2
+RETRIEVAL_CONFIG,max_results,3,4.3

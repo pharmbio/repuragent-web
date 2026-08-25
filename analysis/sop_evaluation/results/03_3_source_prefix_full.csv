@@ -1,0 +1,3 @@
+label,recall@1
+[Source:] present,0.8036363636363636
+[Source:] removed,0.769090909090909

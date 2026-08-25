@@ -1,0 +1,13 @@
+label,embedding_model,chunk_size,documents,recall@1,model
+c100_small,text-embedding-3-small,100,61,0.6527272727272727,small
+c200_small,text-embedding-3-small,200,61,0.6709090909090909,small
+c400_small,text-embedding-3-small,400,61,0.6509090909090909,small
+c600_small,text-embedding-3-small,600,61,0.6,small
+c800_small,text-embedding-3-small,800,61,0.6236363636363637,small
+c1200_small,text-embedding-3-small,1200,61,0.6,small
+c100_large,text-embedding-3-large,100,61,0.7072727272727273,large
+c200_large,text-embedding-3-large,200,61,0.7636363636363637,large
+c400_large,text-embedding-3-large,400,61,0.7018181818181818,large
+c600_large,text-embedding-3-large,600,61,0.6909090909090909,large
+c800_large,text-embedding-3-large,800,61,0.6854545454545454,large
+c1200_large,text-embedding-3-large,1200,61,0.6818181818181818,large
