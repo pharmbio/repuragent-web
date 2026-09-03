@@ -51,6 +51,7 @@ matplotlib>=3.9
 seaborn>=0.13
 plotly>=6,<7
 openpyxl>=3.1
+rdkir
 
 # for literature search (the vendored EMBL AI Librarian in backend/librarian)
 bm25s>=0.2
