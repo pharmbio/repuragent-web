@@ -61,10 +61,15 @@ from core.tools.prediction_tools import (
 )
 from core.tools.python_executor import python_executor, reset_python_state
 from core.tools.read_files import read_files
-from core.tools.research_tools import literature_search_pubmed, protocol_search_sop
+from core.tools.research_tools import (
+    literature_search_librarian,
+    literature_search_litsense,
+    protocol_search_sop,
+)
 
 RESEARCH_TOOLS = [
-    literature_search_pubmed,
+    #literature_search_litsense,
+    literature_search_librarian,
     protocol_search_sop,
     search_disease_id,
     create_knowledge_graph,
@@ -97,12 +102,12 @@ PREDICTION_TOOLS = [
     predict_repurposedrugs,
 ]
 
-DATA_TOOLS = [python_executor, reset_python_state, read_files]
+DATA_TOOLS = [python_executor, reset_python_state, read_files, protocol_search_sop]
 
 REPORT_TOOLS = [read_files, python_executor]
 
 PLANNING_TOOLS = [
-    literature_search_pubmed,
+    literature_search_librarian,
     protocol_search_sop,
     read_files
 ]

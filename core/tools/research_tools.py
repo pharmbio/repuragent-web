@@ -1,18 +1,24 @@
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass
 from typing import Optional, List
 
 import requests
 from langchain_core.tools import tool
 
-from app.config import logger
+from app.config import LIBRARIAN_MAX_RESULTS, logger
+from backend.librarian_search import search_literature
+from backend.utils.cancellation import ExecutionCancelled
 from backend.sop_rag.config import RETRIEVAL_CONFIG
 from backend.sop_rag.sop_retriever import get_sop_retriever
 
 # The tool's default, and the retriever's, are the same number by construction.
 DEFAULT_SOP_RESULTS = RETRIEVAL_CONFIG["max_results"]
+# How many librarian passages reach the transcript. The pipeline's cost does not
+# depend on it, so it is a context budget rather than a search setting.
+DEFAULT_LIBRARIAN_RESULTS = LIBRARIAN_MAX_RESULTS
 
 @dataclass
 class LitSenseObject:
@@ -71,6 +77,85 @@ class PyLitSense:
         return results
 
 
+_MARKUP = re.compile(r"<[^>]+>")
+
+
+def _strip_markup(text: str) -> str:
+    '''Drop the inline markup Europe PMC leaves in a title or abstract.
+
+    Its abstracts are JATS-derived and carry the tags with them — a real passage
+    comes back as `<h4>Results</h4>The pooled analysis ...` and a heterogeneity
+    statistic as `<i>I</i> <sup>2</sup>`. Upstream passes them straight through,
+    and an agent told to quote its evidence verbatim would put them in the report.
+
+    Parameters:
+    ---------
+    text (str): the snippet or title as the librarian returned it.
+
+    Returns:
+    ----------
+    text (str): the same wording with tags removed and whitespace collapsed.
+    '''
+
+    return " ".join(_MARKUP.sub(" ", str(text or "")).split())
+
+
+def _short_authors(authors: str) -> str:
+    '''Shorten Europe PMC's author string to a citable "First A, et al.".
+
+    Parameters:
+    ---------
+    authors (str): the full comma-separated author string.
+
+    Returns:
+    ----------
+    authors (str): the first author, with "et al." when there were more. A consortium paper otherwise spends 40 lines of the transcript on names nobody reads.
+    '''
+
+    names = [name.strip() for name in str(authors or "").split(",") if name.strip()]
+    if not names:
+        return "Unknown authors"
+    return names[0] if len(names) == 1 else f"{names[0]}, et al."
+
+
+def _format_librarian_passages(passages) -> str:
+    '''Format librarian evidence passages for the agent.
+
+    Parameters:
+    ---------
+    passages (list): the passage dicts `search_literature` returned.
+
+    Returns:
+    ----------
+    text (str): one block per paper — its citation, its identifiers, and the sentences the relevance judge cited, which are what may be quoted.
+    '''
+
+    sections: List[str] = []
+    for idx, passage in enumerate(passages, start=1):
+        citation = " · ".join(
+            part for part in (passage.get("journal"), passage.get("year")) if part
+        )
+        identifiers = " | ".join(
+            f"{label}: {value}"
+            for label, value in (("PMID", passage.get("pmid")), ("DOI", passage.get("doi")))
+            if value
+        )
+        snippets = [clean for text in passage.get("evidence_snippets") or [] if (clean := _strip_markup(text))]
+        evidence = "\n".join(f"- {text}" for text in snippets) or "- (no sentence extracted)"
+
+        lines = [f"\n--- Passage #{idx} ---", f"Title: {_strip_markup(passage.get('title')) or 'No title'}"]
+        lines.append(f"Authors: {_short_authors(passage.get('authors'))}")
+        if citation:
+            lines.append(f"Published: {citation}")
+        if identifiers:
+            lines.append(identifiers)
+        lines.append("Full text read: " + ("yes" if passage.get("has_fulltext") else "abstract only"))
+        lines.append(f"Evidence:\n{evidence}\n")
+        sections.append("\n".join(lines))
+
+    return "\n".join(sections)
+
+
 def _format_sop_results(documents) -> str:
     '''Format SOP documents for display.
 
@@ -103,8 +188,9 @@ def _format_sop_results(documents) -> str:
     return "".join(result_lines)
 
 @tool
-def literature_search_pubmed(query: str, limit: int = 5) -> str:
-    '''Search scientific literature via the LitSense API.
+def literature_search_litsense(query: str, limit: int = 5) -> str:
+    '''Search PubMed passages via the LitSense API. Use it to check whether something has been reported, to confirm a fact 
+    in passing, or to find the wording a field uses before searching properly.
 
     Parameters:
     ---------
@@ -135,7 +221,43 @@ def literature_search_pubmed(query: str, limit: int = 5) -> str:
         return "".join(result_sections)
 
     except Exception as exc:  # pragma: no cover - external service call
-        logger.error("Error in literature_search_pubmed: %s", exc)
+        logger.error("Error in literature_search_litsense: %s", exc)
+        return f"Error retrieving literature for '{query}': {exc}. Please try again."
+
+
+@tool
+def literature_search_librarian(query: str, limit: int = DEFAULT_LIBRARIAN_RESULTS) -> str:
+    '''Answer a research question from the literature, with the EMBL AI Librarian
+    over Europe PMC. Use it to check whether something has been reported, to confirm a fact 
+    in passing, or to find the wording a field uses before searching properly.
+
+    Parameters:
+    ---------
+    query (str): the research question in natural language. Give it the whole question — the disease, the drug or target, and what you need to know about them — rather than keywords: it plans its own queries, and a bare keyword gives it nothing to plan from. Do not write Europe PMC field syntax yourself.
+    limit (int): how many papers' evidence to return. This bounds the result, not the work: the search costs the same either way, so lower it only when you need the transcript kept small.
+
+    Returns:
+    ----------
+    results (str): one block per paper — citation, PMID/DOI, and the evidence sentences, which are quotable verbatim. A message instead when the search found nothing.
+    '''
+
+    try:
+        passages = search_literature(query, limit=limit)
+
+        if not passages:
+            return (
+                f"No literature found for '{query}'. The question may be too narrow, or "
+                "phrased in terms the literature does not use — try it more broadly."
+            )
+
+        return _format_librarian_passages(passages)
+
+    except ExecutionCancelled:
+        # Propagate: the run is being torn down, and reporting Stop as a failed
+        # search would have the supervisor retry it.
+        raise
+    except Exception as exc:  # pragma: no cover - external service call
+        logger.error("Error in literature_search_librarian: %s", exc)
         return f"Error retrieving literature for '{query}': {exc}. Please try again."
 
 
@@ -171,9 +293,11 @@ def protocol_search_sop(query: str, max_results: int = DEFAULT_SOP_RESULTS) -> s
 
 
 __all__ = [
+    "DEFAULT_LIBRARIAN_RESULTS",
     "DEFAULT_SOP_RESULTS",
     "LitSenseObject",
     "PyLitSense",
-    "literature_search_pubmed",
+    "literature_search_librarian",
+    "literature_search_litsense",
     "protocol_search_sop",
 ]
