@@ -8,9 +8,9 @@ Drug repurposing offers an efficient strategy to accelerate therapeutic discover
   <img src="images/agent_architecture.png" width="500">
 </div>
 
-This repository is the **web application source code**. You can will need both OpenAPI API key and Postgres database inorder to run it. We also offer an instance at [Repuragent Web](https://repuragent.serve.scilifelab.se). This instances is currently run, an account is required, and resources are limited. Registration requests are verified and approved manually, so approval can take some time. 
+This repository is the **web application source code**. You will need both an OpenAI API key and a Postgres database in order to run it. We offer a hosted instance at [Repuragent Web](https://repuragent.serve.scilifelab.se). That instance is currently running; an account is required and resources are limited. Registration requests are verified and approved manually, so approval can take some time.
 
-We also offer a local version, which you can clone and run on your own machine. Every file, database and conversation history stays on your device. Please find its source code at [Repuragent Local on GitHub](https://github.com/pharmbio/repuragent).
+We also offer a local version, which you can clone and run on your own machine. Every file, database and conversation history stays on your device. You can find its source code at [Repuragent Local on GitHub](https://github.com/pharmbio/repuragent).
 
 ## Version announcement: Version 2
 
