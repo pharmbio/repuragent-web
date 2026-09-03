@@ -120,6 +120,14 @@ EPISODE_EXTRACTION_MODEL = os.environ.get("EPISODE_EXTRACTION_MODEL", "gpt-4o-mi
 SOP_IMAGE_DESCRIPTION_MODEL = os.environ.get("SOP_IMAGE_DESCRIPTION_MODEL", "gpt-5-mini-2025-08-07")
 SOP_EMBEDDING_MODEL = os.environ.get("SOP_EMBEDDING_MODEL", "text-embedding-3-large")
 
+# The EMBL AI Librarian (backend/librarian) plans its own sub-queries and judges
+# relevance, so it runs its own LLM against an OpenAI-compatible endpoint rather
+# than the OpenAI client the agents share. Upstream reads LLM_BASE_URL/LLM_MODEL
+# straight from the environment; they are named here instead so this file stays
+# the only place a model or an endpoint is chosen, and passed in explicitly.
+LIBRARIAN_LLM_BASE_URL = os.environ.get("LIBRARIAN_LLM_BASE_URL") or os.environ.get("LLM_BASE_URL")
+LIBRARIAN_MODEL = os.environ.get("LIBRARIAN_MODEL") or os.environ.get("LLM_MODEL")
+
 # Counts every superstep across the graph and its sub-agents, so roughly two per
 # model+tool exchange. A plan-driven repurposing run delegates to three
 # specialists many times over; 100 truncated those mid-execution.
@@ -257,6 +265,17 @@ FIGURE_AUTOSAVE = _bool_env("FIGURE_AUTOSAVE", True)
 READ_FILES_PREVIEW_THRESHOLD_CHARS = _int_env("READ_FILES_PREVIEW_THRESHOLD_CHARS", 60000)
 READ_FILES_PREVIEW_HEAD_LINES = _int_env("READ_FILES_PREVIEW_HEAD_LINES", 40)
 READ_FILES_PREVIEW_TAIL_LINES = _int_env("READ_FILES_PREVIEW_TAIL_LINES", 10)
+
+# Literature. `literature_search_litsense` is one ranked-passage request and
+# returns in seconds; `literature_search_librarian` is a whole retrieval pipeline
+# — a planning call, up to seven Europe PMC searches, a full-text fetch per
+# candidate paper and a batched relevance pass — and takes minutes. Its cost is
+# fixed by that pipeline, so the limit below only bounds how much of the result
+# reaches the transcript, not how long the call takes.
+LIBRARIAN_MAX_RESULTS = _int_env("LIBRARIAN_MAX_RESULTS", 10)
+# Fetching and BM25-ranking each candidate's full text is what the accuracy comes
+# from; turning it off falls back to abstract-only passages and is much faster.
+LIBRARIAN_FULL_TEXT = _bool_env("LIBRARIAN_FULL_TEXT", True)
 
 # CPSign (Java) ADMET models.
 CPSIGN_JAR = Path(os.environ.get("CPSIGN_JAR", MODELS_ROOT / "CPSign" / "cpsign-2.0.0-fatjar.jar"))

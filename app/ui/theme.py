@@ -581,6 +581,12 @@ APP_CSS = """
         font-weight: 700; color: var(--text-soft); margin-bottom: 0.45rem;
     }
     .tool-code-block pre { margin: 0; font-size: var(--fs-ui-sm); line-height: var(--lh-copy); background: transparent; white-space: pre; }
+    /* Retrieval results are shown in full rather than clipped, so the height is
+       bounded by scrolling instead. pre-wrap is the point of the variant: a
+       librarian passage is one extracted sentence per line and an SOP section is
+       reflowed PDF prose, both of which run off the right edge under `pre`. */
+    .tool-code-block--full { max-height: 32rem; overflow-y: auto; overscroll-behavior: contain; }
+    .tool-code-block--full pre { white-space: pre-wrap; overflow-wrap: break-word; }
 
     /* ---- Cards ------------------------------------------------------------- */
     .agent-error-card {

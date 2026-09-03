@@ -25,6 +25,19 @@ SUPPRESSED_TOOLS = {"plan_update", "plan_status"}
 
 MAX_INLINE_RESULT_CHARS = 4000
 
+# Retrieval tools whose result is shown in full, because the passage *is* the
+# finding. Clipping these to a head and a tail hid the middle of an SOP section
+# and every paper past the first, so the reader could not check the claim the
+# report was built on against what was actually retrieved. What the model is
+# handed is the whole result (`prune_tool_traffic` keeps the recent ones intact),
+# so anything less here shows the reader less than the agent read. The block
+# scrolls instead of clipping — see `.tool-code-block--full`.
+FULL_RESULT_TOOLS = {
+    "protocol_search_sop",
+    "literature_search_librarian",
+    "literature_search_litsense",
+}
+
 # The specialist each handoff targets, for a readable delegation line.
 _AGENT_LABELS = {
     "research_agent": "Research Agent",
@@ -220,9 +233,10 @@ def describe_call(tool_name: Optional[str], args: Any) -> ToolView:
                 break
         return ToolView(label=_KG_LABELS[name] + (f" · {detail}" if detail else ""))
 
-    if name == "literature_search_pubmed":
+    if name in {"literature_search_litsense", "literature_search_librarian"}:
         query = str(values.get("query") or "").strip()
-        return ToolView(label=f"Searched literature — {query[:70]}" if query else "Searched literature")
+        label = "Searched literature" if name == "literature_search_litsense" else "Searched the literature in depth"
+        return ToolView(label=f"{label} — {query[:70]}" if query else label)
 
     if name == "protocol_search_sop":
         query = str(values.get("query") or "").strip()
@@ -363,9 +377,10 @@ def _clip(text: str) -> str:
     return f"{text[:head]}\n\n… [{omitted:,} characters hidden] …\n\n{text[-tail:]}"
 
 
-def _code_block(content: str, *, language: str) -> str:
+def _code_block(content: str, *, language: str, full: bool = False) -> str:
+    classes = "tool-code-block tool-code-block--full" if full else "tool-code-block"
     return (
-        "<div class='tool-code-block'>"
+        f"<div class='{classes}'>"
         f"<div class='tool-code-label'>{escape(language.upper())}</div>"
         f"<pre>{escape(content)}</pre>"
         "</div>"
@@ -403,6 +418,13 @@ def render_call_body(tool_name: Optional[str], args: Any) -> str:
 def render_result_body(tool_name: Optional[str], result: Any) -> str:
     '''The expandable detail for a result, bounded so one dump cannot fill the page.
 
+    The bound is lifted for `FULL_RESULT_TOOLS`: for a retrieval tool the passage is
+    the finding, and a reader checking a cited claim needs the same text the agent
+    was handed rather than its first 2 800 and last 1 200 characters. Those blocks
+    scroll within a fixed height, so nothing is removed and nothing runs away with
+    the transcript. An error is still clipped whatever the tool — a stack trace has
+    no middle worth keeping.
+
     Parameters:
     ---------
     tool_name (str): the tool that finished.
@@ -410,7 +432,7 @@ def render_result_body(tool_name: Optional[str], result: Any) -> str:
 
     Returns:
     ----------
-    html (str): the expandable detail, bounded so one dump cannot fill the page.
+    html (str): the expandable detail, clipped for most tools and shown in full for the retrieval tools.
     '''
 
     result = coerce_result(result)
@@ -424,11 +446,15 @@ def render_result_body(tool_name: Optional[str], result: Any) -> str:
             parts.append(f"<p class='tool-recovery'>{escape(recovery)}</p>")
         return "".join(parts)
 
+    full = tool_name in FULL_RESULT_TOOLS
+    bound = (lambda text: text) if full else _clip
+
     if isinstance(result, (dict, list)):
-        return _code_block(_clip(json.dumps(result, indent=2, default=str)), language="json")
+        rendered = json.dumps(result, indent=2, default=str)
+        return _code_block(bound(rendered), language="json", full=full)
 
     text = str(result or "")
-    return _code_block(_clip(text), language="text") if text.strip() else ""
+    return _code_block(bound(text), language="text", full=full) if text.strip() else ""
 
 
 STATUS_MARK = {"running": "", "ok": "✓", "error": "✕"}
