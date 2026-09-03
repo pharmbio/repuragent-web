@@ -45,7 +45,7 @@ LLM_CONFIG = {
 # the only bound on a parent, and it is applied before figure descriptions are
 # written in — so a figure-heavy section can exceed it.
 CHILD_SPLITTER_CONFIG = {
-    "chunk_size": 400,
+    "chunk_size": 200,
     "chunk_overlap": 50,
 }
 
@@ -78,17 +78,17 @@ PDF_FALLBACK_STRATEGY = "fast"
 
 # EnsembleRetriever config
 ENSEMBLE_CONFIG = {
-    "bm25_weight": 0.4,
-    "dense_weight": 0.6,
-    "bm25_k1": 0.8,
-    "bm25_b": 0.3,
+    "bm25_weight": 0.6,
+    "dense_weight": 0.4,
+    "bm25_k1": 1.0,
+    "bm25_b": 0.75,
     "rrf_c": 60,
 }
 
 RETRIEVAL_CONFIG = {
     "search_type": "similarity",
-    "default_score_threshold": 0.3,
-    "fetch_k": 50,
-    "max_results": 5,
+    "default_score_threshold": 0.0,
+    "fetch_k": 20,
+    "max_results": 3,
     "fuse_func": "combsum",
 }
