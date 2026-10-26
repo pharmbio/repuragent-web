@@ -16,15 +16,29 @@ INTRO_IMAGE_ALT = "How Repuragent works: plan, approve, execute, report"
 
 TAGLINE = "An AI scientist for drug repurposing"
 
-HEADER_LINKS_HTML = (
-    "<div class='header-links-content'>"
-    f"<a class='header-link' href='{escape(GITHUB_URL, quote=True)}' target='_blank' "
-    "rel='noopener noreferrer'>GitHub</a>"
-    "<span class='header-link-divider' aria-hidden='true'>|</span>"
-    f"<a class='header-link' href='{escape(DOCS_URL, quote=True)}' target='_blank' "
-    "rel='noopener noreferrer'>User guide</a>"
-    "</div>"
-)
+def header_links_html() -> str:
+    '''Workspace | GitHub | User guide, with Workspace marked as the page being viewed.
+
+    Workspace is the app itself, so the injected script swallows a click on it:
+    following the link would reload the page, and a reload signs the user out.
+
+    Returns:
+    ----------
+    html (str): the header link bar.
+    '''
+
+    links = [
+        "<a class='header-link' href='/' target='_self' aria-current='page'>Workspace</a>",
+        f"<a class='header-link' href='{escape(GITHUB_URL, quote=True)}' target='_blank' "
+        "rel='noopener noreferrer'>GitHub</a>",
+        f"<a class='header-link' href='{escape(DOCS_URL, quote=True)}' target='_blank' "
+        "rel='noopener noreferrer'>User guide</a>",
+    ]
+    divider = "<span class='header-link-divider' aria-hidden='true'>|</span>"
+    return f"<div class='header-links-content'>{divider.join(links)}</div>"
+
+
+HEADER_LINKS_HTML = header_links_html()
 
 
 @lru_cache(maxsize=32)
@@ -111,6 +125,7 @@ __all__ = [
     "INTRO_IMAGE_PATH",
     "LOGO_PATH",
     "TAGLINE",
+    "header_links_html",
     "inline_image_src",
     "intro_markdown",
     "logo_html",

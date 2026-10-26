@@ -35,6 +35,7 @@ MAX_INLINE_RESULT_CHARS = 4000
 FULL_RESULT_TOOLS = {
     "protocol_search_sop",
     "literature_search_librarian",
+    "literature_search_librarian_ver2",
     "literature_search_litsense",
 }
 
@@ -233,7 +234,7 @@ def describe_call(tool_name: Optional[str], args: Any) -> ToolView:
                 break
         return ToolView(label=_KG_LABELS[name] + (f" · {detail}" if detail else ""))
 
-    if name in {"literature_search_litsense", "literature_search_librarian"}:
+    if name in {"literature_search_litsense", "literature_search_librarian", "literature_search_librarian_ver2"}:
         query = str(values.get("query") or "").strip()
         label = "Searched literature" if name == "literature_search_litsense" else "Searched the literature in depth"
         return ToolView(label=f"{label} — {query[:70]}" if query else label)

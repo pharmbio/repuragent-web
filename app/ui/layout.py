@@ -50,6 +50,8 @@ from app.ui.theme import APP_CSS, REPURAGENT_THEME
 def build_demo() -> gr.Blocks:
     with gr.Blocks(
         title=APP_TITLE,
+        # Without it Gradio caps the app at a stepped max-width and centres it.
+        fill_width=True,
         theme=REPURAGENT_THEME,
         css=APP_CSS,
         head=CONVERSATION_SCRIPT,
@@ -61,11 +63,11 @@ def build_demo() -> gr.Blocks:
             logo_markup = logo_html()
             if logo_markup:
                 with gr.Column(scale=0, min_width=96):
-                    gr.HTML(logo_markup, elem_id="app-logo")
+                    gr.HTML(logo_markup, elem_id="app-logo", padding=False)
             with gr.Column(scale=1):
-                gr.HTML(title_html(), elem_id="app-title")
-            with gr.Column(scale=0, min_width=240, elem_id="header-links-column"):
-                gr.HTML(HEADER_LINKS_HTML, elem_id="header-links")
+                gr.HTML(title_html(), elem_id="app-title", padding=False)
+            with gr.Column(scale=0, min_width=400, elem_id="header-links-column"):
+                gr.HTML(HEADER_LINKS_HTML, elem_id="header-links", padding=False)
 
         partner_panel = partner_logos_html()
         if partner_panel:

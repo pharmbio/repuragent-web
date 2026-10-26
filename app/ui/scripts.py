@@ -1,6 +1,6 @@
 '''Injected JavaScript.
 
-Three jobs, none of which Gradio can express declaratively:
+Four jobs, none of which Gradio can express declaratively:
 
 * **The action bus.** The sidebar is one `gr.HTML` block, so clicking a card or a
   delete button has no Gradio event to fire. Clicks are serialized into a hidden
@@ -8,6 +8,8 @@ Three jobs, none of which Gradio can express declaratively:
 * **Downloads via fetch.** A signed link opened directly would navigate the tab on
   an error response; fetching it into a blob keeps failures in the console and gives
   the file its real name.
+* **The Workspace link.** It names the page already on screen, so a click on it is
+  swallowed rather than reloading — which would sign the user out.
 * **Pinning the light theme.** These components have no dark variant, and the
   browser's preference used to leak through into half-styled panels.
 '''
@@ -205,6 +207,15 @@ CONVERSATION_SCRIPT = """
         bindHandlers();
         document.querySelectorAll("[data-partner-slider]").forEach(initPartnerSlider);
     }
+
+    // Workspace is the page already on screen. Following its link would reload,
+    // and a reload signs the user out; a modified click still opens a new tab.
+    document.addEventListener("click", function (event) {
+        const link = event.target.closest && event.target.closest("a.header-link[aria-current='page']");
+        if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
 
     ensureReady();
     // Gradio replaces DOM subtrees on every update, so handlers must be re-bound.
