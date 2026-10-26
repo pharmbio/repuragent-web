@@ -69,11 +69,12 @@ if FIGURE_AUTOSAVE:
     figure_capture.install()
 
 
+# Deliberately absent: the repository's own packages (`app`, `backend`, `core`,
+# which expose the interpreter internals and the credentials loaded in
+# `app.config`), host access (`os`, `sys`, `dotenv`), live-frame introspection
+# (`inspect`) and `pickle`, whose `loads` runs arbitrary code from an uploaded
+# file. Paths are handled with `pathlib`.
 DEFAULT_AUTHORIZED_IMPORTS = [
-    # the repository itself, so the agent can reuse project code
-    "app",
-    "backend",
-    "core",
     "pandas",
     "numpy",
     "scipy",
@@ -89,20 +90,16 @@ DEFAULT_AUTHORIZED_IMPORTS = [
     "pubchempy",
     "Bio",
     "asyncio",
-    "dotenv",
     "fuzzywuzzy",
     "httpx",
     "json",
     "ntpath",
-    "os",
     "pathlib",
     "posixpath",
     "requests",
     "sqlalchemy",
-    "sys",
     "textwrap",
     "pickle",
-    "inspect",
 ]
 AUTHORIZED_IMPORTS = sorted(set(BASE_BUILTIN_MODULES) | set(DEFAULT_AUTHORIZED_IMPORTS))
 
