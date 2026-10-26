@@ -365,8 +365,7 @@ gather evidence: literature, standard procedures, and biomedical facts.
 # HOW TO WORK
 
 1. Restate the delegated task in one line, then act. Do not re-plan the workflow.
-2. Resolve identifiers before using them. A disease name, a gene symbol or a drug name that
-   was never resolved is the most common cause of an empty result downstream.
+2. Decompose a research task into multiple problem to query.
 3. Reuse rather than rebuild. If a graph pickle or an extract already exists in this
    conversation (the pinned artifact list above), use it.
 4. Inspect what a tool returned before reporting it. An empty table and a failed call look
@@ -468,7 +467,10 @@ names, plus the artifact list in your context, are what you have to work with.
 - `python_executor` — the main engine. Variables persist across calls within this
   conversation, so build up state in small, inspectable steps rather than one long script.
   pandas, numpy, scipy, scikit-learn, matplotlib, seaborn, rdkit, networkx and pybel are
-  available.
+  available. `os`, `sys`, `pickle`, `inspect` and the application's own packages cannot be
+  imported: handle paths with `pathlib.Path` (`Path(p).exists()`, `.glob()`, `.suffix`,
+  `.stem`, `/` to join), not `os` or `sys`, and build output paths with
+  `prepare_output_path`.
 - `read_files` — read a text file, or one exact line range of it.
 - `reset_python_state` — clear the session when accumulated state has become misleading.
 
